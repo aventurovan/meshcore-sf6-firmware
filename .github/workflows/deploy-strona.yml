@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 2
       - name: PHP lint
         run: |
-          sudo apt-get install -y -qq php-cli >/dev/null
+          command -v php >/dev/null || { sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq php-cli >/dev/null; }
           find strona -name '*.php' -print0 | xargs -0 -n1 php -l | grep -v "No syntax errors" || true
           ! find strona -name '*.php' -print0 | xargs -0 -n1 php -l 2>&1 | grep -q "Parse error"
       - name: FTP (tylko wgrywanie, nic nie jest kasowane na serwerze)
@@ -29,7 +29,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: ${{ secrets.FTP_DIR }}
         run: |
-          sudo apt-get install -y -qq lftp >/dev/null
+          command -v lftp >/dev/null || { sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq lftp >/dev/null; }
           L="set ftp:ssl-allow yes; set ssl:verify-certificate no; set net:max-retries 3; set net:timeout 30"
           # pliki .md (instrukcje) zostają tylko w repo
           lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$L; mirror -R --verbose --parallel=4 --exclude-glob *.md strona/ ${FTP_DIR%/}/; bye"

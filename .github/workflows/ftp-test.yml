@@ -31,7 +31,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: ${{ secrets.FTP_DIR }}
         run: |
-          sudo apt-get install -y -qq lftp >/dev/null
+          command -v lftp >/dev/null || { sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq lftp >/dev/null; }
           ROOT="${FTP_DIR%/}"; FTP_DIR="$ROOT/flasher"   # FTP_DIR = katalog główny strony
           # sprzątanie po starej wersji testu (plik w katalogu głównym)
           lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; rm -f ${ROOT:-.}/ftp-test.txt; bye" >/dev/null 2>&1 || true
