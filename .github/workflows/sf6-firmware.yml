@@ -1,0 +1,163 @@
+name: Firmware SF6
+
+on:
+  schedule:
+    - cron: "23 */3 * * *"   # co 3 godziny sprawdza nowe oficjalne wydania
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Zbuduj ponownie, nawet jeśli ta wersja już jest"
+        type: boolean
+        default: false
+      only:
+        description: "Tylko wybrane role (np. repeater companion room-server). Puste = wszystkie"
+        default: ""
+      test_targets:
+        description: "Test: tylko te płytki (np. Heltec_v3_repeater RAK_4631_repeater). Bez wydania i FTP"
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sf6-firmware
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.plan.outputs.builds }}
+      chunks: ${{ steps.plan.outputs.chunks }}
+      any: ${{ steps.plan.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: sf6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q platformio
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force || 'false' }}
+          ONLY: ${{ inputs.only }}
+          TEST_TARGETS: ${{ inputs.test_targets }}
+        run: python3 sf6/scripts/plan.py
+
+  build:
+    needs: plan
+    if: needs.plan.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include: ${{ fromJson(needs.plan.outputs.chunks) }}
+    name: ${{ matrix.type }} ${{ matrix.version }} (${{ matrix.idx }})
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: sf6
+      - uses: actions/checkout@v4
+        with:
+          repository: meshcore-dev/MeshCore
+          ref: ${{ matrix.tag }}
+          path: mc
+      - name: Ustawienia SF6
+        run: python3 sf6/scripts/apply-sf6.py sf6/sf6.conf mc
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: pio-${{ runner.os }}-${{ hashFiles('mc/platformio.ini') }}
+          restore-keys: pio-${{ runner.os }}-
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q platformio
+      - name: Build
+        working-directory: mc
+        env:
+          FIRMWARE_VERSION: ${{ matrix.version }}-sf6
+          DISABLE_DEBUG: "1"
+        run: |
+          bash build.sh build-firmware ${{ matrix.envs }}
+          echo "Zbudowane pliki:"; ls out
+          missing=""
+          for e in ${{ matrix.envs }}; do ls out | grep -q "^$e-" || missing="$missing $e"; done
+          if [ -n "$missing" ]; then echo "::warning::Nie zbudowały się:$missing"; fi
+          [ -n "$(ls out)" ] || { echo "::error::Brak plików"; exit 1; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fw-${{ matrix.type }}-${{ matrix.idx }}
+          path: mc/out
+          retention-days: 7
+
+  publish:
+    needs: [plan, build]
+    if: always() && needs.plan.outputs.any == 'true' && needs.build.result != 'cancelled'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: art
+      - name: Wydania i manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILDS: ${{ needs.plan.outputs.builds }}
+          TEST: ${{ inputs.test_targets && 'true' || 'false' }}
+        run: |
+          set -e
+          mkdir -p site
+          for row in $(echo "$BUILDS" | jq -c '.[]'); do
+            t=$(echo "$row" | jq -r .type); v=$(echo "$row" | jq -r .version); tag=$(echo "$row" | jq -r .tag)
+            dir="site/firmware/$t/$v"; mkdir -p "$dir"
+            find art -path "art/fw-$t-*" -type f -exec cp {} "$dir/" \;
+            n=$(ls "$dir" | wc -l)
+            echo "$t $v: $n plików"
+            [ "$n" -gt 0 ] || { echo "::error::$t: brak plików"; exit 1; }
+            python3 scripts/manifest.py index "$t" "$v" "$tag" "$dir"
+            if [ "$TEST" != "true" ]; then
+              rel="sf6-$t-$v"
+              gh release delete "$rel" -y --cleanup-tag 2>/dev/null || true
+              gh release create "$rel" --title "SF6 $t $v" --notes "Oficjalny MeshCore \`$tag\` z ustawieniami MeshCore Południe SF6 (sf6.conf). Plików: $n." --target "$GITHUB_SHA"
+              ls "$dir"/* | xargs -n 40 gh release upload "$rel" --clobber
+            fi
+          done
+          python3 scripts/manifest.py build site
+      - name: Zapis indeksu w repo
+        if: ${{ !inputs.test_targets }}
+        run: |
+          git config user.name "sf6-bot"; git config user.email "sf6-bot@users.noreply.github.com"
+          git add index
+          git diff --cached --quiet || { git commit -m "Indeks firmware: $(ls index | tr '\n' ' ')"; git pull --rebase -q; git push; }
+      - name: Wgranie na stronę (FTP)
+        if: ${{ !inputs.test_targets }}
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          BUILDS: ${{ needs.plan.outputs.builds }}
+        run: |
+          if [ -z "$FTP_HOST" ]; then echo "::warning::Brak sekretów FTP – pomijam wgrywanie"; exit 0; fi
+          sudo apt-get install -y -qq lftp >/dev/null
+          LFTP="set ftp:ssl-allow yes; set ssl:verify-certificate no; set net:max-retries 3; set net:timeout 30"
+          # najpierw pliki firmware, na końcu manifest – flasher nigdy nie wskaże brakującego pliku
+          lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$LFTP; mirror -R --parallel=4 --exclude manifest.json site/ $FTP_DIR/; put site/manifest.json -o $FTP_DIR/manifest.json; bye"
+          # sprzątanie starych wersji na serwerze
+          for row in $(echo "$BUILDS" | jq -c '.[]'); do
+            t=$(echo "$row" | jq -r .type); v=$(echo "$row" | jq -r .version)
+            for old in $(lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$LFTP; cls -1 $FTP_DIR/firmware/$t/; bye" | xargs -n1 basename | grep -v "^$v$" || true); do
+              echo "Usuwam starą wersję $t/$old"
+              lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$LFTP; rm -r $FTP_DIR/firmware/$t/$old; bye" || true
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manifest
+          path: site/manifest.json
