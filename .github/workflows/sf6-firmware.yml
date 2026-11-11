@@ -160,9 +160,10 @@ jobs:
         run: |
           if [ -z "$FTP_HOST" ]; then echo "::warning::Brak sekretów FTP – pomijam wgrywanie"; exit 0; fi
           sudo apt-get install -y -qq lftp >/dev/null
+          FTP_DIR="${FTP_DIR%/}/flasher"   # FTP_DIR = katalog główny strony
           LFTP="set ftp:ssl-allow yes; set ssl:verify-certificate no; set net:max-retries 3; set net:timeout 30"
           # najpierw pliki firmware, na końcu manifest – flasher nigdy nie wskaże brakującego pliku
-          lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$LFTP; mirror -R --parallel=4 --exclude manifest.json site/ $FTP_DIR/; put site/manifest.json -o $FTP_DIR/manifest.json; bye"
+          lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$LFTP; mkdir -p $FTP_DIR; mirror -R --parallel=4 --exclude manifest.json site/ $FTP_DIR/; put site/manifest.json -o $FTP_DIR/manifest.json; bye"
           # sprzątanie starych wersji na serwerze
           for row in $(echo "$BUILDS" | jq -c '.[]'); do
             t=$(echo "$row" | jq -r .type); v=$(echo "$row" | jq -r .version)

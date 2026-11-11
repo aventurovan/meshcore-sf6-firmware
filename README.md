@@ -25,5 +25,5 @@ Własne nazwy płytek we flasherze: `names.json`, np. `{ "Heltec_v3": "Heltec Wi
 
 ## Sekrety (Settings → Secrets and variables → Actions)
 
-`FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `FTP_DIR` (katalog flashera na serwerze, np. `/public_html/flasher`).
+`FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `FTP_DIR` (katalog główny strony na FTP, np. `/`; pliki trafiają do `<FTP_DIR>/flasher/`).
 Bez nich buildy i wydania działają, pomijane jest tylko wgrywanie na stronę.
