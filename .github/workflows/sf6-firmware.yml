@@ -31,12 +31,12 @@ jobs:
       chunks: ${{ steps.plan.outputs.chunks }}
       any: ${{ steps.plan.outputs.any }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: sf6
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - run: pip install -q platformio
       - id: plan
         env:
@@ -57,26 +57,26 @@ jobs:
         include: ${{ fromJson(needs.plan.outputs.chunks) }}
     name: ${{ matrix.type }} ${{ matrix.version }} (${{ matrix.idx }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: sf6
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: meshcore-dev/MeshCore
           ref: ${{ matrix.tag }}
           path: mc
       - name: Ustawienia SF6
         run: python3 sf6/scripts/apply-sf6.py sf6/sf6.conf mc
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
           key: pio-${{ runner.os }}-${{ hashFiles('mc/platformio.ini') }}
           restore-keys: pio-${{ runner.os }}-
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - run: pip install -q platformio
       - name: Build
         working-directory: mc
@@ -84,16 +84,29 @@ jobs:
           FIRMWARE_VERSION: ${{ matrix.version }}-sf6
           DISABLE_DEBUG: "1"
         run: |
-          bash build.sh build-firmware ${{ matrix.envs }}
-          echo "Zbudowane pliki:"; ls out
-          missing=""
-          for e in ${{ matrix.envs }}; do ls out | grep -q "^$e-" || missing="$missing $e"; done
-          if [ -n "$missing" ]; then echo "::warning::Nie zbudowały się:$missing"; fi
-          [ -n "$(ls out)" ] || { echo "::error::Brak plików"; exit 1; }
-      - uses: actions/upload-artifact@v4
+          mkdir -p ../logs
+          failed=""
+          for e in ${{ matrix.envs }}; do
+            echo "::group::$e"
+            # build.sh czyści out/ przy starcie, więc pliki zbieramy po każdej płytce
+            if bash build.sh build-firmware "$e" > "../logs/$e.log" 2>&1 && ls out | grep -q "^$e-"; then
+              mkdir -p ../out && cp out/* ../out/
+              echo "OK $e"
+            else
+              failed="$failed $e"
+              tail -n 60 "../logs/$e.log"
+              msg=$(grep -iE "error|fail" "../logs/$e.log" | grep -v "RADIOLIB\|Werror" | tail -n 8 | sed ':a;N;$!ba;s/\n/%0A/g')
+              echo "::error title=$e::${msg:-build nie powiódł się}"
+            fi
+            echo "::endgroup::"
+          done
+          echo "Zbudowane pliki:"; ls ../out 2>/dev/null || true
+          if [ -n "$failed" ]; then echo "::warning::Nie zbudowały się:$failed"; fi
+          [ -n "$(ls ../out 2>/dev/null)" ] || { echo "::error::Brak plików"; exit 1; }
+      - uses: actions/upload-artifact@v7
         with:
           name: fw-${{ matrix.type }}-${{ matrix.idx }}
-          path: mc/out
+          path: out
           retention-days: 7
 
   publish:
@@ -101,8 +114,8 @@ jobs:
     if: always() && needs.plan.outputs.any == 'true' && needs.build.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           path: art
       - name: Wydania i manifest
@@ -157,7 +170,7 @@ jobs:
               lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$LFTP; rm -r $FTP_DIR/firmware/$t/$old; bye" || true
             done
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: manifest
           path: site/manifest.json
