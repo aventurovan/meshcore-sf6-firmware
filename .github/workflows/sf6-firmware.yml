@@ -82,7 +82,6 @@ jobs:
         working-directory: mc
         env:
           FIRMWARE_VERSION: ${{ matrix.version }}-sf6
-          DISABLE_DEBUG: "1"
         run: |
           mkdir -p ../logs
           failed=""
