@@ -2,7 +2,7 @@
  "type": "repeater",
  "version": "v1.18.0",
  "upstream": "repeater-v1.18.0",
- "built": "2026-11-11T13:41:28Z",
+ "built": "2026-11-11T14:17:13Z",
  "targets": {
   "Ebyte_EoRa-S3_Repeater": {
    "device": "Ebyte_EoRa-S3",
@@ -514,6 +514,14 @@
    "files": {
     "merged": "firmware/repeater/v1.18.0/ThinkNode_M7_repeater-v1.18.0-sf6-81dbae5-merged.bin",
     "bin": "firmware/repeater/v1.18.0/ThinkNode_M7_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M8_repeater": {
+   "device": "ThinkNode_M8",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ThinkNode_M8_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ThinkNode_M8_repeater-v1.18.0-sf6-81dbae5.zip"
    }
   },
   "Tiny_Relay_repeater": {

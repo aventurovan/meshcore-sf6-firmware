@@ -2,7 +2,7 @@
  "type": "room-server",
  "version": "v1.18.0",
  "upstream": "room-server-v1.18.0",
- "built": "2026-11-11T13:42:52Z",
+ "built": "2026-11-11T14:17:50Z",
  "targets": {
   "Ebyte_EoRa-S3_room_server": {
    "device": "Ebyte_EoRa-S3",
@@ -434,6 +434,14 @@
    "files": {
     "merged": "firmware/room-server/v1.18.0/ThinkNode_M7_room_server-v1.18.0-sf6-81dbae5-merged.bin",
     "bin": "firmware/room-server/v1.18.0/ThinkNode_M7_room_server-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M8_room_server": {
+   "device": "ThinkNode_M8",
+   "role": "room_server",
+   "files": {
+    "uf2": "firmware/room-server/v1.18.0/ThinkNode_M8_room_server-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/room-server/v1.18.0/ThinkNode_M8_room_server-v1.18.0-sf6-81dbae5.zip"
    }
   },
   "Waveshare_S3_LR1121_room_server": {
