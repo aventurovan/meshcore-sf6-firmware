@@ -2,7 +2,7 @@ name: Firmware SF6
 
 on:
   schedule:
-    - cron: "23 */3 * * *"   # co 3 godziny sprawdza nowe oficjalne wydania
+    - cron: "23 3 * * *"   # raz dziennie (ok. 4:23 / 5:23 czasu polskiego) sprawdza nowe oficjalne wydania
   workflow_dispatch:
     inputs:
       force:

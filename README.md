@@ -8,7 +8,7 @@ Flasher: https://meshcoresouth.pl/flasher.php
 
 ## Jak to działa
 
-1. Co 3 godziny workflow sprawdza najnowsze oficjalne tagi `repeater-v*`, `companion-v*`, `room-server-v*`.
+1. Raz dziennie (rano) workflow sprawdza najnowsze oficjalne tagi `repeater-v*`, `companion-v*`, `room-server-v*`.
 2. Jeśli dla danej roli nie ma jeszcze wydania `sf6-<rola>-vX.Y.Z`, pobiera źródła z tego tagu,
    nakłada `sf6.conf` (`scripts/apply-sf6.py`) i buduje **wszystkie** płytki oficjalnym `build.sh`.
 3. Publikuje wydanie na GitHubie, zapisuje `index/<rola>.json` i wgrywa pliki + `manifest.json` przez FTP na stronę.
