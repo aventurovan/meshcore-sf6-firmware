@@ -96,7 +96,7 @@ jobs:
             else
               failed="$failed $e"
               tail -n 60 "../logs/$e.log"
-              msg=$(grep -iE "error|fail" "../logs/$e.log" | grep -v "RADIOLIB\|Werror" | tail -n 8 | sed ':a;N;$!ba;s/\n/%0A/g')
+              msg=$(grep -iE "error|fail|overflow|undefined reference|multiple definition|region" "../logs/$e.log" | grep -v "RADIOLIB\|Werror" | tail -n 14 | sed ':a;N;$!ba;s/\n/%0A/g')
               echo "::error title=$e::${msg:-build nie powiódł się}"
             fi
             echo "::endgroup::"
