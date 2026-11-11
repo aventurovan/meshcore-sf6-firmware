@@ -82,6 +82,8 @@ jobs:
         working-directory: mc
         env:
           FIRMWARE_VERSION: ${{ matrix.version }}-sf6
+          # nordicnrf52 v11 przestał definiować CFG_DEBUG, a framework MeshCore go wymaga
+          PLATFORMIO_BUILD_FLAGS: "-DCFG_DEBUG=0"
         run: |
           mkdir -p ../logs
           failed=""
