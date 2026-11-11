@@ -1,0 +1,1367 @@
+{
+ "type": "companion",
+ "version": "v1.18.0",
+ "upstream": "companion-v1.18.0",
+ "built": "2026-11-11T13:41:59Z",
+ "targets": {
+  "Ebyte_EoRa-S3_companion_radio_ble": {
+   "device": "Ebyte_EoRa-S3",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Ebyte_EoRa-S3_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Ebyte_EoRa-S3_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Ebyte_EoRa-S3_companion_radio_usb": {
+   "device": "Ebyte_EoRa-S3",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Ebyte_EoRa-S3_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Ebyte_EoRa-S3_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "GAT562_30S_Mesh_Kit_companion_radio_ble": {
+   "device": "GAT562_30S_Mesh_Kit",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/GAT562_30S_Mesh_Kit_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/GAT562_30S_Mesh_Kit_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "GAT562_30S_Mesh_Kit_companion_radio_usb": {
+   "device": "GAT562_30S_Mesh_Kit",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/GAT562_30S_Mesh_Kit_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/GAT562_30S_Mesh_Kit_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "GAT562_Mesh_Tracker_Pro_companion_radio_ble": {
+   "device": "GAT562_Mesh_Tracker_Pro",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/GAT562_Mesh_Tracker_Pro_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/GAT562_Mesh_Tracker_Pro_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "GAT562_Mesh_Tracker_Pro_companion_radio_usb": {
+   "device": "GAT562_Mesh_Tracker_Pro",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/GAT562_Mesh_Tracker_Pro_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/GAT562_Mesh_Tracker_Pro_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "GAT562_Mesh_Watch13_companion_radio_ble": {
+   "device": "GAT562_Mesh_Watch13",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/GAT562_Mesh_Watch13_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/GAT562_Mesh_Watch13_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_E213_companion_radio_ble": {
+   "device": "Heltec_E213",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_E213_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_E213_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_E213_companion_radio_usb": {
+   "device": "Heltec_E213",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_E213_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_E213_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_WSL3_companion_radio_ble": {
+   "device": "Heltec_WSL3",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_WSL3_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_WSL3_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_WSL3_companion_radio_usb": {
+   "device": "Heltec_WSL3",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_WSL3_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_WSL3_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_Wireless_Paper_companion_radio_ble": {
+   "device": "Heltec_Wireless_Paper",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_Wireless_Paper_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_Wireless_Paper_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_Wireless_Paper_companion_radio_usb": {
+   "device": "Heltec_Wireless_Paper",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_Wireless_Paper_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_Wireless_Paper_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_Wireless_Tracker_companion_radio_ble": {
+   "device": "Heltec_Wireless_Tracker",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_Wireless_Tracker_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_Wireless_Tracker_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_Wireless_Tracker_companion_radio_usb": {
+   "device": "Heltec_Wireless_Tracker",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_Wireless_Tracker_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_Wireless_Tracker_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_ct62_companion_radio_ble": {
+   "device": "Heltec_ct62",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_ct62_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_ct62_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_ct62_companion_radio_usb": {
+   "device": "Heltec_ct62",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_ct62_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_ct62_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_t096_companion_radio_ble": {
+   "device": "Heltec_t096",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t096_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t096_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t096_companion_radio_usb": {
+   "device": "Heltec_t096",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t096_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t096_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t114_companion_radio_ble": {
+   "device": "Heltec_t114",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t114_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t114_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t114_companion_radio_usb": {
+   "device": "Heltec_t114",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t114_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t114_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t114_without_display_companion_radio_ble": {
+   "device": "Heltec_t114_without_display",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t114_without_display_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t114_without_display_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t114_without_display_companion_radio_usb": {
+   "device": "Heltec_t114_without_display",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t114_without_display_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t114_without_display_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t1_companion_radio_ble": {
+   "device": "Heltec_t1",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t1_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t1_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t1_companion_radio_usb": {
+   "device": "Heltec_t1",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_t1_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_t1_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_tower_v2_companion_radio_ble": {
+   "device": "Heltec_tower_v2",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_tower_v2_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_tower_v2_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_tower_v2_companion_radio_usb": {
+   "device": "Heltec_tower_v2",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Heltec_tower_v2_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Heltec_tower_v2_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_v2_companion_radio_ble": {
+   "device": "Heltec_v2",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_v2_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_v2_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_v2_companion_radio_usb": {
+   "device": "Heltec_v2",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_v2_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_v2_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_v3_companion_radio_ble": {
+   "device": "Heltec_v3",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_v3_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_v3_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_v3_companion_radio_usb": {
+   "device": "Heltec_v3",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Heltec_v3_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Heltec_v3_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "KeepteenLT1_companion_radio_ble": {
+   "device": "KeepteenLT1",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/KeepteenLT1_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/KeepteenLT1_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "KeepteenLT1_companion_radio_usb": {
+   "device": "KeepteenLT1",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/KeepteenLT1_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/KeepteenLT1_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo-Lite_companion_radio_ble": {
+   "device": "LilyGo_T-Echo-Lite",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo-Lite_companion_radio_usb": {
+   "device": "LilyGo_T-Echo-Lite",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo-Lite_non_shell_companion_radio_ble": {
+   "device": "LilyGo_T-Echo-Lite_non_shell",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_non_shell_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_non_shell_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo-Lite_non_shell_companion_radio_usb": {
+   "device": "LilyGo_T-Echo-Lite_non_shell",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_non_shell_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo-Lite_non_shell_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo_Card_companion_radio_ble": {
+   "device": "LilyGo_T-Echo_Card",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo_Card_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo_Card_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo_Card_companion_radio_usb": {
+   "device": "LilyGo_T-Echo_Card",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo_Card_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo_Card_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo_companion_radio_ble": {
+   "device": "LilyGo_T-Echo",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo_companion_radio_usb": {
+   "device": "LilyGo_T-Echo",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T-Echo_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T-Echo_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T3S3_sx1262_companion_radio_ble": {
+   "device": "LilyGo_T3S3_sx1262",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1262_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1262_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_T3S3_sx1262_companion_radio_usb": {
+   "device": "LilyGo_T3S3_sx1262",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1262_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1262_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_T3S3_sx1276_companion_radio_ble": {
+   "device": "LilyGo_T3S3_sx1276",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1276_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1276_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_T3S3_sx1276_companion_radio_usb": {
+   "device": "LilyGo_T3S3_sx1276",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1276_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_T3S3_sx1276_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TBeam_1W_companion_radio_ble": {
+   "device": "LilyGo_TBeam_1W",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TBeam_1W_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TBeam_1W_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TBeam_1W_companion_radio_usb": {
+   "device": "LilyGo_TBeam_1W",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TBeam_1W_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TBeam_1W_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TDeck_companion_radio_ble": {
+   "device": "LilyGo_TDeck",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TDeck_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TDeck_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TDeck_companion_radio_usb": {
+   "device": "LilyGo_TDeck",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TDeck_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TDeck_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TETH_Elite_sx1262_companion_radio_ble": {
+   "device": "LilyGo_TETH_Elite_sx1262",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TETH_Elite_sx1262_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TETH_Elite_sx1262_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TETH_Elite_sx1262_companion_radio_usb": {
+   "device": "LilyGo_TETH_Elite_sx1262",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TETH_Elite_sx1262_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TETH_Elite_sx1262_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TLora_V2_1_1_6_companion_radio_ble": {
+   "device": "LilyGo_TLora_V2_1_1_6",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TLora_V2_1_1_6_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TLora_V2_1_1_6_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TLora_V2_1_1_6_companion_radio_usb": {
+   "device": "LilyGo_TLora_V2_1_1_6",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/LilyGo_TLora_V2_1_1_6_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/LilyGo_TLora_V2_1_1_6_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_T_Impulse_Plus_companion_radio_ble": {
+   "device": "LilyGo_T_Impulse_Plus",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/LilyGo_T_Impulse_Plus_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/LilyGo_T_Impulse_Plus_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "M5Stack_Unit_C6L_companion_radio_ble": {
+   "device": "M5Stack_Unit_C6L",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/M5Stack_Unit_C6L_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/M5Stack_Unit_C6L_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "M5Stack_Unit_C6L_companion_radio_usb": {
+   "device": "M5Stack_Unit_C6L",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/M5Stack_Unit_C6L_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/M5Stack_Unit_C6L_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "MeshTracker_X1_companion_radio_ble": {
+   "device": "MeshTracker_X1",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/MeshTracker_X1_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/MeshTracker_X1_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "MeshTracker_X1_companion_radio_usb": {
+   "device": "MeshTracker_X1",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/MeshTracker_X1_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/MeshTracker_X1_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Mesh_pocket_companion_radio_ble": {
+   "device": "Mesh_pocket",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Mesh_pocket_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Mesh_pocket_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Mesh_pocket_companion_radio_usb": {
+   "device": "Mesh_pocket",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Mesh_pocket_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Mesh_pocket_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Meshadventurer_sx1262_companion_radio_ble": {
+   "device": "Meshadventurer_sx1262",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Meshadventurer_sx1262_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Meshadventurer_sx1262_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Meshadventurer_sx1262_companion_radio_usb": {
+   "device": "Meshadventurer_sx1262",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Meshadventurer_sx1262_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Meshadventurer_sx1262_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Meshadventurer_sx1268_companion_radio_ble": {
+   "device": "Meshadventurer_sx1268",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Meshadventurer_sx1268_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Meshadventurer_sx1268_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Meshadventurer_sx1268_companion_radio_usb": {
+   "device": "Meshadventurer_sx1268",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Meshadventurer_sx1268_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Meshadventurer_sx1268_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Meshtiny_companion_radio_ble": {
+   "device": "Meshtiny",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Meshtiny_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Meshtiny_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Meshtiny_companion_radio_usb": {
+   "device": "Meshtiny",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Meshtiny_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Meshtiny_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Minewsemi_me25ls01_companion_radio_ble": {
+   "device": "Minewsemi_me25ls01",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Minewsemi_me25ls01_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Minewsemi_me25ls01_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Minewsemi_me25ls01_companion_radio_usb": {
+   "device": "Minewsemi_me25ls01",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Minewsemi_me25ls01_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Minewsemi_me25ls01_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Nano_G2_Ultra_companion_radio_ble": {
+   "device": "Nano_G2_Ultra",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Nano_G2_Ultra_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Nano_G2_Ultra_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Nano_G2_Ultra_companion_radio_usb": {
+   "device": "Nano_G2_Ultra",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Nano_G2_Ultra_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Nano_G2_Ultra_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "PicoW_companion_radio_ble": {
+   "device": "PicoW",
+   "role": "companion_ble",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/PicoW_companion_radio_ble-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/companion/v1.18.0/PicoW_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "PicoW_companion_radio_usb": {
+   "device": "PicoW",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/PicoW_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/companion/v1.18.0/PicoW_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "ProMicro_companion_radio_ble": {
+   "device": "ProMicro",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ProMicro_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ProMicro_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ProMicro_companion_radio_usb": {
+   "device": "ProMicro",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ProMicro_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ProMicro_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "R1Neo_companion_radio_ble": {
+   "device": "R1Neo",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/R1Neo_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/R1Neo_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "R1Neo_companion_radio_usb": {
+   "device": "R1Neo",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/R1Neo_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/R1Neo_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_11310_companion_radio_usb": {
+   "device": "RAK_11310",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/RAK_11310_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/companion/v1.18.0/RAK_11310_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "RAK_3112_companion_radio_ble": {
+   "device": "RAK_3112",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/RAK_3112_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/RAK_3112_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "RAK_3112_companion_radio_usb": {
+   "device": "RAK_3112",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/RAK_3112_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/RAK_3112_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "RAK_3401_companion_radio_ble": {
+   "device": "RAK_3401",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/RAK_3401_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/RAK_3401_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_3401_companion_radio_usb": {
+   "device": "RAK_3401",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/RAK_3401_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/RAK_3401_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_3x72_companion_radio_usb": {
+   "device": "RAK_3x72",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/RAK_3x72_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/companion/v1.18.0/RAK_3x72_companion_radio_usb-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "RAK_4631_companion_radio_ble": {
+   "device": "RAK_4631",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/RAK_4631_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/RAK_4631_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_4631_companion_radio_usb": {
+   "device": "RAK_4631",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/RAK_4631_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/RAK_4631_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_WisMesh_Tag_companion_radio_ble": {
+   "device": "RAK_WisMesh_Tag",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/RAK_WisMesh_Tag_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/RAK_WisMesh_Tag_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_WisMesh_Tag_companion_radio_usb": {
+   "device": "RAK_WisMesh_Tag",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/RAK_WisMesh_Tag_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/RAK_WisMesh_Tag_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "SenseCap_Solar_companion_radio_ble": {
+   "device": "SenseCap_Solar",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/SenseCap_Solar_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/SenseCap_Solar_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "SenseCap_Solar_companion_radio_usb": {
+   "device": "SenseCap_Solar",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/SenseCap_Solar_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/SenseCap_Solar_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Station_G2_companion_radio_usb": {
+   "device": "Station_G2",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Station_G2_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Station_G2_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Station_G3_ESP32_companion_radio_usb": {
+   "device": "Station_G3_ESP32",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Station_G3_ESP32_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Station_G3_ESP32_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "T_Beam_S3_Supreme_SX1262_companion_radio_ble": {
+   "device": "T_Beam_S3_Supreme_SX1262",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/T_Beam_S3_Supreme_SX1262_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/T_Beam_S3_Supreme_SX1262_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tbeam_SX1262_companion_radio_ble": {
+   "device": "Tbeam_SX1262",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Tbeam_SX1262_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Tbeam_SX1262_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tbeam_SX1276_companion_radio_ble": {
+   "device": "Tbeam_SX1276",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Tbeam_SX1276_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Tbeam_SX1276_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M1_companion_radio_ble": {
+   "device": "ThinkNode_M1",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M1_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M1_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M1_companion_radio_usb": {
+   "device": "ThinkNode_M1",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M1_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M1_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M2_companion_radio_ble": {
+   "device": "ThinkNode_M2",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/ThinkNode_M2_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/ThinkNode_M2_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M2_companion_radio_usb": {
+   "device": "ThinkNode_M2",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/ThinkNode_M2_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/ThinkNode_M2_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M3_companion_radio_ble": {
+   "device": "ThinkNode_M3",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M3_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M3_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M3_companion_radio_usb": {
+   "device": "ThinkNode_M3",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M3_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M3_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M4_companion_radio_ble": {
+   "device": "ThinkNode_M4",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M4_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M4_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M4_companion_radio_usb": {
+   "device": "ThinkNode_M4",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M4_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M4_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M5_companion_radio_ble": {
+   "device": "ThinkNode_M5",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/ThinkNode_M5_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/ThinkNode_M5_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M5_companion_radio_usb": {
+   "device": "ThinkNode_M5",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/ThinkNode_M5_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/ThinkNode_M5_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M6_companion_radio_ble": {
+   "device": "ThinkNode_M6",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M6_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M6_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M6_companion_radio_usb": {
+   "device": "ThinkNode_M6",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M6_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M6_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M7_companion_radio_ble": {
+   "device": "ThinkNode_M7",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/ThinkNode_M7_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/ThinkNode_M7_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M7_companion_radio_usb": {
+   "device": "ThinkNode_M7",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/ThinkNode_M7_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/ThinkNode_M7_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M8_companion_radio_ble": {
+   "device": "ThinkNode_M8",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M8_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M8_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M8_companion_radio_usb": {
+   "device": "ThinkNode_M8",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ThinkNode_M8_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ThinkNode_M8_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Tiny_Relay_companion_radio_usb": {
+   "device": "Tiny_Relay",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/Tiny_Relay_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/companion/v1.18.0/Tiny_Relay_companion_radio_usb-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "Waveshare_S3_LR1121_companion_radio_ble": {
+   "device": "Waveshare_S3_LR1121",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Waveshare_S3_LR1121_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Waveshare_S3_LR1121_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Waveshare_S3_LR1121_companion_radio_usb": {
+   "device": "Waveshare_S3_LR1121",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Waveshare_S3_LR1121_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Waveshare_S3_LR1121_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "WioTrackerL1-1W_companion_radio_ble": {
+   "device": "WioTrackerL1-1W",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/WioTrackerL1-1W_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/WioTrackerL1-1W_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "WioTrackerL1-1W_companion_radio_usb": {
+   "device": "WioTrackerL1-1W",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/WioTrackerL1-1W_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/WioTrackerL1-1W_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "WioTrackerL1Eink_companion_radio_ble": {
+   "device": "WioTrackerL1Eink",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/WioTrackerL1Eink_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/WioTrackerL1Eink_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "WioTrackerL1_companion_radio_ble": {
+   "device": "WioTrackerL1",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/WioTrackerL1_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/WioTrackerL1_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "WioTrackerL1_companion_radio_usb": {
+   "device": "WioTrackerL1",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/WioTrackerL1_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/WioTrackerL1_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Xiao_C3_companion_radio_ble": {
+   "device": "Xiao_C3",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Xiao_C3_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Xiao_C3_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_C3_companion_radio_usb": {
+   "device": "Xiao_C3",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Xiao_C3_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Xiao_C3_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_S3_WIO_companion_radio_ble": {
+   "device": "Xiao_S3_WIO",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Xiao_S3_WIO_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Xiao_S3_WIO_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_S3_WIO_companion_radio_usb": {
+   "device": "Xiao_S3_WIO",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Xiao_S3_WIO_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Xiao_S3_WIO_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_S3_companion_radio_ble": {
+   "device": "Xiao_S3",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Xiao_S3_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Xiao_S3_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_S3_companion_radio_usb": {
+   "device": "Xiao_S3",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/Xiao_S3_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/Xiao_S3_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_nrf52_companion_radio_ble": {
+   "device": "Xiao_nrf52",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Xiao_nrf52_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Xiao_nrf52_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Xiao_nrf52_companion_radio_usb": {
+   "device": "Xiao_nrf52",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/Xiao_nrf52_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/Xiao_nrf52_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Xiao_rp2040_companion_radio_usb": {
+   "device": "Xiao_rp2040",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/Xiao_rp2040_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/companion/v1.18.0/Xiao_rp2040_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "heltec_rc32_companion_radio_ble": {
+   "device": "heltec_rc32",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_rc32_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_rc32_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_rc32_companion_radio_usb": {
+   "device": "heltec_rc32",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_rc32_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_rc32_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_rc32_without_display_companion_radio_ble": {
+   "device": "heltec_rc32_without_display",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_rc32_without_display_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_rc32_without_display_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_rc32_without_display_companion_radio_usb": {
+   "device": "heltec_rc32_without_display",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_rc32_without_display_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_rc32_without_display_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_tracker_v2_companion_radio_ble": {
+   "device": "heltec_tracker_v2",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_tracker_v2_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_tracker_v2_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_tracker_v2_companion_radio_usb": {
+   "device": "heltec_tracker_v2",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_tracker_v2_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_tracker_v2_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_companion_radio_ble": {
+   "device": "heltec_v4",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_companion_radio_usb": {
+   "device": "heltec_v4",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_r8_companion_radio_ble": {
+   "device": "heltec_v4_r8",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_r8_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_r8_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_r8_companion_radio_usb": {
+   "device": "heltec_v4_r8",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_r8_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_r8_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_r8_tft_companion_radio_ble": {
+   "device": "heltec_v4_r8_tft",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_r8_tft_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_r8_tft_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_r8_tft_companion_radio_usb": {
+   "device": "heltec_v4_r8_tft",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_r8_tft_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_r8_tft_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_tft_companion_radio_ble": {
+   "device": "heltec_v4_tft",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_tft_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_tft_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_tft_companion_radio_usb": {
+   "device": "heltec_v4_tft",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/heltec_v4_tft_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/heltec_v4_tft_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ikoka_handheld_nrf_e22_30dbm_096_companion_radio_ble": {
+   "device": "ikoka_handheld_nrf_e22_30dbm_096",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_handheld_nrf_e22_30dbm_096_companion_radio_usb": {
+   "device": "ikoka_handheld_nrf_e22_30dbm_096",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_handheld_nrf_e22_30dbm_096_rotated_companion_radio_ble": {
+   "device": "ikoka_handheld_nrf_e22_30dbm_096_rotated",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_rotated_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_rotated_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_handheld_nrf_e22_30dbm_096_rotated_companion_radio_usb": {
+   "device": "ikoka_handheld_nrf_e22_30dbm_096_rotated",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_rotated_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_handheld_nrf_e22_30dbm_096_rotated_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_22dbm_companion_radio_ble": {
+   "device": "ikoka_nano_nrf_22dbm",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_nano_nrf_22dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_nano_nrf_22dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_22dbm_companion_radio_usb": {
+   "device": "ikoka_nano_nrf_22dbm",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_nano_nrf_22dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_nano_nrf_22dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_30dbm_companion_radio_ble": {
+   "device": "ikoka_nano_nrf_30dbm",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_nano_nrf_30dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_nano_nrf_30dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_30dbm_companion_radio_usb": {
+   "device": "ikoka_nano_nrf_30dbm",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_nano_nrf_30dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_nano_nrf_30dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_33dbm_companion_radio_ble": {
+   "device": "ikoka_nano_nrf_33dbm",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_nano_nrf_33dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_nano_nrf_33dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_33dbm_companion_radio_usb": {
+   "device": "ikoka_nano_nrf_33dbm",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_nano_nrf_33dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_nano_nrf_33dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_22dbm_companion_radio_ble": {
+   "device": "ikoka_stick_nrf_22dbm",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_stick_nrf_22dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_stick_nrf_22dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_22dbm_companion_radio_usb": {
+   "device": "ikoka_stick_nrf_22dbm",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_stick_nrf_22dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_stick_nrf_22dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_30dbm_companion_radio_ble": {
+   "device": "ikoka_stick_nrf_30dbm",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_stick_nrf_30dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_stick_nrf_30dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_30dbm_companion_radio_usb": {
+   "device": "ikoka_stick_nrf_30dbm",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_stick_nrf_30dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_stick_nrf_30dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_33dbm_companion_radio_ble": {
+   "device": "ikoka_stick_nrf_33dbm",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_stick_nrf_33dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_stick_nrf_33dbm_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_33dbm_companion_radio_usb": {
+   "device": "ikoka_stick_nrf_33dbm",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/ikoka_stick_nrf_33dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/ikoka_stick_nrf_33dbm_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "meshnology_w12_companion_radio_ble": {
+   "device": "meshnology_w12",
+   "role": "companion_ble",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/meshnology_w12_companion_radio_ble-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/meshnology_w12_companion_radio_ble-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "meshnology_w12_companion_radio_usb": {
+   "device": "meshnology_w12",
+   "role": "companion_usb",
+   "files": {
+    "merged": "firmware/companion/v1.18.0/meshnology_w12_companion_radio_usb-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/companion/v1.18.0/meshnology_w12_companion_radio_usb-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "muzi_base_duo_companion_radio_ble": {
+   "device": "muzi_base_duo",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/muzi_base_duo_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/muzi_base_duo_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "muzi_base_duo_companion_radio_usb": {
+   "device": "muzi_base_duo",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/muzi_base_duo_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/muzi_base_duo_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "muzi_base_duo_superIO_companion_radio_ble": {
+   "device": "muzi_base_duo_superIO",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/muzi_base_duo_superIO_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/muzi_base_duo_superIO_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "muzi_base_uno_companion_radio_ble": {
+   "device": "muzi_base_uno",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/muzi_base_uno_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/muzi_base_uno_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "muzi_base_uno_companion_radio_usb": {
+   "device": "muzi_base_uno",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/muzi_base_uno_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/muzi_base_uno_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "muzi_base_uno_superIO_companion_radio_ble": {
+   "device": "muzi_base_uno_superIO",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/muzi_base_uno_superIO_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/muzi_base_uno_superIO_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "t1000e_companion_radio_ble": {
+   "device": "t1000e",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/t1000e_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/t1000e_companion_radio_ble-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "t1000e_companion_radio_usb": {
+   "device": "t1000e",
+   "role": "companion_usb",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/t1000e_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/companion/v1.18.0/t1000e_companion_radio_usb-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "waveshare_rp2040_lora_companion_radio_usb": {
+   "device": "waveshare_rp2040_lora",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/waveshare_rp2040_lora_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/companion/v1.18.0/waveshare_rp2040_lora_companion_radio_usb-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "wio-e5-mini_companion_radio_usb": {
+   "device": "wio-e5-mini",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/wio-e5-mini_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/companion/v1.18.0/wio-e5-mini_companion_radio_usb-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "wio-e5_companion_radio_usb": {
+   "device": "wio-e5",
+   "role": "companion_usb",
+   "files": {
+    "bin": "firmware/companion/v1.18.0/wio-e5_companion_radio_usb-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/companion/v1.18.0/wio-e5_companion_radio_usb-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "wio_wm1110_companion_radio_ble": {
+   "device": "wio_wm1110",
+   "role": "companion_ble",
+   "files": {
+    "uf2": "firmware/companion/v1.18.0/wio_wm1110_companion_radio_ble-v1.18.0-sf6-81dbae5.uf2"
+   }
+  }
+ }
+}

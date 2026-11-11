@@ -1,0 +1,775 @@
+{
+ "type": "repeater",
+ "version": "v1.18.0",
+ "upstream": "repeater-v1.18.0",
+ "built": "2026-11-11T13:41:28Z",
+ "targets": {
+  "Ebyte_EoRa-S3_Repeater": {
+   "device": "Ebyte_EoRa-S3",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Ebyte_EoRa-S3_Repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Ebyte_EoRa-S3_Repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "GAT562_30S_Mesh_Kit_repeater": {
+   "device": "GAT562_30S_Mesh_Kit",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/GAT562_30S_Mesh_Kit_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/GAT562_30S_Mesh_Kit_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "GAT562_Mesh_EVB_Pro_repeater": {
+   "device": "GAT562_Mesh_EVB_Pro",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/GAT562_Mesh_EVB_Pro_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/GAT562_Mesh_EVB_Pro_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "GAT562_Mesh_Tracker_Pro_repeater": {
+   "device": "GAT562_Mesh_Tracker_Pro",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/GAT562_Mesh_Tracker_Pro_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/GAT562_Mesh_Tracker_Pro_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Generic_E22_sx1262_repeater": {
+   "device": "Generic_E22_sx1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Generic_E22_sx1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Generic_E22_sx1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Generic_E22_sx1268_repeater": {
+   "device": "Generic_E22_sx1268",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Generic_E22_sx1268_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Generic_E22_sx1268_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_E213_repeater": {
+   "device": "Heltec_E213",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_E213_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_E213_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_E290_repeater": {
+   "device": "Heltec_E290",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_E290_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_E290_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_WSL3_repeater": {
+   "device": "Heltec_WSL3",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_WSL3_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_WSL3_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_Wireless_Paper_repeater": {
+   "device": "Heltec_Wireless_Paper",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_Wireless_Paper_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_Wireless_Paper_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_Wireless_Tracker_repeater": {
+   "device": "Heltec_Wireless_Tracker",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_Wireless_Tracker_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_Wireless_Tracker_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_ct62_repeater": {
+   "device": "Heltec_ct62",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_ct62_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_ct62_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_mesh_solar_repeater": {
+   "device": "Heltec_mesh_solar",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Heltec_mesh_solar_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Heltec_mesh_solar_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t096_repeater": {
+   "device": "Heltec_t096",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Heltec_t096_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Heltec_t096_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t114_repeater": {
+   "device": "Heltec_t114",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Heltec_t114_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Heltec_t114_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t114_without_display_repeater": {
+   "device": "Heltec_t114_without_display",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Heltec_t114_without_display_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Heltec_t114_without_display_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_t1_repeater": {
+   "device": "Heltec_t1",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Heltec_t1_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Heltec_t1_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_tower_v2_repeater": {
+   "device": "Heltec_tower_v2",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Heltec_tower_v2_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Heltec_tower_v2_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Heltec_v2_repeater": {
+   "device": "Heltec_v2",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_v2_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_v2_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Heltec_v3_repeater": {
+   "device": "Heltec_v3",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Heltec_v3_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Heltec_v3_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "KeepteenLT1_repeater": {
+   "device": "KeepteenLT1",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/KeepteenLT1_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/KeepteenLT1_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo-Lite_repeater": {
+   "device": "LilyGo_T-Echo-Lite",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/LilyGo_T-Echo-Lite_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/LilyGo_T-Echo-Lite_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo_Card_repeater": {
+   "device": "LilyGo_T-Echo_Card",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/LilyGo_T-Echo_Card_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/LilyGo_T-Echo_Card_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T-Echo_repeater": {
+   "device": "LilyGo_T-Echo",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/LilyGo_T-Echo_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/LilyGo_T-Echo_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "LilyGo_T3S3_sx1262_repeater": {
+   "device": "LilyGo_T3S3_sx1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/LilyGo_T3S3_sx1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/LilyGo_T3S3_sx1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_T3S3_sx1276_repeater": {
+   "device": "LilyGo_T3S3_sx1276",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/LilyGo_T3S3_sx1276_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/LilyGo_T3S3_sx1276_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TBeam_1W_repeater": {
+   "device": "LilyGo_TBeam_1W",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/LilyGo_TBeam_1W_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/LilyGo_TBeam_1W_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TDeck_repeater": {
+   "device": "LilyGo_TDeck",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/LilyGo_TDeck_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/LilyGo_TDeck_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TETH_Elite_sx1262_repeater": {
+   "device": "LilyGo_TETH_Elite_sx1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/LilyGo_TETH_Elite_sx1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/LilyGo_TETH_Elite_sx1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_TLora_V2_1_1_6_repeater": {
+   "device": "LilyGo_TLora_V2_1_1_6",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/LilyGo_TLora_V2_1_1_6_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/LilyGo_TLora_V2_1_1_6_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "LilyGo_T_Impulse_Plus_repeater": {
+   "device": "LilyGo_T_Impulse_Plus",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/LilyGo_T_Impulse_Plus_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/LilyGo_T_Impulse_Plus_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "M5Stack_Unit_C6L_repeater": {
+   "device": "M5Stack_Unit_C6L",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/M5Stack_Unit_C6L_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/M5Stack_Unit_C6L_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "MeshTracker_X1_repeater": {
+   "device": "MeshTracker_X1",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/MeshTracker_X1_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/MeshTracker_X1_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Mesh_pocket_repeater": {
+   "device": "Mesh_pocket",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Mesh_pocket_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Mesh_pocket_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Meshadventurer_sx1262_repeater": {
+   "device": "Meshadventurer_sx1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Meshadventurer_sx1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Meshadventurer_sx1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Meshadventurer_sx1268_repeater": {
+   "device": "Meshadventurer_sx1268",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Meshadventurer_sx1268_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Meshadventurer_sx1268_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Minewsemi_me25ls01_repeater": {
+   "device": "Minewsemi_me25ls01",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Minewsemi_me25ls01_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Minewsemi_me25ls01_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Nano_G2_Ultra_repeater": {
+   "device": "Nano_G2_Ultra",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Nano_G2_Ultra_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Nano_G2_Ultra_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "PicoW_repeater": {
+   "device": "PicoW",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/PicoW_repeater-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/repeater/v1.18.0/PicoW_repeater-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "ProMicro_repeater": {
+   "device": "ProMicro",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ProMicro_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ProMicro_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "R1Neo_repeater": {
+   "device": "R1Neo",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/R1Neo_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/R1Neo_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_11310_repeater": {
+   "device": "RAK_11310",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/RAK_11310_repeater-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/repeater/v1.18.0/RAK_11310_repeater-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "RAK_3112_repeater": {
+   "device": "RAK_3112",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/RAK_3112_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/RAK_3112_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "RAK_3401_repeater": {
+   "device": "RAK_3401",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/RAK_3401_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/RAK_3401_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_3x72_repeater": {
+   "device": "RAK_3x72",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/RAK_3x72_repeater-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/repeater/v1.18.0/RAK_3x72_repeater-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "RAK_4631_repeater": {
+   "device": "RAK_4631",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/RAK_4631_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/RAK_4631_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "RAK_WisMesh_Tag_repeater": {
+   "device": "RAK_WisMesh_Tag",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/RAK_WisMesh_Tag_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/RAK_WisMesh_Tag_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "SenseCap_Solar_repeater": {
+   "device": "SenseCap_Solar",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/SenseCap_Solar_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/SenseCap_Solar_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Station_G2_logging_repeater": {
+   "device": "Station_G2_logging",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Station_G2_logging_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Station_G2_logging_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Station_G2_repeater": {
+   "device": "Station_G2",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Station_G2_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Station_G2_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Station_G3_ESP32_logging_repeater": {
+   "device": "Station_G3_ESP32_logging",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Station_G3_ESP32_logging_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Station_G3_ESP32_logging_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Station_G3_ESP32_repeater": {
+   "device": "Station_G3_ESP32",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Station_G3_ESP32_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Station_G3_ESP32_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "T_Beam_S3_Supreme_SX1262_repeater": {
+   "device": "T_Beam_S3_Supreme_SX1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/T_Beam_S3_Supreme_SX1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/T_Beam_S3_Supreme_SX1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tbeam_SX1262_repeater": {
+   "device": "Tbeam_SX1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Tbeam_SX1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Tbeam_SX1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tbeam_SX1276_repeater": {
+   "device": "Tbeam_SX1276",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Tbeam_SX1276_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Tbeam_SX1276_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tenstar_C3_sx1262_repeater": {
+   "device": "Tenstar_C3_sx1262",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Tenstar_C3_sx1262_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Tenstar_C3_sx1262_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tenstar_C3_sx1268_repeater": {
+   "device": "Tenstar_C3_sx1268",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Tenstar_C3_sx1268_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Tenstar_C3_sx1268_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M1_repeater": {
+   "device": "ThinkNode_M1",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ThinkNode_M1_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ThinkNode_M1_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M2_Repeater": {
+   "device": "ThinkNode_M2",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/ThinkNode_M2_Repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/ThinkNode_M2_Repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M3_repeater": {
+   "device": "ThinkNode_M3",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ThinkNode_M3_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ThinkNode_M3_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M4_repeater": {
+   "device": "ThinkNode_M4",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ThinkNode_M4_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ThinkNode_M4_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M5_Repeater": {
+   "device": "ThinkNode_M5",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/ThinkNode_M5_Repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/ThinkNode_M5_Repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ThinkNode_M6_repeater": {
+   "device": "ThinkNode_M6",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ThinkNode_M6_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ThinkNode_M6_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ThinkNode_M7_repeater": {
+   "device": "ThinkNode_M7",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/ThinkNode_M7_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/ThinkNode_M7_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Tiny_Relay_repeater": {
+   "device": "Tiny_Relay",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/Tiny_Relay_repeater-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/repeater/v1.18.0/Tiny_Relay_repeater-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "Waveshare_S3_LR1121_repeater": {
+   "device": "Waveshare_S3_LR1121",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Waveshare_S3_LR1121_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Waveshare_S3_LR1121_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "WioTrackerL1-1W_repeater": {
+   "device": "WioTrackerL1-1W",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/WioTrackerL1-1W_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/WioTrackerL1-1W_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "WioTrackerL1_repeater": {
+   "device": "WioTrackerL1",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/WioTrackerL1_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/WioTrackerL1_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Xiao_C3_repeater": {
+   "device": "Xiao_C3",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Xiao_C3_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Xiao_C3_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_S3_WIO_repeater": {
+   "device": "Xiao_S3_WIO",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Xiao_S3_WIO_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Xiao_S3_WIO_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_S3_repeater": {
+   "device": "Xiao_S3",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/Xiao_S3_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/Xiao_S3_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "Xiao_nrf52_repeater": {
+   "device": "Xiao_nrf52",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/Xiao_nrf52_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/Xiao_nrf52_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "Xiao_rp2040_repeater": {
+   "device": "Xiao_rp2040",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/Xiao_rp2040_repeater-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/repeater/v1.18.0/Xiao_rp2040_repeater-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "heltec_rc32_repeater": {
+   "device": "heltec_rc32",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_rc32_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_rc32_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_rc32_without_display_repeater": {
+   "device": "heltec_rc32_without_display",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_rc32_without_display_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_rc32_without_display_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_tracker_v2_repeater": {
+   "device": "heltec_tracker_v2",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_tracker_v2_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_tracker_v2_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_expansionkit_repeater": {
+   "device": "heltec_v4_expansionkit",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_v4_expansionkit_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_v4_expansionkit_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_r8_repeater": {
+   "device": "heltec_v4_r8",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_v4_r8_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_v4_r8_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_r8_tft_repeater": {
+   "device": "heltec_v4_r8_tft",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_v4_r8_tft_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_v4_r8_tft_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_repeater": {
+   "device": "heltec_v4",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_v4_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_v4_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "heltec_v4_tft_repeater": {
+   "device": "heltec_v4_tft",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/heltec_v4_tft_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/heltec_v4_tft_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "ikoka_handheld_nrf_e22_30dbm_repeater": {
+   "device": "ikoka_handheld_nrf_e22_30dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_handheld_nrf_e22_30dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_handheld_nrf_e22_30dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_22dbm_repeater": {
+   "device": "ikoka_nano_nrf_22dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_nano_nrf_22dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_nano_nrf_22dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_30dbm_repeater": {
+   "device": "ikoka_nano_nrf_30dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_nano_nrf_30dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_nano_nrf_30dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_nano_nrf_33dbm_repeater": {
+   "device": "ikoka_nano_nrf_33dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_nano_nrf_33dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_nano_nrf_33dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_22dbm_repeater": {
+   "device": "ikoka_stick_nrf_22dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_stick_nrf_22dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_stick_nrf_22dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_30dbm_repeater": {
+   "device": "ikoka_stick_nrf_30dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_stick_nrf_30dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_stick_nrf_30dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "ikoka_stick_nrf_33dbm_repeater": {
+   "device": "ikoka_stick_nrf_33dbm",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/ikoka_stick_nrf_33dbm_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/ikoka_stick_nrf_33dbm_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "meshnology_w12_repeater": {
+   "device": "meshnology_w12",
+   "role": "repeater",
+   "files": {
+    "merged": "firmware/repeater/v1.18.0/meshnology_w12_repeater-v1.18.0-sf6-81dbae5-merged.bin",
+    "bin": "firmware/repeater/v1.18.0/meshnology_w12_repeater-v1.18.0-sf6-81dbae5.bin"
+   }
+  },
+  "muzi_base_duo_repeater": {
+   "device": "muzi_base_duo",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/muzi_base_duo_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/muzi_base_duo_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "muzi_base_uno_repeater": {
+   "device": "muzi_base_uno",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/muzi_base_uno_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/muzi_base_uno_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "t1000e_repeater": {
+   "device": "t1000e",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/t1000e_repeater-v1.18.0-sf6-81dbae5.uf2",
+    "zip": "firmware/repeater/v1.18.0/t1000e_repeater-v1.18.0-sf6-81dbae5.zip"
+   }
+  },
+  "waveshare_rp2040_lora_repeater": {
+   "device": "waveshare_rp2040_lora",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/waveshare_rp2040_lora_repeater-v1.18.0-sf6-81dbae5.bin",
+    "uf2": "firmware/repeater/v1.18.0/waveshare_rp2040_lora_repeater-v1.18.0-sf6-81dbae5.uf2"
+   }
+  },
+  "wio-e5-mini_repeater": {
+   "device": "wio-e5-mini",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/wio-e5-mini_repeater-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/repeater/v1.18.0/wio-e5-mini_repeater-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "wio-e5_repeater": {
+   "device": "wio-e5",
+   "role": "repeater",
+   "files": {
+    "bin": "firmware/repeater/v1.18.0/wio-e5_repeater-v1.18.0-sf6-81dbae5.bin",
+    "hex": "firmware/repeater/v1.18.0/wio-e5_repeater-v1.18.0-sf6-81dbae5.hex"
+   }
+  },
+  "wio_wm1110_repeater": {
+   "device": "wio_wm1110",
+   "role": "repeater",
+   "files": {
+    "uf2": "firmware/repeater/v1.18.0/wio_wm1110_repeater-v1.18.0-sf6-81dbae5.uf2"
+   }
+  }
+ }
+}
