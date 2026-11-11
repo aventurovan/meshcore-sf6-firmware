@@ -11,6 +11,7 @@ jobs:
   ftp:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
       - name: Sekrety
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
@@ -31,18 +32,10 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: ${{ secrets.FTP_DIR }}
         run: |
-          command -v lftp >/dev/null || { sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq lftp >/dev/null; }
-          ROOT="${FTP_DIR%/}"; FTP_DIR="$ROOT/flasher"   # FTP_DIR = katalog główny strony
-          # sprzątanie po starej wersji testu (plik w katalogu głównym)
-          lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; rm -f ${ROOT:-.}/ftp-test.txt; bye" >/dev/null 2>&1 || true
-          echo "sf6-ftp-test $(date -u +%FT%TZ) $GITHUB_RUN_ID" > ftp-test.txt
-          L="set ftp:ssl-allow yes; set ssl:verify-certificate no; set net:max-retries 2; set net:timeout 20"
-          if ! out=$(lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$L; pwd; mkdir -p $FTP_DIR; cd $FTP_DIR && put ftp-test.txt && cls -l; bye" 2>&1); then
-            echo "$out"
-            echo "::error::FTP nie działa: $(echo "$out" | tail -n 3 | tr '\n' ' ')"
-            exit 1
-          fi
-          echo "$out"
+          DEST="${FTP_DIR%/}/flasher"
+          python3 scripts/ftp_sync.py rm "${FTP_DIR%/}/ftp-test.txt"
+          mkdir -p t && echo "sf6-ftp-test $(date -u +%FT%TZ) $GITHUB_RUN_ID" > t/ftp-test.txt
+          python3 scripts/ftp_sync.py upload t "$DEST"
           echo "::notice::FTP OK – zapisano ftp-test.txt w folderze flasher"
       - name: Czy plik jest widoczny na stronie
         run: |
@@ -63,4 +56,4 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: ${{ secrets.FTP_DIR }}
         run: |
-          lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; rm -f ${FTP_DIR%/}/flasher/ftp-test.txt; bye" && echo "::notice::Plik testowy usunięty"
+          python3 scripts/ftp_sync.py rm "${FTP_DIR%/}/flasher/ftp-test.txt" && echo "::notice::Plik testowy usunięty"

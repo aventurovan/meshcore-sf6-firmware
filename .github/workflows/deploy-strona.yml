@@ -29,8 +29,5 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: ${{ secrets.FTP_DIR }}
         run: |
-          command -v lftp >/dev/null || { sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq lftp >/dev/null; }
-          L="set ftp:ssl-allow yes; set ssl:verify-certificate no; set net:max-retries 3; set net:timeout 30"
-          # pliki .md (instrukcje) zostają tylko w repo
-          lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" -e "$L; mirror -R --verbose --parallel=4 --exclude-glob *.md strona/ ${FTP_DIR%/}/; bye"
+          python3 scripts/ftp_sync.py upload strona "${FTP_DIR:-/}" --exclude '*.md'
           echo "::notice::Strona wgrana. Zmienione w tym commicie: $(git diff --name-only HEAD~1 HEAD -- strona | sed 's#^strona/##' | tr '\n' ' ')"
