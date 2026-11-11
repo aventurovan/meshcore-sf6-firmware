@@ -2,7 +2,7 @@
  "type": "room-server",
  "version": "v1.18.0",
  "upstream": "room-server-v1.18.0",
- "built": "2026-11-11T14:17:50Z",
+ "built": "2026-11-11T14:26:31Z",
  "targets": {
   "Ebyte_EoRa-S3_room_server": {
    "device": "Ebyte_EoRa-S3",

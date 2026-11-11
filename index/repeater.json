@@ -2,7 +2,7 @@
  "type": "repeater",
  "version": "v1.18.0",
  "upstream": "repeater-v1.18.0",
- "built": "2026-11-11T14:17:13Z",
+ "built": "2026-11-11T14:25:42Z",
  "targets": {
   "Ebyte_EoRa-S3_Repeater": {
    "device": "Ebyte_EoRa-S3",
