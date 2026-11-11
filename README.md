@@ -27,3 +27,9 @@ Własne nazwy płytek we flasherze: `names.json`, np. `{ "Heltec_v3": "Heltec Wi
 
 `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `FTP_DIR` (katalog główny strony na FTP, np. `/`; pliki trafiają do `<FTP_DIR>/flasher/`).
 Bez nich buildy i wydania działają, pomijane jest tylko wgrywanie na stronę.
+
+## Strona meshcoresouth.pl (`strona/`)
+
+Folder `strona/` to pełny kod strony. Każdy push zmieniający coś w `strona/` uruchamia **Wgraj stronę**:
+lint PHP i wgranie przez FTP do katalogu głównego strony (`FTP_DIR`). Na serwerze nic nie jest kasowane,
+pliki `.md` nie są wgrywane. Opis projektu: `strona/PRZEKAZANIE.md`.
