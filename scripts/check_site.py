@@ -52,10 +52,14 @@ if man:
 
     def head(item):
         did, role, k, p = item
+        url = f"{SITE}/flasher/{p}"
         try:
-            st, h, _ = req(f"{SITE}/flasher/{p}", method="HEAD")
-            size = int(h.get("Content-Length") or 0)
-            return None if size > 0 else f"{p}: pusty plik"
+            st, h, _ = req(url, method="HEAD")
+            if int(h.get("Content-Length") or 0) > 0:
+                return None
+            # brak długości w nagłówku – sprawdzamy faktyczną zawartość
+            st, h, body = req(url)
+            return None if len(body) > 0 else f"{p}: pusty plik (0 B)"
         except Exception as e:
             return f"{p}: {e}"
     with ThreadPoolExecutor(16) as ex:
@@ -104,6 +108,9 @@ if man:
 
 for w in warnings: print(f"::warning::{w}")
 for e in errors: print(f"::error::{e}")
+enc = lambda lines: "%0A".join(l.replace("%", "%25") for l in lines)
+print("::notice title=Podsumowanie::" + enc(summary))
+if errors: print(f"::error title=Wszystkie błędy ({len(errors)})::" + enc(errors))
 report = "\n".join(["## Kontrola strony i firmware", "", *[f"- {s}" for s in summary],
                     *([""] + ["**Błędy:**"] + [f"- {e}" for e in errors] if errors else ["", "**Bez błędów.**"]),
                     *([""] + ["Ostrzeżenia:"] + [f"- {w}" for w in warnings] if warnings else [])])
