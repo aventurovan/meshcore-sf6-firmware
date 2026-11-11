@@ -144,9 +144,17 @@ jobs:
             python3 scripts/manifest.py index "$t" "$v" "$tag" "$dir"
             if [ "$TEST" != "true" ]; then
               rel="sf6-$t-$v"
-              gh release delete "$rel" --repo "$GITHUB_REPOSITORY" -y --cleanup-tag 2>/dev/null || true
-              gh release create "$rel" --repo "$GITHUB_REPOSITORY" --title "SF6 $t $v" --notes "Oficjalny MeshCore \`$tag\` z ustawieniami MeshCore Południe SF6 (sf6.conf). Plików: $n." --target "$GITHUB_SHA"
+              notes="Oficjalny MeshCore \`$tag\` z ustawieniami MeshCore Południe SF6 (sf6.conf). Plików: $n."
+              if gh release view "$rel" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+                gh release edit "$rel" --repo "$GITHUB_REPOSITORY" --notes "$notes"
+              else
+                gh release create "$rel" --repo "$GITHUB_REPOSITORY" --title "SF6 $t $v" --notes "$notes" --target "$GITHUB_SHA"
+              fi
               ls "$dir"/* | xargs -n 40 gh release upload "$rel" --repo "$GITHUB_REPOSITORY" --clobber
+              # usuń z wydania pliki, których nie ma w nowym buildzie
+              for a in $(gh release view "$rel" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].name'); do
+                [ -f "$dir/$a" ] || gh release delete-asset "$rel" "$a" --repo "$GITHUB_REPOSITORY" -y
+              done
             fi
           done
           python3 scripts/manifest.py build site
