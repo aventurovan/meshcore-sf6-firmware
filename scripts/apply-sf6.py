@@ -87,4 +87,29 @@ if pb:
     if mode not in (0, 1, 2): die("PATH_HASH_BYTES musi być 1, 2 albo 3")
     edit("src/helpers/CommonCLI.h", r"(uint8_t\s+path_hash_mode\s*=\s*)\d+\s*;", rf"\g<1>{mode};", expect=1)
 
+print("Poprawki buildu (nie zmieniają działania firmware):")
+# Część wariantów używa EnvironmentSensorManager w target.h, ale niektóre role nie mają
+# jego źródła w build_src_filter -> błąd linkera (np. ThinkNode_M8_repeater w v1.18.0).
+for th in sorted(glob.glob(os.path.join(root, "variants", "*", "target.h"))):
+    if "EnvironmentSensorManager.h" not in open(th, encoding="utf-8").read():
+        continue
+    d = os.path.dirname(th)
+    for ini in glob.glob(os.path.join(d, "*.ini")):
+        txt = open(ini, encoding="utf-8", newline="").read()
+        parts = re.split(r"(?m)^(?=\[)", txt)
+        # jeśli sekcja bazowa płytki już dodaje sensory, wszystkie role je dziedziczą
+        if any("helpers/sensors" in sec for sec in parts if not sec.startswith("[env:")):
+            continue
+        changed = []
+        for i, sec in enumerate(parts):
+            m = re.match(r"\[env:([^\]]+)\]", sec)
+            if not m or "helpers/sensors" in sec or not re.search(r"(?m)^build_src_filter\s*=", sec):
+                continue
+            nl = "\r\n" if "\r\n" in sec else "\n"
+            parts[i] = re.sub(r"(?m)^(build_src_filter\s*=[^\r\n]*)", lambda mm: mm.group(1) + nl + "  +<helpers/sensors>", sec, count=1)
+            changed.append(m.group(1))
+        if changed:
+            open(ini, "w", encoding="utf-8", newline="").write("".join(parts))
+            print(f"  {os.path.relpath(ini, root)}: dodano helpers/sensors dla {', '.join(changed)}")
+
 print("OK – ustawienia SF6 nałożone.")
