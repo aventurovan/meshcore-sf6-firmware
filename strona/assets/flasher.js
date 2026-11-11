@@ -110,19 +110,41 @@ function renderFlash() {
     $("flFull").onclick = () => {
       if (confirm("Czysta instalacja skasuje całą pamięć, w tym klucz prywatny i ustawienia. Kontynuować?")) flashEsp(fw, true);
     };
+  } else if (d.platform === "nrf52" && fw.zip) {
+    area.innerHTML = `
+      <div class="fl-actions">
+        <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
+        <button class="btn btn-green-line" id="flNrfCont" hidden>Kontynuuj – wybierz port DFU</button>
+      </div>
+      <div class="fl-hint"><ol>
+        <li>Podłącz ${esc(d.name)} kablem USB i kliknij „Wgraj przez USB”. Wybierz port urządzenia.</li>
+        <li>Urządzenie zrestartuje się w tryb DFU. Jeśli strona poprosi, kliknij „Kontynuuj” i wybierz <b>nowy</b> port, który się pojawił.</li>
+        <li>Poczekaj do końca (około minuty) – nie odłączaj kabla. Ustawienia zapisane w urządzeniu zostają zachowane.</li>
+      </ol>
+      Urządzenie jest już w trybie DFU (np. po dwukrotnym kliknięciu RESET)? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</div>
+      <details class="fl-log"><summary>Inny sposób: plik na dysk urządzenia</summary>
+        <div class="fl-actions" style="margin-top:10px">
+          <button class="btn btn-green-line" id="flDfu" ${na(!hasSerial)}>Włącz tryb DFU</button>
+          ${dl(fw.uf2, "Pobierz .uf2")}${dl(fw.zip, "Pobierz .zip (OTA)")}
+        </div>
+        <p class="fl-hint">Po włączeniu trybu DFU pojawi się dysk (np. RAK4631, T114BOOT). Przeciągnij na niego plik .uf2. Plik .zip służy do aktualizacji przez Bluetooth (nRF Connect).</p>
+      </details>`;
+    $("flNrf").onclick = () => nrfStart(d, fw);
+    $("flNrfCont").onclick = () => nrfPickAndFlash();
+    $("flNrfDirect").onclick = e => { e.preventDefault(); if (!state.busy && hasSerial) nrfPickAndFlash(fw); };
+    $("flDfu").onclick = () => enterDfu(d);
   } else if (d.platform === "nrf52" || d.platform === "rp2040") {
     const drive = d.platform === "rp2040" ? "RPI-RP2" : "dysk bootloadera, np. RAK4631, T114BOOT, T1000-E";
     area.innerHTML = `
       <div class="fl-actions">
         <button class="btn btn-green" id="flDfu" ${na(!hasSerial)}>Włącz tryb DFU</button>
         ${dl(fw.uf2, "Pobierz .uf2")}
-        ${dl(fw.zip, "Pobierz .zip (OTA)")}
       </div>
       <div class="fl-hint"><ol>
         <li>Podłącz ${esc(d.name)} kablem USB, kliknij „Włącz tryb DFU” i wybierz port.</li>
         <li>W systemie pojawi się nowy dysk (${esc(drive)}). Jeśli się nie pojawi, kliknij szybko dwa razy przycisk RESET.</li>
         <li>Pobierz plik .uf2 i przeciągnij go na ten dysk. Urządzenie samo się zrestartuje z nowym firmware.</li>
-      </ol>${fw.zip ? "Plik .zip służy do aktualizacji przez Bluetooth (nRF Connect). " : ""}Ustawienia zapisane w urządzeniu zostają zachowane.</div>`;
+      </ol>Ustawienia zapisane w urządzeniu zostają zachowane.</div>`;
     $("flDfu").onclick = () => enterDfu(d);
   } else {
     area.innerHTML = `<div class="fl-actions">${dl(fw.bin, "Pobierz .bin")}${dl(fw.hex, "Pobierz .hex")}</div>
@@ -133,6 +155,75 @@ function renderFlash() {
 function lockUi(b) {
   state.busy = b;
   document.querySelectorAll("#flArea button").forEach(x => x.disabled = b || x.dataset.na === "1");
+}
+
+// ---------- nRF52: wgrywanie przez bootloader (serial DFU) ----------
+let nrfMod = null;
+const nrfLib = async () => nrfMod || (nrfMod = await import(window.FL_NRF_DFU || "/assets/nrf-dfu.js"));
+
+async function nrfPackage(fw) {
+  if (state.nrfPkg && state.nrfPkg.url === fw.zip) return state.nrfPkg.pkg;
+  const lib = await nrfLib();
+  log("Pobieram " + baseName(fw.zip));
+  const r = await fetch(fileUrl(fw.zip));
+  if (!r.ok) throw new Error("nie udało się pobrać " + baseName(fw.zip) + " (HTTP " + r.status + ")");
+  const pkg = await lib.readDfuZip(await r.arrayBuffer());
+  log("Firmware: " + (pkg.bin.length / 1024).toFixed(0) + " KB");
+  state.nrfPkg = { url: fw.zip, pkg };
+  return pkg;
+}
+
+async function nrfStart(d, fw) {
+  let port;
+  try { port = await navigator.serial.requestPort(); }
+  catch { setStatus("Nie wybrano portu.", "err"); return; }
+  lockUi(true); setProgress(0); $("flNrfCont").hidden = true;
+  try {
+    setStatus("Pobieranie firmware…");
+    await nrfPackage(fw);
+    const lib = await nrfLib();
+    const vid = port.getInfo().usbVendorId;
+    setStatus("Przełączanie w tryb DFU…");
+    log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
+    await lib.touch1200(port);
+    await sleep(2500);
+    // jeśli przeglądarka zna już port bootloadera (np. z poprzedniego wgrywania), wgrywamy od razu
+    const known = (await navigator.serial.getPorts()).filter(p => p !== port && !p.readable && p.getInfo().usbVendorId === vid);
+    if (known.length === 1) { lockUi(false); return nrfFlash(known[0], fw); }
+    setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
+    state.nrfFw = fw;
+    $("flNrfCont").hidden = false;
+  } catch (e) {
+    log("BŁĄD: " + (e.message || e));
+    setStatus("Nie udało się: " + (e.message || e), "err");
+  } finally { lockUi(false); }
+}
+
+async function nrfPickAndFlash(fw) {
+  if (state.busy) return;
+  fw = fw || state.nrfFw;
+  let port;
+  try { port = await navigator.serial.requestPort(); }
+  catch { setStatus("Nie wybrano portu.", "err"); return; }
+  return nrfFlash(port, fw);
+}
+
+async function nrfFlash(port, fw) {
+  lockUi(true); setProgress(0);
+  try {
+    const pkg = await nrfPackage(fw);
+    const lib = await nrfLib();
+    setStatus("Wgrywanie… nie odłączaj urządzenia (około minuty)");
+    await lib.flashNrfDfu(port, pkg, { onProgress: f => setProgress(f * 100), log });
+    setProgress(100);
+    $("flNrfCont").hidden = true;
+    setStatus("Gotowe. Urządzenie uruchamia się z nowym firmware.", "ok");
+    log("Zakończono.");
+  } catch (e) {
+    console.error(e);
+    log("BŁĄD: " + (e.message || e));
+    setStatus("Nie udało się: " + (e.message || e) + ". Kliknij dwa razy RESET (tryb DFU) i użyj „Wgraj od razu”.", "err");
+  } finally { lockUi(false); }
 }
 
 async function fetchBinary(path) {

@@ -93,4 +93,5 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - Strona `flasher.php` + `assets/flasher.js` (+ style `.fl-*` na końcu `assets/style.css`), link „Flasher” w menu, karta „Web Flasher” w Konfiguracji prowadzi teraz na `/flasher.php` (`URL_FLASHER`; oficjalny flasher został w `URL_FLASHER_OFFICIAL`).
 - Dane: `/flasher/manifest.json` + `/flasher/firmware/<rola>/<wersja>/…` — NIE są w tej paczce. Wgrywa je automatycznie repo
   `aventurovan/meshcore-sf6-firmware` (GitHub Actions, co 3 h sprawdza oficjalne wydania MeshCore, buduje wszystkie płytki z `sf6.conf`, wgrywa przez FTP).
-- ESP32: wgrywanie przez esptool-js (Web Serial), aktualizacja 0x10000 / czysta instalacja merged 0x0. nRF52/RP2040: przycisk „Włącz tryb DFU” (1200 bps) + pobranie .uf2.
+- ESP32: wgrywanie przez esptool-js (Web Serial), aktualizacja 0x10000 / czysta instalacja merged 0x0.
+- nRF52: wgrywanie z przeglądarki przez bootloader (serial DFU jak adafruit-nrfutil, paczka .zip) – `assets/nrf-dfu.js`; najpierw 1200 bps touch, potem wybór nowego portu DFU. Zapasowo: tryb DFU + przeciągnięcie .uf2. RP2040: tryb DFU + .uf2.

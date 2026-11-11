@@ -41,5 +41,6 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
+<script>window.FL_NRF_DFU = "/assets/nrf-dfu.js?v=<?= filemtime(__DIR__ . '/assets/nrf-dfu.js') ?>";</script>
 <script type="module" src="/assets/flasher.js?v=<?= filemtime(__DIR__ . '/assets/flasher.js') ?>"></script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

@@ -177,3 +177,5 @@
 .fl-role:focus-visible, .fl-dev:focus-visible, .fl-search:focus-visible, .fl-actions .btn:focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
 @media (max-width:600px){ .fl-ver{ text-align:left; } }
 @media (prefers-reduced-motion:reduce){ .fl-progress div{ transition:none; } }
+[hidden]{ display:none !important; }
+.fl-hint a{ color:var(--green); }
