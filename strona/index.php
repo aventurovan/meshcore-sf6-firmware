@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Strona główna';
-$page_description = 'Niezależna sieć LoRa off-grid dla Śląska, Podbeskidzia i Małopolski, działająca na presecie SF6.';
+$page_description = 'Niezależna sieć LoRa off-grid dla Południa Polski, działająca na presecie SF6.';
 $body_class = 'theme-light';
 require __DIR__ . '/includes/header.php';
 require __DIR__ . '/includes/map-svg.php';
@@ -53,7 +53,7 @@ $repeaters = [
     <div class="hl-hero-text">
       <p class="hl-kicker">Sieć LoRa off-grid · preset SF6</p>
       <h1>Buduj z nami sieć MeshCore Południe</h1>
-      <p class="hl-lead">Darmowa łączność przez radio – bez operatora, bez abonamentu i bez internetu. Dla Śląska, Podbeskidzia i Małopolski.</p>
+      <p class="hl-lead">Darmowa łączność przez radio – bez operatora, bez abonamentu i bez internetu. Dla Południa Polski.</p>
       <div class="hl-cta">
         <a href="/instrukcja.php" class="hl-btn hl-btn-main">Uruchom swój węzeł</a>
         <a href="#zasieg" class="hl-btn hl-btn-line">Zobacz mapę</a>
