@@ -1,0 +1,25 @@
+{
+ "type": "companion-mapper",
+ "version": "1.6.0",
+ "display_version": "Mapper 1.6.0",
+ "upstream": "repo meshcore-sf6-mapper-firmware",
+ "built": "2026-10-25T16:47:24Z",
+ "targets": {
+  "LilyGo_T-Echo_companion_mapper": {
+   "device": "LilyGo_T-Echo",
+   "role": "companion_mapper",
+   "files": {
+    "zip": "firmware/companion-mapper/1.6.0/Companion-SF6Mapper-T-Echo-1.6.0-ota.zip",
+    "uf2": "firmware/companion-mapper/1.6.0/Companion-SF6Mapper-T-Echo-1.6.0.uf2"
+   }
+  },
+  "WioTrackerL1_companion_mapper": {
+   "device": "WioTrackerL1",
+   "role": "companion_mapper",
+   "files": {
+    "zip": "firmware/companion-mapper/1.6.0/Companion-SF6Mapper-WioTrackerL1-1.6.0-ota.zip",
+    "uf2": "firmware/companion-mapper/1.6.0/Companion-SF6Mapper-WioTrackerL1-1.6.0.uf2"
+   }
+  }
+ }
+}
