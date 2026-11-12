@@ -7,6 +7,8 @@ define('SITE_NAME', 'MeshCore Południe');
 define('URL_LIVE_MAP', 'https://meshcorekk.xyz/');
 define('URL_MAPPER', 'https://meshcoresouth.pl/mapper');
 define('URL_MAPPER_APK', 'https://meshcoresouth.pl/mapper/apk/');
+// MeshSpeed na iPhone'a: odkomentuj i wpisz link TestFlight, a na meshspeed.php pojawi się przycisk
+// define('URL_MESHSPEED_IOS', 'https://testflight.apple.com/join/XXXX');
 define('URL_MAPPER_IOS', 'https://testflight.apple.com/join/er4ZSaRm');
 define('URL_STATS', 'https://stats.meshcoresouth.pl/');
 define('URL_DISCORD', 'https://discord.com/channels/1474167474546278585/1474167475812696116');

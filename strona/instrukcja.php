@@ -98,15 +98,33 @@ $radio = PRESET_FREQ . ',' . PRESET_BW . ',' . PRESET_SF . ',' . PRESET_CR;
           <p>Po czystej instalacji z naszego flashera radio SF6, prefiks 2 bajty i czasy advertów są już ustawione.</p>
         </li>
         <li>
-          <h3>Otwórz konsolę CLI</h3>
-          <ul>
-            <li><b>Przez USB:</b> narzędzie <a href="<?= URL_RPT_CONFIG ?>" target="_blank" rel="noopener">Konfiguracja RPT</a> (Chrome/Edge na komputerze).</li>
-            <li><b>Zdalnie:</b> w aplikacji MeshCore zaloguj się do repeatera hasłem administratora i użyj jego konsoli.</li>
-          </ul>
-          <p>Domyślne hasło administratora nowego repeatera to <code>password</code> – zmień je od razu.</p>
+          <h3>Ustaw repeater w aplikacji na telefonie</h3>
+          <p>Najprostszy sposób – bez kabla i komend. Potrzebujesz działającego companiona (patrz zakładka <a href="#companion" data-tab="companion">Companion</a>) i aplikacji MeshCore albo naszej <a href="/meshspeed.php">MeshSpeed</a>.</p>
+          <ol class="in-sub">
+            <li>Włącz repeater w pobliżu i poczekaj, aż pojawi się w aplikacji na liście kontaktów (możesz w konsoli wysłać <code>advert</code>).</li>
+            <li>Wybierz repeater i zaloguj się jako administrator. Domyślne hasło nowego repeatera to <code>password</code>.</li>
+            <li>W ustawieniach repeatera wpisz wartości z tabeli i zapisz. Zmiana radia działa po restarcie repeatera.</li>
+          </ol>
+          <table class="in-table in-settings">
+            <tr><td>Nazwa</td><td>dowolna, widoczna dla wszystkich</td></tr>
+            <tr><td>Hasło administratora</td><td><b>zmień</b> domyślne <code>password</code> na własne</td></tr>
+            <tr><td>Pozycja</td><td>szerokość i długość geograficzna miejsca montażu</td></tr>
+            <tr><td>Radio</td><td><?= PRESET_FREQ ?> MHz · BW <?= PRESET_BW ?> kHz · SF<?= PRESET_SF ?> · CR<?= PRESET_CR ?></td></tr>
+            <tr><td>Moc nadawania</td><td>maksymalna (22 dBm)</td></tr>
+            <tr><td>Advert lokalny (0-hop)</td><td>co 60 minut</td></tr>
+            <tr><td>Advert flood</td><td>co 12 godzin</td></tr>
+            <tr><td>Prefiks (hash mode)</td><td><b>2 bajty</b> – obowiązkowo</td></tr>
+          </table>
+          <p>Jeśli któregoś ustawienia nie ma w aplikacji (np. prefiksu 2 bajty), wpisz komendę w konsoli repeatera dostępnej w aplikacji po zalogowaniu – np. <code>set path.hash.mode 1</code>. Pełna lista komend jest w następnym kroku.</p>
+          <p class="in-note">Po czystej instalacji z naszego flashera radio SF6, prefiks 2 bajty i adverty są już ustawione – zostaje nazwa, hasło, pozycja i moc. Repeater z innymi ustawieniami radia nie będzie widoczny w aplikacji – wtedy skonfiguruj go przez USB (krok 4).</p>
         </li>
         <li>
-          <h3>Ustaw repeater</h3>
+          <h3>…albo przez konsolę CLI</h3>
+          <p>Dla zaawansowanych i gdy aplikacja nie widzi repeatera. Konsolę otworzysz:</p>
+          <ul>
+            <li><b>przez USB:</b> narzędzie <a href="<?= URL_RPT_CONFIG ?>" target="_blank" rel="noopener">Konfiguracja RPT</a> (Chrome/Edge na komputerze),</li>
+            <li><b>zdalnie:</b> w aplikacji, po zalogowaniu do repeatera jako administrator.</li>
+          </ul>
           <p>Wpisz komendy po kolei. Wartości w nawiasach &lt; &gt; zastąp swoimi (pozycja w stopniach dziesiętnych, np. <code>49.8224</code> i <code>19.0444</code>).</p>
           <div class="in-code">
 <pre id="rptCmds">set name &lt;nazwa repeatera&gt;
@@ -141,7 +159,7 @@ reboot</pre>
             <tr><td><code>advert</code></td><td>wysyła advert od razu, żeby repeater pojawił się w sieci</td></tr>
             <tr><td><code>neighbors</code></td><td>lista repeaterów, które słyszy – po kilkunastu minutach nie powinna być pusta</td></tr>
           </table>
-          <p>Po kilku godzinach repeater powinien być widoczny na <a href="/#zasieg">mapie zasięgu</a>.</p>
+          <p>Te komendy wpiszesz w konsoli – przez USB albo w aplikacji. Po kilku godzinach repeater powinien być widoczny na <a href="/#zasieg">mapie zasięgu</a>.</p>
         </li>
         <li>
           <h3>Aktualizacje</h3>
@@ -173,6 +191,7 @@ reboot</pre>
     if (push) history.replaceState(null, "", "#" + id);
   }
   tabs.forEach(t => t.addEventListener("click", () => show(t.getAttribute("aria-controls"), true)));
+  document.querySelectorAll("[data-tab]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); show(a.dataset.tab, true); window.scrollTo({ top: 0 }); }));
   const start = () => show(location.hash === "#repeater" ? "repeater" : "companion", false);
   window.addEventListener("hashchange", start);
   start();

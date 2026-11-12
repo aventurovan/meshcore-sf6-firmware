@@ -100,3 +100,6 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - Room Server usunięty z flashera i z automatycznych buildów (decyzja 2026-11-12).
 - Karta „Baza Prefiksów” usunięta (prefix.meshcoresouth.pl nie istnieje); zamiast niej karta „Prefiks 2 bajty (ID)” i blok #rpt-config w sekcji Konfiguracja: `set path.hash.mode 1` dla RPT + ścieżka w aplikacji dla companionów.
 - Podstrona instrukcja.php: zakładki Companion / Repeater (#companion, #repeater), komendy RPT z presetu w config.php (set radio, tx 22 = max, path.hash.mode 1, advert 60 min, flood 12 h), miejsce na przyszłe „regiony”. Link w menu „Instrukcja”, w kroku 3 „Jak zacząć” i w bloku #rpt-config. Menu chowa się poniżej 1000 px (brak menu mobilnego).
+- Menu: 3 rozwijane grupy (Sieć / Start / Aplikacje) + Flasher, definiowane w tablicy `$menu` w includes/header.php; poniżej 1000 px przycisk ☰ z pełnym menu mobilnym.
+- Podstrona meshspeed.php: strona produktowa aplikacji MeshSpeed w kolorach aplikacji (style `.ms-*`, fonty IBM Plex z /meshspeed/fonts). Wersję APK odczytuje sama z /meshspeed/apk/. Link TestFlight: stała URL_MESHSPEED_IOS w config.php (dopóki brak – karta „Wkrótce”).
+- Instrukcja repeatera: najpierw konfiguracja w aplikacji na telefonie (tabela ustawień), potem CLI.
