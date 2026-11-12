@@ -17,9 +17,12 @@ $page_description = $page_description ?? 'Niezależna sieć LoRa off-grid dla Ś
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<?php if (($body_class ?? '') === 'theme-light'): ?>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<?php endif; ?>
 <link rel="stylesheet" href="/assets/style.css?v=<?= filemtime(__DIR__ . '/../assets/style.css') ?>">
 </head>
-<body>
+<body class="<?= htmlspecialchars($body_class ?? '') ?>">
 
 <header>
   <div class="wrap headbar">

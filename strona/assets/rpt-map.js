@@ -4,6 +4,7 @@
 // bez niego przeglądarka odrzuci odpowiedź i kod przejdzie do /api/rpt.php (fallback).
 document.addEventListener('DOMContentLoaded', () => {
   const statusEl = document.getElementById('rpt-status');
+  const countEl = document.getElementById('rpt-count');
   const markersGroup = document.getElementById('rpt-markers');
   const mapSvg = document.getElementById('coverage-map');
   if (!mapSvg || !markersGroup) return; // ta strona nie ma mapy — nic do roboty
@@ -73,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     drawMarkers(points);
     if (statusEl) statusEl.textContent = `${points.length} węzłów RPT · dane z 24h · na żywo`;
+    if (countEl) countEl.textContent = points.length;
   }
 
   // Ścieżka B: nasz PHP proxy /api/rpt.php (współrzędne już przeliczone po stronie serwera)
@@ -86,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? ' · migawka · źródło chwilowo niedostępne'
         : ' · dane z 24h · na żywo';
       statusEl.textContent = `${data.count} węzłów RPT${suffix}`;
+      if (countEl) countEl.textContent = data.count;
     }
   }
 
