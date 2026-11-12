@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: "17 6 * * *"   # codziennie po porannym sprawdzeniu wydań
   workflow_run:
-    workflows: ["Firmware SF6", "Wgraj stronę", "Firmware Companion + Mapper SF6"]
+    workflows: ["Firmware SF6", "Wgraj stronę", "Firmware Companion + Mapper SF6", "Odśwież manifest flashera"]
     types: [completed]
   workflow_dispatch:
 

@@ -7,8 +7,7 @@ const ROLES = {
   repeater:      { name: "Repeater",            desc: "Przekaźnik sieci (RPT)" },
   companion_ble: { name: "Companion Bluetooth", desc: "Do telefonu przez BLE" },
   companion_usb: { name: "Companion USB",       desc: "Do komputera przez kabel" },
-  companion_mapper: { name: "Companion + Mapper SF6", desc: "Nasz firmware: companion z mapowaniem bez telefonu" },
-  room_server:   { name: "Room Server",         desc: "Pokój z historią wiadomości" }
+  companion_mapper: { name: "Companion + Mapper SF6", desc: "Nasz firmware: companion z mapowaniem bez telefonu" }
 };
 const PLATFORM = { esp32: "ESP32", nrf52: "nRF52", rp2040: "RP2040", stm32: "STM32" };
 const ESP_APP_OFFSET = 0x10000;

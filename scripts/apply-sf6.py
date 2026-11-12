@@ -68,9 +68,9 @@ for v in sorted(glob.glob(os.path.join(root, "variants", "*", "*.ini"))):
             print(f"  wariant {rel} nadpisuje {key}")
             edit(rel, rf"^([^;\n]*-D\s*{key}=)[0-9.]+", r"\g<1>" + val)
 
-print("Adverty:")
+print("Adverty (repeater):")
 local_min, flood_h = num("LOCAL_ADVERT_MINUTES"), num("FLOOD_ADVERT_HOURS")
-for f in ("examples/simple_repeater/MyMesh.cpp", "examples/simple_room_server/MyMesh.cpp"):
+for f in ("examples/simple_repeater/MyMesh.cpp",):
     if not os.path.exists(os.path.join(root, f)):
         die(f"brak pliku {f}")
     if local_min is not None:

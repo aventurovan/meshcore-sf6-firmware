@@ -1,0 +1,36 @@
+name: Odśwież manifest flashera
+
+# Przebudowuje manifest.json z index/*.json, wgrywa go i usuwa ze strony
+# foldery firmware ról, których nie ma już w indeksie (np. po rezygnacji z Room Servera).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["names.json", "scripts/manifest.py"]
+
+concurrency:
+  group: sf6-firmware
+  cancel-in-progress: false
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 scripts/manifest.py build site
+      - name: FTP
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+        run: |
+          DEST="${FTP_DIR%/}/flasher"
+          python3 scripts/ftp_sync.py upload site "$DEST"
+          keep=$(ls index | sed 's/\.json$//')
+          for t in $(python3 scripts/ftp_sync.py ls "$DEST/firmware"); do
+            if ! echo "$keep" | grep -qx "$t"; then
+              echo "Usuwam ze strony firmware/$t"
+              python3 scripts/ftp_sync.py rmtree "$DEST/firmware/$t"
+            fi
+          done

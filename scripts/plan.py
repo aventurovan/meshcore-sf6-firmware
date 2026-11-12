@@ -17,7 +17,7 @@ for line in open("sf6/sf6.conf", encoding="utf-8"):
     if line and not line.startswith("#") and "=" in line:
         k, v = line.split("=", 1)
         conf[k.strip()] = " ".join(shlex.split(v, comments=True))
-types = only or conf.get("TYPES", "repeater companion room-server").split()
+types = only or conf.get("TYPES", "repeater companion").split()
 chunk_size = int(conf.get("CHUNK_SIZE", "12") or 12)
 
 def sh(*a, **kw):

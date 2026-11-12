@@ -72,7 +72,7 @@ if man:
 
     # 3. zgodność z indeksem w repo
     ROLES_OF = {"repeater": ["repeater"], "companion": ["companion_ble", "companion_usb"],
-                "room-server": ["room_server"], "companion-mapper": ["companion_mapper"]}
+                "companion-mapper": ["companion_mapper"]}
     on_site = {r: v["version"] for r, v in man.get("roles", {}).items()}
     for t, rs in ROLES_OF.items():
         try:
@@ -86,6 +86,9 @@ if man:
             elif r not in on_site and r != "companion_usb":
                 errors.append(f"{r}: brak na stronie (w repo {want})")
 
+    if "room_server" in on_site:
+        errors.append("room_server nadal jest w manifeście (Room Server miał zostać usunięty)")
+
     # 4. porównanie z oficjalnym wydaniem
     if TOKEN:
         def envs(assets):
@@ -94,7 +97,7 @@ if man:
                 m = re.match(r"^(.+?)-v\d+\.\d+\.\d+(?:-sf6)?-[0-9a-f]+(?:-merged)?\.(bin|uf2|zip|hex)$", n)
                 if m: out.add(m.group(1))
             return out
-        for t in ("repeater", "companion", "room-server"):
+        for t in ("repeater", "companion"):
             try:
                 idx = json.load(open(f"index/{t}.json", encoding="utf-8"))
                 off = gh(f"/repos/meshcore-dev/MeshCore/releases/tags/{idx['upstream']}")
