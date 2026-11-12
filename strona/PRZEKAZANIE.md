@@ -99,3 +99,4 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - nRF52: wgrywanie z przeglądarki przez bootloader (serial DFU jak adafruit-nrfutil, paczka .zip) – `assets/nrf-dfu.js`; najpierw 1200 bps touch, potem wybór nowego portu DFU. Zapasowo: tryb DFU + przeciągnięcie .uf2. RP2040: tryb DFU + .uf2.
 - Room Server usunięty z flashera i z automatycznych buildów (decyzja 2026-11-12).
 - Karta „Baza Prefiksów” usunięta (prefix.meshcoresouth.pl nie istnieje); zamiast niej karta „Prefiks 2 bajty (ID)” i blok #rpt-config w sekcji Konfiguracja: `set path.hash.mode 1` dla RPT + ścieżka w aplikacji dla companionów.
+- Podstrona instrukcja.php: zakładki Companion / Repeater (#companion, #repeater), komendy RPT z presetu w config.php (set radio, tx 22 = max, path.hash.mode 1, advert 60 min, flood 12 h), miejsce na przyszłe „regiony”. Link w menu „Instrukcja”, w kroku 3 „Jak zacząć” i w bloku #rpt-config. Menu chowa się poniżej 1000 px (brak menu mobilnego).

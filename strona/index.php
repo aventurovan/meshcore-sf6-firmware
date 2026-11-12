@@ -98,7 +98,7 @@ require __DIR__ . '/includes/map-svg.php';
         <div class="step-circle">3</div>
         <h3>SKONFIGURUJ POŁUDNIE</h3>
         <p>Ustaw parametry radia zgodnie z naszym presetem SF6, aby widzieć innych w regionie.</p>
-        <a href="#konfiguracja" class="btn btn-green" style="width:100%; justify-content:center;">Instrukcja konfiguracji</a>
+        <a href="/instrukcja.php" class="btn btn-green" style="width:100%; justify-content:center;">Instrukcja konfiguracji</a>
       </div>
     </div>
   </div>
@@ -256,6 +256,7 @@ require __DIR__ . '/includes/map-svg.php';
           <h3>Użytkownicy (companion)</h3>
           <p>W aplikacji mobilnej przełącz prefiks na 2 bajty:</p>
           <p class="rpt-path">Ustawienia → Ustawienia eksperymentalne → <b>2 bajty (maks. 32 skoki)</b></p>
+          <p>Pełna konfiguracja krok po kroku: <a href="/instrukcja.php#companion">instrukcja companion</a> i <a href="/instrukcja.php#repeater">instrukcja repeatera</a>.</p>
         </div>
       </div>
     </div>

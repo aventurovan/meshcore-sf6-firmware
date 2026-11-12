@@ -34,6 +34,7 @@ $page_description = $page_description ?? 'Niezależna sieć LoRa off-grid dla Ś
     <nav><ul>
       <li><a href="/#co-to-jest">Co to jest?</a></li>
       <li><a href="/#jak-zaczac">Jak zacząć?</a></li>
+      <li><a href="/instrukcja.php">Instrukcja</a></li>
       <li><a href="/#pobierz">Pobierz</a></li>
       <li><a href="/#sprzet">Sprzęt</a></li>
       <li><a href="/#konfiguracja">Konfiguracja</a></li>
