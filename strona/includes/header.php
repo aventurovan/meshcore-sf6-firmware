@@ -4,6 +4,7 @@ require_once __DIR__ . '/config.php';
 // Każda strona może ustawić własny tytuł/opis przed dołączeniem tego pliku:
 // $page_title = "Preset SF6"; $page_description = "...";
 $page_title = $page_title ?? SITE_NAME;
+$body_class = $body_class ?? 'theme-light'; // cała strona w jasnym stylu edukacyjnym
 $page_description = $page_description ?? 'Niezależna sieć LoRa off-grid dla Południa Polski, działająca na presecie SF6.';
 ?>
 <!DOCTYPE html>

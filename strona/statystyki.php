@@ -4,7 +4,7 @@ $page_description = 'Statystyki sieci MeshCore Południe — strona w budowie.';
 require __DIR__ . '/includes/header.php';
 ?>
 
-<section style="padding-top:100px; padding-bottom:120px;">
+<section class="stats-page" style="padding-top:100px; padding-bottom:120px;">
   <div class="wrap" style="text-align:center; max-width:560px; margin:0 auto;">
     <div class="ico-box" style="width:56px; height:56px; margin:0 auto 24px;">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>

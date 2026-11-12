@@ -496,7 +496,7 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 .theme-light .nav-dd a span, .theme-light .mobile-nav a span{ color:var(--hl-mute); }
 .theme-light .nav-dd a:hover{ background:var(--hl-cream); }
 .theme-light .nav-dd a:hover b{ color:var(--hl-green); }
-.theme-light .head-map{ background:var(--hl-green); color:#FFFFFF; border-color:var(--hl-green); }
+.theme-light .headbar .head-map{ background:var(--hl-green); color:#FFFFFF; border:1px solid var(--hl-green); }
 .theme-light .nav-burger{ background:#FFFFFF; border-color:var(--hl-line); }
 .theme-light .nav-burger span{ background:var(--hl-ink); }
 .theme-light .mobile-nav{ background:var(--hl-cream); border-top-color:var(--hl-line); }
@@ -664,3 +664,128 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
   .hl-wide{ flex-direction:column; align-items:flex-start; }
 }
 @media (prefers-reduced-motion:reduce){ .hl-waves{ animation:none; } .hl-edu, .hl-step, .hl-app{ transition:none; } }
+
+/* ===================================================================
+   PODSTRONY w jasnym stylu (body.theme-light) – nadpisanie zmiennych
+   ciemnego motywu, z którego korzystają .in-*, .fl-* i elementy wspólne
+   =================================================================== */
+.theme-light{ --bg:#FFFFFF; --panel:#FFFFFF; --panel-2:#F4F2EE; --line:#EADFCF; --text:#1F2A26; --muted:#5E6B66;
+  --green:#2E6B5A; --green-soft:#DDF1E6; --green-line:rgba(46,107,90,.45); }
+.theme-light .card{ background:#FFFFFF; border:1px solid var(--line); border-radius:22px; box-shadow:none; }
+.theme-light .btn-green, .theme-light .pill, .theme-light .fl-num, .theme-light .in-steps > li::before{ color:#FFFFFF; }
+.theme-light .btn-line{ background:#FFFFFF; border:2px solid var(--green); color:var(--green); }
+.theme-light .btn-green-line{ border-color:var(--green); color:var(--green); }
+.theme-light .label{ color:var(--green); font-weight:800; }
+.theme-light .ico-box{ background:var(--green-soft); color:var(--green); border:0; }
+.theme-light .mono{ font-family:'JetBrains Mono',monospace; }
+
+/* nagłówki stron i tła sekcji */
+.theme-light .fl-page, .theme-light .in-page{ background:var(--hl-cream); }
+.theme-light .fl-head h1, .theme-light .in-head h1{ font-weight:900; }
+.theme-light .fl-head p, .theme-light .in-head p, .theme-light .in-intro{ color:var(--hl-ink2); }
+
+/* flasher */
+.theme-light .fl-step{ border-radius:24px; }
+.theme-light .fl-step h2{ font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; }
+.theme-light .fl-num{ border-radius:50%; width:36px; height:36px; font-family:'Nunito',sans-serif; font-weight:900; }
+.theme-light .fl-ver{ border-radius:20px; }
+.theme-light .fl-ver .val{ font-family:'Nunito',sans-serif; font-weight:900; }
+.theme-light .fl-role, .theme-light .fl-dev{ background:var(--hl-sand); border-color:transparent; border-radius:16px; }
+.theme-light .fl-role[aria-pressed="true"], .theme-light .fl-dev[aria-pressed="true"]{ background:var(--hl-mint); border-color:var(--green); box-shadow:inset 0 0 0 1px var(--green); }
+.theme-light .fl-role b{ font-family:'Nunito',sans-serif; }
+.theme-light .fl-tag{ background:#FFFFFF; color:var(--hl-ink2); }
+.theme-light .fl-search{ background:#FFFFFF; border-color:var(--line); border-radius:14px; }
+.theme-light .fl-notice{ background:#FFF4D6; border-color:#F0D58C; color:#5A4512; }
+.theme-light .fl-notice.err{ background:#FDE8E4; border-color:#F2B8AC; color:#7A2614; }
+.theme-light .fl-actions .btn{ border-radius:999px; }
+.theme-light .fl-actions .btn-warn{ color:#8A5A00; border-color:#E6B85C; background:#FFF8E6; }
+.theme-light .fl-check{ background:var(--hl-sand); border-color:transparent; color:var(--hl-ink2); border-radius:16px; }
+.theme-light .fl-check:has(input:checked){ background:#FFF4D6; border-color:#E6B85C; }
+.theme-light .fl-check input{ accent-color:#B7791F; }
+.theme-light .fl-note{ background:var(--hl-mint); border-color:transparent; border-radius:16px; }
+.theme-light .fl-progress{ background:var(--hl-sand); border-color:var(--line); }
+.theme-light .fl-status.err{ color:#B42318; }
+.theme-light .fl-log pre{ background:var(--hl-ink); color:#D7E3DD; border-color:var(--hl-ink); }
+
+/* instrukcja */
+.theme-light .in-tab{ background:var(--hl-sand); border-color:transparent; border-radius:18px; font-family:'Nunito',sans-serif; font-weight:900; }
+.theme-light .in-tab small{ font-family:'Nunito Sans',sans-serif; }
+.theme-light .in-tab[aria-selected="true"]{ background:var(--hl-mint); border-color:var(--green); }
+.theme-light .in-steps > li::before{ border-radius:50%; font-family:'Nunito',sans-serif; font-weight:900; }
+.theme-light .in-steps h3{ font-weight:800; font-size:20px; }
+.theme-light .in-preset div{ background:#FFFFFF; border-color:var(--line); border-radius:14px; }
+.theme-light .in-path{ background:var(--hl-sand); border-color:transparent; }
+.theme-light .in-alert{ background:#FFF4D6; border-color:#F0D58C; color:#5A4512; }
+.theme-light .in-alert b{ color:#7A5200; }
+.theme-light .in-code{ background:var(--hl-ink); border-color:var(--hl-ink); }
+.theme-light .in-code pre{ color:#9EE6C4; }
+.theme-light .in-code .cmd-copy{ background:transparent; color:#FFFFFF; border-color:rgba(255,255,255,.4); }
+.theme-light .in-note{ border-left-color:#E6B85C; }
+.theme-light .in-soon{ background:var(--hl-blue); border:0; color:#33413C; }
+.theme-light .in-faq details{ background:var(--hl-sand); border-color:transparent; border-radius:16px; }
+.theme-light .in-faq summary{ font-family:'Nunito',sans-serif; font-weight:800; }
+.theme-light .in-page code, .theme-light .in-table code{ background:var(--hl-sand); border-color:var(--line); color:var(--hl-ink); }
+.theme-light .cmd-copy{ color:var(--green); border-color:var(--green-line); }
+
+/* statystyki (placeholder) */
+.theme-light .stats-page{ background:var(--hl-cream); }
+
+/* ===== MeshSpeed w jasnej wersji – pomarańczowy akcent aplikacji ===== */
+.theme-light .ms{ --ms-bg:#FFFFFF; --ms-bar:#FFF3E6; --ms-card:#FFF6EC; --ms-chip:#FCE6D4; --ms-line:#F1DEC8; --ms-text:#1F2A26; --ms-muted:#55625D;
+  --ms-accent:#C2610F; --ms-on-accent:#FFFFFF; --ms-good:#2E6B5A; --ms-blue:#1F5F8C; --ms-font:'Nunito Sans',system-ui,sans-serif; --ms-mono:'JetBrains Mono',monospace; }
+.theme-light .ms-hero{ background:var(--hl-cream); border-bottom-color:var(--hl-line); }
+.theme-light .ms .ms-btn-accent{ background:#E8833A; color:#FFFFFF; }
+.theme-light .ms .ms-btn-accent:hover{ background:#C2610F; filter:none; }
+.theme-light .ms .ms-btn-line{ background:#FFFFFF; border:2px solid #C2610F; color:#A44F1A; }
+.theme-light .ms-btn{ border-radius:999px; font-weight:800; }
+.theme-light .ms-logo span, .theme-light .ms-kicker{ color:#C2610F; }
+.theme-light .ms-feat{ border:0; border-radius:24px; }
+.theme-light .ms-features .ms-feat:nth-child(4n+1){ background:var(--hl-peach); }
+.theme-light .ms-features .ms-feat:nth-child(4n+2){ background:var(--hl-blue); }
+.theme-light .ms-features .ms-feat:nth-child(4n+3){ background:var(--hl-mint); }
+.theme-light .ms-features .ms-feat:nth-child(4n+4){ background:var(--hl-sand); }
+.theme-light .ms-ico{ background:#FFFFFF; }
+.theme-light .ms-tag{ color:#FFFFFF; background:var(--hl-green); }
+.theme-light .ms-how{ background:var(--hl-cream); }
+.theme-light .ms-steps li{ background:#FFFFFF; }
+.theme-light .ms-steps li::before{ background:#E8833A; color:#FFFFFF; border-radius:50%; }
+.theme-light .ms-dl-card{ background:#FFFFFF; border:2px solid var(--ms-line); }
+.theme-light .ms-faq details{ background:var(--hl-sand); border:0; }
+.theme-light .ms-sec{ border-bottom-color:var(--hl-line); }
+/* makieta telefonu zostaje w kolorach aplikacji (ciemna) */
+.theme-light .ms .ms-phone{ --ms-bg:#111A16; --ms-bar:#16211C; --ms-card:#1C2823; --ms-chip:#22302A; --ms-line:#2A3A33; --ms-text:#F0F3F1; --ms-muted:#A9B8B0;
+  --ms-accent:#FF9F43; --ms-on-accent:#1A0F02; --ms-good:#6FD3A4; --ms-blue:#6CB6FF; color:var(--ms-text); }
+
+/* ===== Mapper SF6 w jasnej wersji – błękitny akcent aplikacji ===== */
+.theme-light .mp{ --mp-navy:#FFFFFF; --mp-navy2:#F4F8FB; --mp-deep:#EAF2F7; --mp-line:#D6E4EE; --mp-ink:#1F2A26; --mp-ink2:#44514C; --mp-mute:#5E6B66;
+  --mp-sky:#1F6FA3; --mp-font:'Nunito Sans',system-ui,sans-serif; }
+.theme-light .mp-hero{ background:var(--hl-cream); border-bottom-color:var(--hl-line); }
+.theme-light .mp-rings span{ border-color:#7DB7DA; } .theme-light .mp-rings i{ background:#3D86B8; }
+.theme-light .mp .mp-btn-main{ background:#1F6FA3; color:#FFFFFF; }
+.theme-light .mp .mp-btn-main:hover{ background:#185A85; filter:none; }
+.theme-light .mp .mp-btn-line{ background:#FFFFFF; border:2px solid #1F6FA3; color:#1F6FA3; }
+.theme-light .mp-btn{ border-radius:999px; font-weight:800; }
+.theme-light .mp-kicker{ color:#1F6FA3; }
+.theme-light .mp-hero h1 em{ color:#1F6FA3; }
+.theme-light .mp-chip{ background:#FFFFFF; border-color:var(--hl-line); color:var(--hl-ink2); }
+.theme-light .mp-steps li{ border:0; border-radius:24px; }
+.theme-light .mp-steps li:nth-child(1){ background:var(--hl-blue); } .theme-light .mp-steps li:nth-child(2){ background:var(--hl-mint); } .theme-light .mp-steps li:nth-child(3){ background:var(--hl-peach); }
+.theme-light .mp-steps li::before{ background:#1F6FA3; border-color:#1F6FA3; color:#FFFFFF; }
+.theme-light .mp-feat{ border:0; border-radius:24px; box-shadow:none; }
+.theme-light .mp-features .mp-feat:nth-child(4n+1){ background:var(--hl-blue); }
+.theme-light .mp-features .mp-feat:nth-child(4n+2){ background:var(--hl-mint); }
+.theme-light .mp-features .mp-feat:nth-child(4n+3){ background:var(--hl-peach); }
+.theme-light .mp-features .mp-feat:nth-child(4n+4){ background:var(--hl-sand); }
+.theme-light .mp-ico{ background:#FFFFFF; }
+.theme-light .mp-dev{ background:var(--hl-cream); }
+.theme-light .mp-dev-card, .theme-light .mp-dl-card{ background:#FFFFFF; border:2px solid var(--mp-line); }
+.theme-light .mp-faq details{ background:var(--hl-sand); border:0; }
+.theme-light .mp-sec{ border-bottom-color:var(--hl-line); }
+.theme-light .mp-mono{ color:var(--hl-ink); }
+/* makieta telefonu zostaje w kolorach aplikacji (ciemna) */
+.theme-light .mp .mp-phone{ --mp-navy:#0f2a3a; --mp-navy2:#163447; --mp-line:#23465b; --mp-ink:#eaf2f6; --mp-ink2:#a8bfcc; --mp-mute:#7fa3b8; --mp-sky:#38bdf8; color:var(--mp-ink); }
+
+/* nagłówki wszystkich podstron: czcionka stylu edukacyjnego */
+.theme-light .ms h1, .theme-light .ms h2, .theme-light .ms h3, .theme-light .mp h1, .theme-light .mp h2, .theme-light .mp h3,
+.theme-light .fl-page h1, .theme-light .fl-page h2, .theme-light .in-page h1, .theme-light .in-page h2, .theme-light .in-page h3{ font-family:'Nunito','Manrope',sans-serif; font-weight:900; }
+.theme-light .ms-steps b, .theme-light .mp-steps b, .theme-light .ms-dl-card b, .theme-light .mp-dl-card b, .theme-light .mp-dev-card b{ font-family:'Nunito',sans-serif; font-weight:900; }
