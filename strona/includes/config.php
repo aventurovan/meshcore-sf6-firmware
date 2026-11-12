@@ -23,7 +23,6 @@ define('URL_LINUX', 'https://files.liamcottle.net/MeshCore/');
 define('URL_FLASHER', '/flasher.php');
 define('URL_FLASHER_OFFICIAL', 'https://flasher.meshcore.io/');
 define('URL_SF6_FIRMWARE_REPO', 'https://github.com/aventurovan/meshcore-sf6-firmware');
-define('URL_PREFIX_DB', 'https://prefix.meshcoresouth.pl/');
 define('URL_RPT_CONFIG', 'https://meshcoresouth.pl/rpt/');
 
 define('URL_GITHUB', 'https://github.com/meshcore-dev/MeshCore');

@@ -224,9 +224,9 @@ require __DIR__ . '/includes/map-svg.php';
       </div>
       <div class="card tool-card">
         <div class="ico-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 3h8l4 4v14H6V3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l1.5 1.5L14 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <h3>Baza Prefiksów (ID)</h3>
-        <p>Sprawdź przypisane już ID, aby uniknąć duplikowania identyfikatorów i tworzenia kolizji w sieci.</p>
-        <a href="<?= URL_PREFIX_DB ?>" target="_blank" rel="noopener" class="go">Sprawdź prefiks ›</a>
+        <h3>Prefiks 2 bajty (ID)</h3>
+        <p>Obowiązkowy tryb 2-bajtowy na repeaterach w regionie Południe. Zapobiega kolizjom identyfikatorów w sieci.</p>
+        <a href="#rpt-config" class="go">Jak ustawić ›</a>
       </div>
       <div class="card tool-card">
         <div class="ico-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -235,6 +235,37 @@ require __DIR__ . '/includes/map-svg.php';
         <a href="<?= URL_RPT_CONFIG ?>" target="_blank" rel="noopener" class="go">Ustawienia USB ›</a>
       </div>
     </div>
+
+    <div class="card rpt-config" id="rpt-config">
+      <div class="rpt-head">
+        <div>
+          <h2>Prefiks MeshCore Południe</h2>
+          <p class="rpt-lead">Konfiguracja urządzeń RPT i aplikacji</p>
+        </div>
+        <span class="pill">ID: 2 bajty</span>
+      </div>
+      <div class="rpt-grid">
+        <div>
+          <h3>Repeatery (firmware 1.14 i nowszy)</h3>
+          <p>Na <b>wszystkich</b> urządzeniach pełniących rolę repeatera w regionie Południe obowiązkowo ustaw tryb 2-bajtowy (hash mode). Wpisz komendę w konsoli CLI repeatera:</p>
+          <div class="cmd"><code>set path.hash.mode 1</code><button type="button" class="cmd-copy" data-copy="set path.hash.mode 1">Kopiuj</button></div>
+          <p class="rpt-small">Sprawdzenie: <code>get path.hash.mode</code> powinno zwrócić <code>1</code>. Repeatery wgrane z czystą instalacją przez nasz <a href="<?= URL_FLASHER ?>">flasher SF6</a> mają to ustawione od razu.</p>
+          <p class="rpt-warn"><b>Ważne:</b> ta zmiana jest niezbędna do poprawnej obsługi rozszerzonej przestrzeni adresowej i uniknięcia kolizji w sieci.</p>
+        </div>
+        <div>
+          <h3>Użytkownicy (companion)</h3>
+          <p>W aplikacji mobilnej przełącz prefiks na 2 bajty:</p>
+          <p class="rpt-path">Ustawienia → Ustawienia eksperymentalne → <b>2 bajty (maks. 32 skoki)</b></p>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.querySelectorAll(".cmd-copy").forEach(b => b.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Skopiowano"; }
+        catch { b.textContent = "Zaznacz i skopiuj"; }
+        setTimeout(() => b.textContent = "Kopiuj", 2000);
+      }));
+    </script>
 
     <div class="card preset-card" style="margin-top:32px; text-align:center;">
       <div style="display:flex; justify-content:flex-end;"><span class="pill">Preset: Południe SF6</span></div>

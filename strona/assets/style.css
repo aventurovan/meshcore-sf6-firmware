@@ -185,3 +185,24 @@
 .fl-check:has(input:checked){ border-color:rgba(251,191,36,.6); background:rgba(251,191,36,.07); }
 .fl-note{ background:var(--green-soft); border:1px solid var(--green-line); border-radius:12px; padding:12px 14px; margin:0 0 14px; font-size:14px; color:var(--text); }
 .fl-note a{ color:var(--green); }
+
+/* ===== Konfiguracja RPT – prefiks 2 bajty (index.php #rpt-config) ===== */
+.rpt-config{ margin-top:32px; scroll-margin-top:90px; }
+.rpt-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
+.rpt-head h2{ margin:0; font-size:clamp(22px,3vw,28px); }
+.rpt-lead{ color:var(--muted); margin:6px 0 0; }
+.rpt-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:28px; }
+.rpt-grid h3{ font-size:17px; margin:0 0 10px; }
+.rpt-grid p{ color:var(--muted); font-size:14.5px; margin:0 0 12px; }
+.rpt-grid p b{ color:var(--text); }
+.rpt-grid a{ color:var(--green); }
+.rpt-config code{ font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--text); background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:1px 6px; }
+.cmd{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--bg); border:1px solid var(--green-line); border-radius:12px; padding:12px 14px; margin:0 0 12px; }
+.cmd code{ background:none; border:0; padding:0; font-size:16px; color:var(--green); }
+.cmd-copy{ font:600 12.5px 'Inter',sans-serif; color:var(--green); background:transparent; border:1px solid var(--green-line); border-radius:8px; padding:6px 10px; cursor:pointer; flex:none; }
+.cmd-copy:hover{ background:var(--green-soft); }
+.cmd-copy:focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
+.rpt-small{ font-size:13.5px !important; }
+.rpt-warn{ border-left:3px solid #fbbf24; padding:6px 0 6px 12px; }
+.rpt-path{ background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; color:var(--text) !important; }
+@media (max-width:800px){ .rpt-grid{ grid-template-columns:1fr; gap:18px; } }

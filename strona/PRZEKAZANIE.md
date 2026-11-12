@@ -79,7 +79,7 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
    wymaga plików aplikacji Mapper (osobny projekt, `meshcoresouth.pl/mapper`). Do zrobienia po wgraniu jego kodu/instrukcji HTML.
 2. **Strona Statystyki** — na razie placeholder; docelowo dane z bota (użytkownik zapowiedział „później").
 3. Migawka w `api/rpt.php` do odświeżenia lub usunięcia; ewentualnie zapytać hosting o odblokowanie ruchu wychodzącego do `stats.meshcoresouth.pl`.
-4. Sekcje „Pobierz" i „Konfiguracja" prowadzą na zewnętrzne adresy (liamcottle, flasher.meshcore.io, prefix.meshcoresouth.pl, meshcoresouth.pl/rpt/) — warto okresowo sprawdzić, czy wersje plików (np. v1.42.0) nie są nieaktualne.
+4. Sekcje „Pobierz" i „Konfiguracja" prowadzą na zewnętrzne adresy (liamcottle, flasher.meshcore.io, meshcoresouth.pl/rpt/) — warto okresowo sprawdzić, czy wersje plików (np. v1.42.0) nie są nieaktualne.
 5. Nie testowano ostatnich zmian na żywym serwerze użytkownika (tylko lokalnie: lint PHP + zrzut ekranu sekcji Mapper).
 
 ## 8. Ścieżka bezpieczeństwa przy zmianach
@@ -98,3 +98,4 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - Opcja „Najpierw wyczyść całą pamięć urządzenia”: ESP32 – erase all + obraz merged od 0x0; nRF52 – najpierw DFU programu `assets/nrf52-erase-s140v6/v7.bin` (źródło w repo `tools/nrf52-erase`), który kasuje aplikację i dane i wraca do DFU, potem automatycznie DFU MeshCore.
 - nRF52: wgrywanie z przeglądarki przez bootloader (serial DFU jak adafruit-nrfutil, paczka .zip) – `assets/nrf-dfu.js`; najpierw 1200 bps touch, potem wybór nowego portu DFU. Zapasowo: tryb DFU + przeciągnięcie .uf2. RP2040: tryb DFU + .uf2.
 - Room Server usunięty z flashera i z automatycznych buildów (decyzja 2026-11-12).
+- Karta „Baza Prefiksów” usunięta (prefix.meshcoresouth.pl nie istnieje); zamiast niej karta „Prefiks 2 bajty (ID)” i blok #rpt-config w sekcji Konfiguracja: `set path.hash.mode 1` dla RPT + ścieżka w aplikacji dla companionów.
