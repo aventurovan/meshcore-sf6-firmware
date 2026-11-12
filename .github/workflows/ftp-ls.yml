@@ -1,0 +1,24 @@
+name: Podgląd plików FTP
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Katalog względem katalogu głównego strony (np. meshspeed)"
+        default: ""
+
+jobs:
+  ls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          P: ${{ inputs.path }}
+        run: |
+          out=$(python3 scripts/ftp_sync.py ls "${FTP_DIR%/}/$P" | sort | head -200)
+          echo "$out"
+          echo "::notice title=Pliki w /$P::$(echo "$out" | sed ':a;N;$!ba;s/\n/%0A/g')"
