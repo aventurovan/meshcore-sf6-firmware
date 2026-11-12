@@ -6,6 +6,7 @@ import datetime, glob, json, os, re, sys
 ROLE_SUFFIX = [  # (sufiks env, klucz roli w manifeście, typ wydania)
     ("_companion_radio_ble", "companion_ble", "companion"),
     ("_companion_radio_usb", "companion_usb", "companion"),
+    ("_companion_mapper", "companion_mapper", "companion-mapper"),
     ("_room_server", "room_server", "room-server"),
     ("_repeater", "repeater", "repeater"),
 ]
@@ -66,13 +67,14 @@ def cmd_build(outdir):
         idx = json.load(open(p, encoding="utf-8"))
         for _, role, typ in ROLE_SUFFIX:
             if typ == idx["type"]:
-                roles[role] = {"version": idx["version"] + "-sf6", "upstream": idx["upstream"], "built": idx["built"]}
+                roles[role] = {"version": idx.get("display_version") or idx["version"] + "-sf6",
+                               "upstream": idx["upstream"], "built": idx["built"]}
         for env, t in idx["targets"].items():
             did = t["device"].lower()
             plat = platform_of(t["files"])
             d = devices.setdefault(did, {"id": did, "name": pretty(t["device"], names), "platform": plat, "firmware": {}})
             d["firmware"][t["role"]] = {k: v for k, v in entry(plat, t["files"]).items() if v}
-    vers = sorted({r["version"] for r in roles.values()})
+    vers = sorted({r["version"] for r in roles.values() if r["version"].endswith("-sf6")})
     manifest = {"version": vers[-1] if vers else "", "upstream": "meshcore-dev/MeshCore",
                 "built": max((r["built"] for r in roles.values()), default=""),
                 "roles": roles, "devices": sorted(devices.values(), key=lambda d: d["name"].lower())}

@@ -183,3 +183,5 @@
 .fl-check b{ color:var(--text); font-size:14.5px; }
 .fl-check input{ width:18px; height:18px; margin-top:2px; accent-color:#fbbf24; flex:none; }
 .fl-check:has(input:checked){ border-color:rgba(251,191,36,.6); background:rgba(251,191,36,.07); }
+.fl-note{ background:var(--green-soft); border:1px solid var(--green-line); border-radius:12px; padding:12px 14px; margin:0 0 14px; font-size:14px; color:var(--text); }
+.fl-note a{ color:var(--green); }

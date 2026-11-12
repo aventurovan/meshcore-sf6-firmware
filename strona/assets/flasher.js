@@ -7,6 +7,7 @@ const ROLES = {
   repeater:      { name: "Repeater",            desc: "Przekaźnik sieci (RPT)" },
   companion_ble: { name: "Companion Bluetooth", desc: "Do telefonu przez BLE" },
   companion_usb: { name: "Companion USB",       desc: "Do komputera przez kabel" },
+  companion_mapper: { name: "Companion + Mapper SF6", desc: "Nasz firmware: companion z mapowaniem bez telefonu" },
   room_server:   { name: "Room Server",         desc: "Pokój z historią wiadomości" }
 };
 const PLATFORM = { esp32: "ESP32", nrf52: "nRF52", rp2040: "RP2040", stm32: "STM32" };
@@ -101,9 +102,12 @@ function renderFlash() {
   if (!d || !state.role) { $("flS3").classList.add("off"); area.innerHTML = `<p class="fl-hint">Wybierz rolę i urządzenie.</p>`; return; }
   $("flS3").classList.remove("off");
   const fw = d.firmware[state.role];
+  const note = state.role === "companion_mapper"
+    ? `<p class="fl-note">Firmware MeshCore Południe: zwykły companion BLE (działa z aplikacją MeshCore) z wbudowanym Mapperem SF6 i polskim interfejsem na ekranie urządzenia. Dane z mapowania zrzucasz do aplikacji <a href="/mapper" target="_blank" rel="noopener">Mapper SF6</a>.</p>`
+    : "";
 
   if (d.platform === "esp32") {
-    area.innerHTML = `
+    area.innerHTML = note + `
       ${eraseBox(!fw.full)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flEsp" ${na(!hasSerial || !fw.update)}>Wgraj przez USB</button>
@@ -118,7 +122,7 @@ function renderFlash() {
       flashEsp(fw, wipe);
     };
   } else if (d.platform === "nrf52" && fw.zip) {
-    area.innerHTML = `
+    area.innerHTML = note + `
       ${eraseBox(false)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>

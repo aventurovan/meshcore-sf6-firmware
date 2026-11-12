@@ -1,0 +1,54 @@
+name: Firmware Companion + Mapper SF6
+
+# Nasz firmware z repo meshcore-sf6-mapper-firmware (wydanie „Najnowszy build”) -> flasher na stronie.
+on:
+  schedule:
+    - cron: "41 3 * * *"   # raz dziennie, po sprawdzeniu oficjalnych wydań
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Wgraj ponownie, nawet jeśli wersja się nie zmieniła"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sf6-firmware
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force || 'false' }}
+        run: python3 scripts/mapper_sync.py
+      - name: Manifest
+        if: steps.sync.outputs.changed == 'true'
+        run: python3 scripts/manifest.py build site
+      - name: Zapis indeksu w repo
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "sf6-bot"; git config user.email "sf6-bot@users.noreply.github.com"
+          git add index
+          git diff --cached --quiet || { git commit -m "Indeks: Companion + Mapper ${{ steps.sync.outputs.version }}"; git pull --rebase -q; git push; }
+      - name: Wgranie na stronę (FTP)
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          VER: ${{ steps.sync.outputs.version }}
+        run: |
+          DEST="${FTP_DIR%/}/flasher"
+          python3 scripts/ftp_sync.py upload site "$DEST" --last manifest.json
+          for old in $(python3 scripts/ftp_sync.py ls "$DEST/firmware/companion-mapper" | grep -vx "$VER" || true); do
+            echo "Usuwam starą wersję companion-mapper/$old"
+            python3 scripts/ftp_sync.py rmtree "$DEST/firmware/companion-mapper/$old" || true
+          done
