@@ -71,17 +71,20 @@ if man:
         errors.append(f"… i {len(bad) - 30} kolejnych brakujących plików")
 
     # 3. zgodność z indeksem w repo
-    for t in ("repeater", "companion", "room-server"):
+    ROLES_OF = {"repeater": ["repeater"], "companion": ["companion_ble", "companion_usb"],
+                "room-server": ["room_server"], "companion-mapper": ["companion_mapper"]}
+    on_site = {r: v["version"] for r, v in man.get("roles", {}).items()}
+    for t, rs in ROLES_OF.items():
         try:
             idx = json.load(open(f"index/{t}.json", encoding="utf-8"))
         except FileNotFoundError:
             continue
-        on_site = {r: v["version"] for r, v in man.get("roles", {}).items()}
-        want = idx["version"] + "-sf6"
-        for r, v in on_site.items():
-            if (t == "companion" and r.startswith("companion")) or r.replace("_", "-") == t:
-                if v != want:
-                    errors.append(f"{r}: na stronie {v}, w repo {want}")
+        want = idx.get("display_version") or idx["version"] + "-sf6"
+        for r in rs:
+            if r in on_site and on_site[r] != want:
+                errors.append(f"{r}: na stronie {on_site[r]}, w repo {want}")
+            elif r not in on_site and r != "companion_usb":
+                errors.append(f"{r}: brak na stronie (w repo {want})")
 
     # 4. porównanie z oficjalnym wydaniem
     if TOKEN:
