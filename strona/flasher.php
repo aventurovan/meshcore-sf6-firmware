@@ -41,6 +41,12 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<script>window.FL_NRF_DFU = "/assets/nrf-dfu.js?v=<?= filemtime(__DIR__ . '/assets/nrf-dfu.js') ?>";</script>
+<script>
+window.FL_NRF_DFU = "/assets/nrf-dfu.js?v=<?= filemtime(__DIR__ . '/assets/nrf-dfu.js') ?>";
+window.FL_NRF_ERASE = {
+  v6: "/assets/nrf52-erase-s140v6.bin?v=<?= filemtime(__DIR__ . '/assets/nrf52-erase-s140v6.bin') ?>",
+  v7: "/assets/nrf52-erase-s140v7.bin?v=<?= filemtime(__DIR__ . '/assets/nrf52-erase-s140v7.bin') ?>"
+};
+</script>
 <script type="module" src="/assets/flasher.js?v=<?= filemtime(__DIR__ . '/assets/flasher.js') ?>"></script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

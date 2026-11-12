@@ -94,4 +94,5 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - Dane: `/flasher/manifest.json` + `/flasher/firmware/<rola>/<wersja>/…` — NIE są w tej paczce. Wgrywa je automatycznie repo
   `aventurovan/meshcore-sf6-firmware` (GitHub Actions, co 3 h sprawdza oficjalne wydania MeshCore, buduje wszystkie płytki z `sf6.conf`, wgrywa przez FTP).
 - ESP32: wgrywanie przez esptool-js (Web Serial), aktualizacja 0x10000 / czysta instalacja merged 0x0.
+- Opcja „Najpierw wyczyść całą pamięć urządzenia”: ESP32 – erase all + obraz merged od 0x0; nRF52 – najpierw DFU programu `assets/nrf52-erase-s140v6/v7.bin` (źródło w repo `tools/nrf52-erase`), który kasuje aplikację i dane i wraca do DFU, potem automatycznie DFU MeshCore.
 - nRF52: wgrywanie z przeglądarki przez bootloader (serial DFU jak adafruit-nrfutil, paczka .zip) – `assets/nrf-dfu.js`; najpierw 1200 bps touch, potem wybór nowego portu DFU. Zapasowo: tryb DFU + przeciągnięcie .uf2. RP2040: tryb DFU + .uf2.

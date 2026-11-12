@@ -86,6 +86,12 @@ function renderDevices() {
 }
 $("flSearch").addEventListener("input", () => state.m && state.role && renderDevices());
 
+const eraseBox = disabled => `
+  <label class="fl-check"><input type="checkbox" id="flErase" ${disabled ? "disabled" : ""}>
+    <span><b>Najpierw wyczyść całą pamięć urządzenia</b><br>
+    Zalecane, gdy wcześniej było inne oprogramowanie (np. Meshtastic) albo urządzenie działa dziwnie.
+    Usuwa klucze, kontakty i ustawienia – urządzenie dostanie nową tożsamość i od razu ustawienia SF6.</span></label>`;
+const confirmErase = () => confirm("Cała pamięć urządzenia zostanie skasowana: klucz prywatny (tożsamość), kontakty i wszystkie ustawienia. Kontynuować?");
 const dl = (p, label) => p ? `<a class="btn btn-green-line" href="${esc(fileUrl(p))}" download>${label}</a>` : "";
 const na = cond => cond ? 'disabled data-na="1"' : "";
 
@@ -98,20 +104,22 @@ function renderFlash() {
 
   if (d.platform === "esp32") {
     area.innerHTML = `
+      ${eraseBox(!fw.full)}
       <div class="fl-actions">
-        <button class="btn btn-green" id="flUpd" ${na(!hasSerial || !fw.update)}>Aktualizuj (zachowa ustawienia)</button>
-        <button class="btn btn-warn" id="flFull" ${na(!hasSerial || !fw.full)}>Czysta instalacja (kasuje wszystko)</button>
+        <button class="btn btn-green" id="flEsp" ${na(!hasSerial || !fw.update)}>Wgraj przez USB</button>
         ${dl(fw.update, "Pobierz .bin")}
       </div>
       <div class="fl-hint">Podłącz ${esc(d.name)} kablem USB z transmisją danych, kliknij przycisk i wybierz port z listy.
       Jeśli połączenie się nie uda: przytrzymaj BOOT, naciśnij i puść RESET, puść BOOT i spróbuj ponownie.
-      Czysta instalacja ustawia SF6 od razu, ale usuwa klucze i konfigurację – urządzenie dostanie nową tożsamość.</div>`;
-    $("flUpd").onclick = () => flashEsp(fw, false);
-    $("flFull").onclick = () => {
-      if (confirm("Czysta instalacja skasuje całą pamięć, w tym klucz prywatny i ustawienia. Kontynuować?")) flashEsp(fw, true);
+      Bez kasowania ustawienia zapisane w urządzeniu zostają zachowane.</div>`;
+    $("flEsp").onclick = () => {
+      const wipe = $("flErase").checked;
+      if (wipe && !confirmErase()) return;
+      flashEsp(fw, wipe);
     };
   } else if (d.platform === "nrf52" && fw.zip) {
     area.innerHTML = `
+      ${eraseBox(false)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
         <button class="btn btn-green-line" id="flNrfCont" hidden>Kontynuuj – wybierz port DFU</button>
@@ -119,7 +127,7 @@ function renderFlash() {
       <div class="fl-hint"><ol>
         <li>Podłącz ${esc(d.name)} kablem USB i kliknij „Wgraj przez USB”. Wybierz port urządzenia.</li>
         <li>Urządzenie zrestartuje się w tryb DFU. Jeśli strona poprosi, kliknij „Kontynuuj” i wybierz <b>nowy</b> port, który się pojawił.</li>
-        <li>Poczekaj do końca (około minuty) – nie odłączaj kabla. Ustawienia zapisane w urządzeniu zostają zachowane.</li>
+        <li>Poczekaj do końca (około minuty, z kasowaniem około dwóch) – nie odłączaj kabla. Bez kasowania ustawienia zapisane w urządzeniu zostają zachowane.</li>
       </ol>
       Urządzenie jest już w trybie DFU (np. po dwukrotnym kliknięciu RESET)? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</div>
       <details class="fl-log"><summary>Inny sposób: plik na dysk urządzenia</summary>
@@ -129,9 +137,19 @@ function renderFlash() {
         </div>
         <p class="fl-hint">Po włączeniu trybu DFU pojawi się dysk (np. RAK4631, T114BOOT). Przeciągnij na niego plik .uf2. Plik .zip służy do aktualizacji przez Bluetooth (nRF Connect).</p>
       </details>`;
-    $("flNrf").onclick = () => nrfStart(d, fw);
+    $("flNrf").onclick = () => {
+      state.nrfErase = $("flErase").checked;
+      if (state.nrfErase && !confirmErase()) return;
+      nrfStart(d, fw);
+    };
     $("flNrfCont").onclick = () => nrfPickAndFlash();
-    $("flNrfDirect").onclick = e => { e.preventDefault(); if (!state.busy && hasSerial) nrfPickAndFlash(fw); };
+    $("flNrfDirect").onclick = e => {
+      e.preventDefault();
+      if (state.busy || !hasSerial) return;
+      state.nrfErase = $("flErase").checked;
+      if (state.nrfErase && !confirmErase()) return;
+      nrfPickAndFlash(fw);
+    };
     $("flDfu").onclick = () => enterDfu(d);
   } else if (d.platform === "nrf52" || d.platform === "rp2040") {
     const drive = d.platform === "rp2040" ? "RPI-RP2" : "dysk bootloadera, np. RAK4631, T114BOOT, T1000-E";
@@ -208,11 +226,64 @@ async function nrfPickAndFlash(fw) {
   return nrfFlash(port, fw);
 }
 
+// obraz kasujący (tools/nrf52-erase): kasuje aplikację i dane, potem wraca do trybu DFU
+function erasePackage(lib, pkg) {
+  const n = pkg.dat[8] | (pkg.dat[9] << 8);
+  const sds = [];
+  for (let i = 0; i < n; i++) sds.push(pkg.dat[10 + 2 * i] | (pkg.dat[11 + 2 * i] << 8));
+  const v7 = sds.some(x => x >= 0xca && x !== 0xfffe); // S140 v7.x: aplikacja od 0x27000, v6.x: od 0x26000
+  return { url: window.FL_NRF_ERASE[v7 ? "v7" : "v6"], head: pkg.dat.slice(0, 10 + 2 * n) };
+}
+
+function waitForPort(vid, pid, timeout) {
+  return new Promise(resolve => {
+    const h = e => {
+      const i = e.target.getInfo();
+      if (i.usbVendorId === vid && i.usbProductId === pid) { done(); resolve(e.target); }
+    };
+    const t = setTimeout(() => { done(); resolve(null); }, timeout);
+    const done = () => { clearTimeout(t); navigator.serial.removeEventListener("connect", h); };
+    navigator.serial.addEventListener("connect", h);
+  });
+}
+
+async function nrfErase(port, pkg, lib) {
+  const e = erasePackage(lib, pkg);
+  log("Pobieram program kasujący (" + baseName(e.url) + ")");
+  const r = await fetch(e.url);
+  if (!r.ok) throw new Error("nie udało się pobrać programu kasującego (HTTP " + r.status + ")");
+  const bin = new Uint8Array(await r.arrayBuffer());
+  const crc = lib.crc16(bin);
+  const dat = new Uint8Array([...e.head, crc & 0xff, crc >> 8]);
+  const { usbVendorId: vid, usbProductId: pid } = port.getInfo();
+  setStatus("Kasowanie pamięci: wgrywanie programu kasującego…");
+  const back = waitForPort(vid, pid, 120000);
+  await lib.flashNrfDfu(port, { bin, dat }, { log });
+  setStatus("Kasowanie całej pamięci… (około 30 s, nie odłączaj urządzenia)");
+  log("Program kasujący działa, czekam na powrót urządzenia w trybie DFU");
+  const again = await back;
+  if (!again) return null;
+  await sleep(1500);
+  log("Pamięć skasowana, urządzenie w trybie DFU");
+  return again;
+}
+
 async function nrfFlash(port, fw) {
   lockUi(true); setProgress(0);
   try {
     const pkg = await nrfPackage(fw);
     const lib = await nrfLib();
+    if (state.nrfErase) {
+      const again = await nrfErase(port, pkg, lib);
+      state.nrfErase = false; // pamięć już czysta – ewentualne ponowienie tylko wgrywa
+      if (!again) {
+        state.nrfFw = fw;
+        $("flNrfCont").hidden = false;
+        setStatus("Pamięć skasowana. Kliknij „Kontynuuj” i wybierz port urządzenia w trybie DFU, żeby wgrać firmware.", "ok");
+        return;
+      }
+      port = again;
+    }
     setStatus("Wgrywanie… nie odłączaj urządzenia (około minuty)");
     await lib.flashNrfDfu(port, pkg, { onProgress: f => setProgress(f * 100), log });
     setProgress(100);

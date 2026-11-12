@@ -18,7 +18,8 @@ def gh(path):
 
 # 1. strony i zasoby
 for path in ["/", "/flasher.php", "/statystyki.php", "/assets/style.css", "/assets/flasher.js",
-             "/assets/nrf-dfu.js", "/assets/rpt-map.js"]:
+             "/assets/nrf-dfu.js", "/assets/rpt-map.js",
+             "/assets/nrf52-erase-s140v6.bin", "/assets/nrf52-erase-s140v7.bin"]:
     try:
         st, _, body = req(SITE + path)
         txt = body.decode("utf-8", "replace")

@@ -1,0 +1,16 @@
+MEMORY
+{
+  FLASH (rx) : ORIGIN = @APP_START@, LENGTH = 0x2000
+  RAM (rwx)  : ORIGIN = 0x20008000, LENGTH = 0x8000
+}
+ENTRY(reset_handler)
+SECTIONS
+{
+  __app_start = ORIGIN(FLASH);
+  .text : { KEEP(*(.vectors)) *(.text*) *(.rodata*) } > FLASH
+  .data : { __data_start = .; *(.ramfunc*) *(.data*) . = ALIGN(4); __data_end = .; } > RAM AT > FLASH
+  __data_load = LOADADDR(.data);
+  .bss (NOLOAD) : { *(.bss*) *(COMMON) } > RAM
+  __stack_top = ORIGIN(RAM) + LENGTH(RAM);
+  /DISCARD/ : { *(.ARM.*) *(.comment) }
+}
