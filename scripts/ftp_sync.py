@@ -151,6 +151,10 @@ if __name__ == "__main__":
             print("\n".join(listdir(ftp, norm(sys.argv[2]))))
         elif cmd == "rmtree":
             rmtree(ftp, norm(sys.argv[2]))
+        elif cmd == "cat":
+            import io
+            buf = io.BytesIO(); ftp.retrbinary("RETR " + norm(sys.argv[2]), buf.write)
+            sys.stdout.write(buf.getvalue().decode("utf-8", "replace"))
         elif cmd == "rm":
             try:
                 ftp.delete(norm(sys.argv[2]))

@@ -6,6 +6,10 @@ on:
       path:
         description: "Katalog względem katalogu głównego strony (np. meshspeed)"
         default: ""
+      cat:
+        description: "Pokaż zawartość pliku tekstowego zamiast listy"
+        type: boolean
+        default: false
 
 jobs:
   ls:
@@ -18,7 +22,8 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: ${{ secrets.FTP_DIR }}
           P: ${{ inputs.path }}
+          CAT: ${{ inputs.cat }}
         run: |
-          out=$(python3 scripts/ftp_sync.py ls "${FTP_DIR%/}/$P" | sort | head -200)
+          if [ "$CAT" = "true" ]; then out=$(python3 scripts/ftp_sync.py cat "${FTP_DIR%/}/$P" | head -c 60000); else out=$(python3 scripts/ftp_sync.py ls "${FTP_DIR%/}/$P" | sort | head -200); fi
           echo "$out"
           echo "::notice title=Pliki w /$P::$(echo "$out" | sed ':a;N;$!ba;s/\n/%0A/g')"
