@@ -353,7 +353,8 @@ require __DIR__ . '/includes/map-svg.php';
       </a>
     </div>
 
-    <div class="actions" style="display:flex; justify-content:center; margin-top:32px;">
+    <div class="actions" style="display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:32px;">
+      <a href="/mapper-sf6.php" class="btn btn-line">Więcej o Mapperze ›</a>
       <a href="<?= URL_MAPPER ?>" class="btn btn-green" target="_blank" rel="noopener">Otwórz mapę Mappera ↗</a>
     </div>
   </div>

@@ -103,3 +103,4 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - Menu: 3 rozwijane grupy (Sieć / Start / Aplikacje) + Flasher, definiowane w tablicy `$menu` w includes/header.php; poniżej 1000 px przycisk ☰ z pełnym menu mobilnym.
 - Podstrona meshspeed.php: strona produktowa aplikacji MeshSpeed w kolorach aplikacji (style `.ms-*`, fonty IBM Plex z /meshspeed/fonts). Wersję APK odczytuje sama z /meshspeed/apk/. Link TestFlight: stała URL_MESHSPEED_IOS w config.php (dopóki brak – karta „Wkrótce”).
 - Instrukcja repeatera: najpierw konfiguracja w aplikacji na telefonie (tabela ustawień), potem CLI.
+- Podstrona mapper-sf6.php: strona produktowa Mappera SF6 w kolorach aplikacji Mapper (style `.mp-*`, granat + błękit). Wersję APK odczytuje sama z /mapper/apk/. Menu Aplikacje → Mapper SF6 i sekcja #mapper na głównej („Więcej o Mapperze ›”) prowadzą tutaj.

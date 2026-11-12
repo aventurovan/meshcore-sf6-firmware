@@ -17,7 +17,7 @@ def gh(path):
     return json.loads(req("https://api.github.com" + path, headers={"Authorization": f"Bearer {TOKEN}"})[2])
 
 # 1. strony i zasoby
-for path in ["/", "/flasher.php", "/instrukcja.php", "/meshspeed.php", "/statystyki.php", "/assets/style.css", "/assets/flasher.js",
+for path in ["/", "/flasher.php", "/instrukcja.php", "/meshspeed.php", "/mapper-sf6.php", "/statystyki.php", "/assets/style.css", "/assets/flasher.js",
              "/assets/nrf-dfu.js", "/assets/rpt-map.js",
              "/assets/nrf52-erase-s140v6.bin", "/assets/nrf52-erase-s140v7.bin"]:
     try:

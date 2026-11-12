@@ -65,7 +65,7 @@ $radio = PRESET_FREQ . ',' . PRESET_BW . ',' . PRESET_SF . ',' . PRESET_CR;
         </li>
         <li>
           <h3>Mapowanie zasięgu (opcjonalnie)</h3>
-          <p>Pomóż budować mapę sieci aplikacją <a href="/#mapper">Mapper SF6</a> – z telefonu albo z urządzeniem z firmware Companion + Mapper.</p>
+          <p>Pomóż budować mapę sieci aplikacją <a href="/mapper-sf6.php">Mapper SF6</a> – z telefonu albo z urządzeniem z firmware Companion + Mapper.</p>
         </li>
       </ol>
 

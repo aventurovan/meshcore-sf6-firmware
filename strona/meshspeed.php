@@ -95,7 +95,7 @@ $URL_MS_IOS = defined('URL_MESHSPEED_IOS') ? URL_MESHSPEED_IOS : '';
         <article class="ms-feat">
           <div class="ms-ico"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
           <h3>Mapper SF6 w środku</h3>
-          <p>Mapowanie zasięgu prosto z aplikacji – punkty trafiają do tej samej bazy co <a href="/#mapper">Mapper SF6</a>. GPS z telefonu albo z radia, interwał dopasowany do prędkości.</p>
+          <p>Mapowanie zasięgu prosto z aplikacji – punkty trafiają do tej samej bazy co <a href="/mapper-sf6.php">Mapper SF6</a>. GPS z telefonu albo z radia, interwał dopasowany do prędkości.</p>
         </article>
         <article class="ms-feat">
           <div class="ms-ico"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg></div>

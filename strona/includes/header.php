@@ -48,7 +48,7 @@ $page_description = $page_description ?? 'Niezależna sieć LoRa off-grid dla Ś
       'Aplikacje' => [
         ['/meshspeed.php', 'MeshSpeed', 'Nasza aplikacja do MeshCore'],
         ['/#pobierz', 'Aplikacja MeshCore', 'Oficjalna aplikacja: telefon i komputer'],
-        ['/#mapper', 'Mapper SF6', 'Mapowanie zasięgu sieci'],
+        ['/mapper-sf6.php', 'Mapper SF6', 'Mapowanie zasięgu sieci'],
       ],
     ];
     $here = basename(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: 'index.php');
