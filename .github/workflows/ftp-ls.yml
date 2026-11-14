@@ -14,6 +14,9 @@ on:
         description: "Pobierz cały katalog jako artefakt (zip)"
         type: boolean
         default: false
+      delete:
+        description: "Usuń pliki w katalogu 'path' (nazwy oddzielone spacją, bez ukośników)"
+        default: ""
 
 permissions:
   contents: write
@@ -23,6 +26,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Usuwanie plików
+        if: ${{ inputs.delete != '' }}
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          P: ${{ inputs.path }}
+          D: ${{ inputs.delete }}
+        run: |
+          for f in $D; do
+            case "$f" in */*|..|.|*.php) echo "::error::Pominięto '$f'"; continue;; esac
+            python3 scripts/ftp_sync.py rm "${FTP_DIR%/}/${P:+$P/}$f" && echo "::notice::Usunięto /${P:+$P/}$f"
+          done
       - env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
