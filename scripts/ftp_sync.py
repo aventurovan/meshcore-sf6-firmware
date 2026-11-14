@@ -151,6 +151,19 @@ if __name__ == "__main__":
             print("\n".join(listdir(ftp, norm(sys.argv[2]))))
         elif cmd == "rmtree":
             rmtree(ftp, norm(sys.argv[2]))
+        elif cmd == "get":
+            # get <katalog zdalny> <katalog lokalny> – pobiera cały katalog rekurencyjnie
+            def pull(rd, ld):
+                os.makedirs(ld, exist_ok=True)
+                for name in listdir(ftp, rd):
+                    rp = posixpath.join(rd, name); lp = os.path.join(ld, name)
+                    try:
+                        with open(lp, "wb") as fh:
+                            ftp.retrbinary("RETR " + rp, fh.write)
+                    except ftplib.error_perm:
+                        os.remove(lp)
+                        pull(rp, lp)
+            pull(norm(sys.argv[2]), sys.argv[3])
         elif cmd == "cat":
             import io
             buf = io.BytesIO(); ftp.retrbinary("RETR " + norm(sys.argv[2]), buf.write)

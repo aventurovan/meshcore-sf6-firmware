@@ -10,6 +10,10 @@ on:
         description: "Pokaż zawartość pliku tekstowego zamiast listy"
         type: boolean
         default: false
+      download:
+        description: "Pobierz cały katalog jako artefakt (zip)"
+        type: boolean
+        default: false
 
 jobs:
   ls:
@@ -27,3 +31,18 @@ jobs:
           if [ "$CAT" = "true" ]; then out=$(python3 scripts/ftp_sync.py cat "${FTP_DIR%/}/$P" | head -c 60000); else out=$(python3 scripts/ftp_sync.py ls "${FTP_DIR%/}/$P" | sort | head -200); fi
           echo "$out"
           echo "::notice title=Pliki w /$P::$(echo "$out" | sed ':a;N;$!ba;s/\n/%0A/g')"
+      - name: Pobranie katalogu
+        if: ${{ inputs.download }}
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          P: ${{ inputs.path }}
+        run: python3 scripts/ftp_sync.py get "${FTP_DIR%/}/$P" pobrane
+      - uses: actions/upload-artifact@v7
+        if: ${{ inputs.download }}
+        with:
+          name: pobrane
+          path: pobrane
+          retention-days: 3
