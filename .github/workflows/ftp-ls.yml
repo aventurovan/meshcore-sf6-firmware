@@ -15,6 +15,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+
 jobs:
   ls:
     runs-on: ubuntu-latest
@@ -40,9 +43,14 @@ jobs:
           FTP_DIR: ${{ secrets.FTP_DIR }}
           P: ${{ inputs.path }}
         run: python3 scripts/ftp_sync.py get "${FTP_DIR%/}/$P" pobrane
-      - uses: actions/upload-artifact@v7
+      - name: Zapis na gałęzi ftp-pobrane
         if: ${{ inputs.download }}
-        with:
-          name: pobrane
-          path: pobrane
-          retention-days: 3
+        env:
+          P: ${{ inputs.path }}
+        run: |
+          git config user.name "sf6-bot"; git config user.email "sf6-bot@users.noreply.github.com"
+          git checkout -q --orphan ftp-pobrane
+          git rm -rq --cached . ; find . -mindepth 1 -maxdepth 1 ! -name .git ! -name pobrane -exec rm -rf {} +
+          mkdir -p "kopia/$P" && cp -r pobrane/. "kopia/$P/" && rm -rf pobrane
+          git add kopia && git commit -qm "Kopia z FTP: /$P" && git push -fq origin ftp-pobrane
+          echo "::notice::Kopia /$P na gałęzi ftp-pobrane"
