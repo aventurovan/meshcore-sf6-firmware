@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="pl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeshCore Południe - Konfigurator Repeatera</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- TweetNaCl (do szyfrowania i Web Workera) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl.min.js"></script>
+    <!-- Leaflet JS & CSS (do mapy) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#10b981', // Emerald 500
+                            hover: '#059669',
+                            dark: '#064e3b'
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; } 
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Spinner */
+        .loader {
+            border: 2px solid #1e293b;
+            border-top: 2px solid #10b981;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-gray-200 font-sans min-h-screen flex flex-col">
+
+    <!-- Custom Modal UI -->
+    <div id="customModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100] backdrop-blur-sm transition-opacity">
+        <div class="bg-navy-900 border border-gray-700 rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 id="modalTitle" class="text-lg font-bold text-white mb-3"></h3>
+            <p id="modalText" class="text-sm text-gray-300 mb-6 leading-relaxed"></p>
+            <div class="flex justify-end gap-3" id="modalButtons"></div>
+        </div>
+    </div>
+
+    <!-- Map Modal UI -->
+    <div id="mapModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100] backdrop-blur-sm transition-opacity">
+        <div class="bg-navy-900 border border-gray-700 rounded-lg shadow-2xl p-6 max-w-4xl w-full mx-4 flex flex-col h-[85vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center"><i data-lucide="map" class="w-5 h-5 mr-2 text-brand"></i> Wybierz lokalizację węzła</h3>
+                <button id="btnCloseMap" class="text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div id="mapContainer" class="flex-grow rounded-lg overflow-hidden border border-gray-700 relative z-0 bg-gray-800"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+                <div class="text-sm text-gray-400">
+                    Współrzędne pinezki: <span id="mapSelectedCoords" class="text-brand font-mono font-bold ml-1">Brak</span>
+                </div>
+                <button id="btnConfirmMap" class="px-6 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold rounded shadow transition text-sm flex items-center">
+                    <i data-lucide="check" class="w-4 h-4 mr-2"></i> Zatwierdź współrzędne
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Nawigacja -->
+    <header class="bg-navy-950 border-b border-gray-800 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <svg class="w-8 h-8 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                <h1 class="text-xl font-bold text-white tracking-widest uppercase">MeshCore <span class="text-brand">Południe SF6</span></h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Status obok przycisku łączenia -->
+                <div class="flex items-center bg-navy-900 px-4 py-2 rounded-lg border border-gray-800 shadow-inner">
+                    <div id="statusDot" class="w-3 h-3 rounded-full bg-red-500 mr-2 shadow-[0_0_5px_rgba(239,68,68,0.8)] transition-colors duration-300"></div>
+                    <span id="statusText" class="text-xs text-gray-300 font-bold uppercase tracking-wider">Rozłączono</span>
+                    <span id="status_info_id" class="text-xs text-brand font-bold ml-3 pl-3 border-l border-gray-700 hidden"></span>
+                </div>
+
+                <!-- Przycisk łączenia -->
+                <button id="btnConnect" class="flex items-center px-5 py-2.5 bg-brand hover:bg-brand-hover text-white rounded shadow transition font-bold text-sm">
+                    <i data-lucide="plug" class="w-4 h-4 mr-2"></i> Połącz (USB)
+                </button>
+                <button id="btnDisconnect" class="hidden flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded shadow transition font-bold text-sm">
+                    <i data-lucide="power-off" class="w-4 h-4 mr-2"></i> Rozłącz
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 xl:grid-cols-3 gap-6 relative">
+        
+        <!-- Lewa kolumna: Ustawienia -->
+        <div class="xl:col-span-2 opacity-50 pointer-events-none transition-opacity duration-300 flex flex-col gap-6" id="configForms">
+            
+            <!-- INFO & ACTIONS -->
+            <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2">Informacje i Akcje</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Typ Płytki</div>
+                        <div id="info_board" class="font-mono text-sm text-brand">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Wersja FW</div>
+                        <div id="info_fw" class="font-mono text-sm text-white">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Status Repeatera</div>
+                        <div id="info_repeat" class="font-mono text-sm text-white">-</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Zegar</div>
+                        <div class="flex items-center gap-2">
+                            <div id="info_clock" class="font-mono text-sm text-white">-</div>
+                            <span id="clock_warning" class="text-[10px] text-red-400 font-bold hidden bg-red-900/30 px-1 rounded border border-red-800" title="Czas różni się o ponad 12 godzin!">(Zły czas)</span>
+                            <button id="btnSyncClock" class="hidden px-2 py-0.5 bg-red-900/50 hover:bg-red-800 border border-red-700 text-red-200 text-[10px] rounded transition shadow-sm" title="Synchronizuj z komputerem">
+                                <i data-lucide="refresh-cw" class="w-3 h-3 inline"></i> Sync
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button id="btnAdvert" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-sm text-white rounded transition shadow">Wyślij Advert</button>
+                    <button id="btnToggleRepeat" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-sm text-white rounded transition shadow">
+                        Włącz/Wyłącz Repeater
+                    </button>
+                    <button id="btnOTA" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-sm text-white rounded transition shadow">Aktualizacja OTA</button>
+                    <button id="btnReboot" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-sm text-white rounded transition shadow">Restart</button>
+                    <button id="btnFactory" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-sm text-white rounded transition shadow ml-auto">Ustawienia Fabryczne</button>
+                </div>
+                
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-4 pt-4 border-t border-gray-700">
+                    <button id="btnReload" class="px-5 py-2 bg-navy-900 hover:bg-navy-950 border border-brand text-sm text-brand rounded transition font-bold shadow-sm whitespace-nowrap">
+                        Odśwież Informacje
+                    </button>
+                    
+                    <div class="flex flex-wrap items-center lg:justify-end gap-3 w-full">
+                        <!-- NEW APPLY IMPORT BUTTON -->
+                        <button id="btnApplyImport" class="hidden px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-sm text-white font-bold rounded transition shadow-sm flex items-center shadow-[0_0_10px_rgba(202,138,4,0.4)]">
+                            <i data-lucide="zap" class="w-4 h-4 mr-2"></i> Zastosuj Import i Restart
+                        </button>
+                        
+                        <!-- EXPORT / IMPORT -->
+                        <button id="btnExport" class="px-4 py-2 bg-navy-900 hover:bg-navy-950 border border-gray-600 text-sm text-gray-300 rounded transition shadow-sm flex items-center">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> Eksportuj
+                        </button>
+                        <button id="btnImport" class="px-4 py-2 bg-navy-900 hover:bg-navy-950 border border-gray-600 text-sm text-gray-300 rounded transition shadow-sm flex items-center">
+                            <i data-lucide="upload" class="w-4 h-4 mr-2"></i> Importuj
+                        </button>
+                        <input type="file" id="fileImportConfig" accept=".json" class="hidden">
+                    </div>
+                </div>
+            </section>
+
+            <!-- SPRAWDZENIE PREFIKSU -->
+            <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2 flex justify-between items-center">
+                    <span>Weryfikacja Prefiksu RPT</span>
+                    <a href="https://prefix.meshcoresouth.pl/" target="_blank" class="text-xs text-brand hover:underline flex items-center normal-case font-normal">
+                        Baza wolnych prefiksów <i data-lucide="external-link" class="w-3 h-3 ml-1"></i>
+                    </a>
+                </h2>
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-shrink-0 text-center bg-navy-950 p-4 rounded-lg border border-gray-700 min-w-[120px]">
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Prefiks RPT</div>
+                        <div id="display_prefix" class="font-mono text-4xl text-white font-bold tracking-widest">--</div>
+                    </div>
+                    <div class="flex-grow w-full bg-navy-900 rounded-lg border border-gray-700 p-4 min-h-[88px] flex items-center">
+                        <div id="prefix_status_msg" class="text-sm text-gray-400 w-full">
+                            Odczytaj dane z repeatera, aby sprawdzić prefiks.
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 w-full md:w-auto">
+                        <button id="btnCheckPrefix" class="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 text-sm text-white font-bold rounded transition shadow flex items-center justify-center">
+                            <i data-lucide="search" class="w-4 h-4 mr-2"></i> Sprawdź
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grid 2-kolumnowy -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- NAME & LOCATION -->
+                <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                    <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2">Nazwa i Lokalizacja</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Nazwa Węzła (Node Name):</label>
+                            <input type="text" id="conf_name" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" placeholder="Wpisz nazwę węzła">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Szer. (Lat):</label>
+                                <input type="text" id="conf_lat" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" placeholder="np. 49.822">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Dług. (Lon):</label>
+                                <input type="text" id="conf_lon" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" placeholder="np. 19.044">
+                            </div>
+                        </div>
+                        <!-- Przycisk mapy -->
+                        <button id="btnOpenMap" class="w-full mt-1 px-4 py-2 bg-navy-900 hover:bg-navy-950 border border-brand/50 hover:border-brand text-xs text-brand font-medium rounded transition shadow flex items-center justify-center">
+                            <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i> Wybierz z mapy
+                        </button>
+                        <button id="btnApplyLoc" class="w-full mt-2 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-sm text-white font-medium rounded transition shadow">Zastosuj Nazwę i Lokalizację</button>
+                    </div>
+                </section>
+
+                <!-- USTAWIENIA ROZGŁASZANIA (ADVERT) -->
+                <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                    <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2">Rozgłaszanie (Advert)</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Advert Flood:</label>
+                                <input type="number" id="conf_flood_adv_int" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" value="3">
+                                <p class="text-[10px] text-gray-500 mt-1">Domyślnie 3h</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Zero Hop:</label>
+                                <input type="number" id="conf_adv_int" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" value="0">
+                                <p class="text-[10px] text-gray-500 mt-1">Domyślnie 0</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Max Hops:</label>
+                            <input type="number" id="conf_flood_max" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" value="64">
+                        </div>
+                        <button id="btnApplyAdvert" class="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-sm text-white font-medium rounded transition shadow">Zastosuj Advert</button>
+                    </div>
+                </section>
+
+                <!-- RADIO SETTINGS -->
+                <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                    <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2">Ustawienia Radia</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Gotowy Preset:</label>
+                            <select id="presetSelect" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand">
+                                <option value="">Wybierz preset (opcjonalnie)...</option>
+                                <option value="mc_poludnie">MeshCore Południe (869.618, BW 62.5, SF 6, CR 8)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Częst. (MHz):</label>
+                                <input type="number" step="0.001" id="conf_freq" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" value="869.618">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Szer. (BW):</label>
+                                <select id="conf_bw" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand">
+                                    <option value="62.5" selected>62.5</option>
+                                    <option value="125.0">125.0</option>
+                                    <option value="250.0">250.0</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">SF:</label>
+                                <select id="conf_sf" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand">
+                                    <option value="6" selected>6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="11">11</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">CR:</label>
+                                <select id="conf_cr" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand">
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8" selected>8</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">TX Power:</label>
+                                <input type="number" id="conf_tx" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" placeholder="22">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Airtime Factor:</label>
+                                <input type="number" id="conf_af" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand" placeholder="1">
+                            </div>
+                        </div>
+                        
+                        <div id="radio_warning" class="hidden mt-2 px-3 py-2 bg-yellow-900/40 border border-yellow-500/50 rounded-md text-xs text-yellow-200">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1 -mt-0.5 text-yellow-500"></i>
+                            <strong class="text-yellow-500">Uwaga!</strong> Odczytane ustawienia radia różnią się od standardu. Węzeł nie będzie działał w sieci MeshCore Południe. Zastosuj nasz preset.
+                        </div>
+                        
+                        <button id="btnApplyRadio" class="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-sm text-white font-medium rounded transition shadow">Zastosuj Radio</button>
+                    </div>
+                </section>
+
+                <!-- ACCESS -->
+                <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                    <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2">Dostęp (Hasła i ACL)</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Hasło Admina:</label>
+                            <div class="relative flex items-center">
+                                <input type="password" id="conf_admin_pass" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 pr-10 text-sm text-white focus:outline-none focus:border-brand" placeholder="Hasło admina">
+                                <button type="button" onclick="toggleVisibility('conf_admin_pass', this)" class="absolute right-3 text-gray-500 hover:text-gray-300 transition focus:outline-none">
+                                    <i data-lucide="eye" class="w-4 h-4 icon-show"></i>
+                                    <i data-lucide="eye-off" class="w-4 h-4 icon-hide hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Hasło Gościa:</label>
+                            <div class="relative flex items-center">
+                                <input type="password" id="conf_guest_pass" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 pr-10 text-sm text-white focus:outline-none focus:border-brand" placeholder="Hasło gościa">
+                                <button type="button" onclick="toggleVisibility('conf_guest_pass', this)" class="absolute right-3 text-gray-500 hover:text-gray-300 transition focus:outline-none">
+                                    <i data-lucide="eye" class="w-4 h-4 icon-show"></i>
+                                    <i data-lucide="eye-off" class="w-4 h-4 icon-hide hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="btnSetPasswords" class="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-sm text-white font-medium rounded transition shadow">Zapisz Hasła</button>
+                        
+                        <div class="border-t border-gray-700 pt-4 mt-4">
+                            <label class="block text-xs text-gray-400 mb-1">Uprawnienia ACL:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="conf_acl_key" class="flex-grow bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand font-mono" placeholder="Klucz publiczny">
+                                <select id="conf_acl_perm" class="w-32 bg-navy-950 border border-gray-700 rounded p-2.5 text-xs text-white focus:outline-none focus:border-brand">
+                                    <option value="0">Brak</option>
+                                    <option value="1">Gość</option>
+                                    <option value="2">Odczyt/Zapis</option>
+                                    <option value="3">Admin</option>
+                                </select>
+                                <button id="btnSetACL" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-sm text-white rounded transition">Dodaj</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- PRIVATE / PUBLIC KEY -->
+            <section class="bg-navy-800 rounded-lg border border-gray-700 shadow-lg p-5">
+                <h2 class="text-md font-bold text-white mb-4 uppercase tracking-wide border-b border-gray-700 pb-2 flex justify-between">
+                    <span>Klucz Prywatny / Publiczny</span>
+                    <a href="https://prefix.meshcoresouth.pl/" target="_blank" class="text-xs text-brand hover:underline flex items-center normal-case font-normal">
+                        Sprawdź wolne prefixy <i data-lucide="external-link" class="w-3 h-3 ml-1"></i>
+                    </a>
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="w-full md:w-1/3">
+                            <label class="block text-xs text-gray-400 mb-1">Oczekiwane ID (hex):</label>
+                            <input type="text" id="conf_desired_id" maxlength="4" class="w-full bg-navy-950 border border-gray-700 rounded p-2.5 text-sm text-white focus:outline-none focus:border-brand font-mono uppercase tracking-widest" placeholder="np. AB">
+                            <p class="text-[10px] text-gray-500 mt-1 leading-tight">Podaj 1 bajt (np. AB) dla szybkiego wyniku, lub 2 bajty (np. AB12) - to może potrwać dłuższą chwilę.</p>
+                        </div>
+                        
+                        <div class="w-full md:w-2/3 bg-navy-900 p-3 rounded-lg border border-gray-700 shadow-inner">
+                            <div class="space-y-4 pt-1">
+                                <div class="flex items-center w-full relative">
+                                    <span class="w-20 text-xs text-gray-500 uppercase tracking-wider font-semibold">Prywatny:</span>
+                                    <input type="password" id="conf_priv_key" class="flex-grow bg-transparent border-b border-gray-700 pb-1 pr-8 text-sm text-brand focus:border-brand focus:outline-none font-mono" placeholder="Odczytany klucz prywatny">
+                                    <button type="button" onclick="toggleVisibility('conf_priv_key', this)" class="absolute right-0 text-gray-500 hover:text-gray-300 transition focus:outline-none pb-1">
+                                        <i data-lucide="eye" class="w-4 h-4 icon-show"></i>
+                                        <i data-lucide="eye-off" class="w-4 h-4 icon-hide hidden"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center w-full relative">
+                                    <span class="w-20 text-xs text-gray-500 uppercase tracking-wider font-semibold">Publiczny:</span>
+                                    <input type="text" id="conf_pub_key" class="flex-grow bg-transparent border-b border-gray-700 pb-1 text-sm text-gray-300 focus:outline-none font-mono" readonly placeholder="Odczytany klucz publiczny">
+                                </div>
+                            </div>
+                            <div id="key_collision_warning" class="hidden mt-3 px-3 py-2 bg-red-900/40 border border-red-500/50 rounded-md text-xs text-red-200">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1 -mt-0.5 text-red-500"></i>
+                                <strong class="text-red-400">Kolizja!</strong> Prefiks <span id="key_collision_prefix" class="font-mono text-white font-bold"></span> jest zajęty. Zmień ID i wygeneruj klucz ponownie.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-3 border-t border-gray-700 pt-4">
+                        <button id="btnGenerateKey" class="px-5 py-2.5 bg-brand hover:bg-brand-hover text-white font-bold rounded shadow transition flex items-center">
+                            <span id="genSpinner" class="loader mr-2 hidden"></span> 
+                            Generuj Klucz (Vanity)
+                        </button>
+                        <span id="genSpinnerStatus" class="text-xs text-brand font-mono min-w-[120px]"></span>
+                        <div class="flex-grow"></div>
+                        <button id="btnApplyKey" class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded shadow transition">Zapisz i Ustaw Klucz Prywatny</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Prawa kolumna: Konsola CLI -->
+        <div class="xl:col-span-1 h-[600px] xl:h-[calc(100vh-120px)] xl:sticky xl:top-24 flex flex-col bg-navy-900 rounded-lg border border-gray-700 shadow-xl overflow-hidden mt-6 xl:mt-0">
+            <div class="bg-navy-800 px-4 py-3 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-gray-200 flex items-center uppercase tracking-wider">
+                    <i data-lucide="terminal-square" class="w-4 h-4 mr-2 text-brand"></i> Terminal
+                </h3>
+                <button id="btnClear" class="text-xs text-gray-400 hover:text-white transition">Wyczyść</button>
+            </div>
+            
+            <!-- Okno Logów -->
+            <div id="terminalOutput" class="flex-grow p-3 font-mono text-[12px] text-gray-300 overflow-y-auto whitespace-pre-wrap leading-relaxed"></div>
+            
+            <!-- Wpisanie komendy -->
+            <div class="bg-navy-800 p-2 border-t border-gray-700 flex items-center">
+                <span class="text-brand font-mono px-2 font-bold">></span>
+                <input type="text" id="terminalInput" class="flex-grow bg-transparent border-none text-brand font-bold text-sm focus:outline-none focus:ring-0" placeholder="Wpisz komendę (np. get name)..." autocomplete="off" disabled>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- Skrypty logiki -->
+    <script>
+        // Inicjalizacja ikon 
+        if (window.lucide) { lucide.createIcons(); }
+
+        let currentBoardType = "esp32";
+
+        // System Modali
+        function showModal(title, text, isConfirm = false, onConfirm = null) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').innerHTML = text.replace(/\n/g, '<br>');
+            
+            const btnContainer = document.getElementById('modalButtons');
+            btnContainer.innerHTML = '';
+            
+            if (isConfirm) {
+                const btnCancel = document.createElement('button');
+                btnCancel.className = "px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition text-sm font-bold";
+                btnCancel.textContent = "Anuluj";
+                btnCancel.onclick = () => { modal.classList.replace('flex', 'hidden'); };
+                btnContainer.appendChild(btnCancel);
+            }
+            
+            const btnOk = document.createElement('button');
+            btnOk.className = "px-4 py-2 bg-brand hover:bg-brand-hover text-white rounded transition text-sm font-bold";
+            btnOk.textContent = "OK";
+            btnOk.onclick = () => { 
+                modal.classList.replace('flex', 'hidden'); 
+                if (onConfirm) onConfirm(); 
+            };
+            btnContainer.appendChild(btnOk);
+            
+            modal.classList.replace('hidden', 'flex');
+        }
+
+        window.toggleVisibility = function(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const iconShow = btn.querySelector('.icon-show');
+            const iconHide = btn.querySelector('.icon-hide');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                iconShow.classList.add('hidden');
+                iconHide.classList.remove('hidden');
+            } else {
+                input.type = "password";
+                iconShow.classList.remove('hidden');
+                iconHide.classList.add('hidden');
+            }
+        }
+
+        // -------------------------------------------------------------
+        // BLZYSKAWICZNY GENERATOR KLUCZY (Pełny Expanded Ed25519)
+        // -------------------------------------------------------------
+        async function generateVanityKey(prefixHex) {
+            return new Promise((resolve) => {
+                const workerCode = `
+                    importScripts('https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl.min.js');
+                    
+                    self.onmessage = function(e) {
+                        const prefixLower = e.data.prefix.toLowerCase();
+                        const prefixLen = prefixLower.length;
+                        let attempts = 0;
+                        let match = false;
+                        let keyPair, seed;
+                        
+                        while (attempts < 15000000) {
+                            seed = nacl.randomBytes(32);
+                            keyPair = nacl.sign.keyPair.fromSeed(seed);
+                            
+                            match = true;
+                            for(let i=0; i<prefixLen; i++) {
+                                let byte = keyPair.publicKey[Math.floor(i / 2)];
+                                let hexChar = (i % 2 === 0) ? (byte >> 4).toString(16) : (byte & 0x0F).toString(16);
+                                if (hexChar !== prefixLower[i]) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (match) {
+                                // MeshCore wymaga ROZSZERZONEGO klucza Ed25519 (64 bajty = 128 znaków).
+                                // Jest to w pełni zgodne ze standardem orlp/ed25519.
+                                const expanded = nacl.hash(seed);
+                                expanded[0] &= 248;
+                                expanded[31] &= 127;
+                                expanded[31] |= 64;
+
+                                const pubHex = Array.from(keyPair.publicKey).map(b => b.toString(16).padStart(2, '0')).join('');
+                                const privHex = Array.from(expanded).map(b => b.toString(16).padStart(2, '0')).join('');
+                                self.postMessage({ type: 'success', privHex, pubHex, attempts });
+                                return;
+                            }
+                            
+                            attempts++;
+                            if (attempts % 2000 === 0) {
+                                self.postMessage({ type: 'progress', attempts });
+                            }
+                        }
+                        self.postMessage({ type: 'error', message: 'Przekroczono limit prób.' });
+                    };
+                `;
+                
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const workerUrl = URL.createObjectURL(blob);
+                const worker = new Worker(workerUrl);
+                
+                worker.onmessage = function(e) {
+                    if (e.data.type === 'success') {
+                        worker.terminate();
+                        resolve(e.data);
+                    } else if (e.data.type === 'error') {
+                        worker.terminate();
+                        resolve(null);
+                    } else if (e.data.type === 'progress') {
+                        const sts = document.getElementById('genSpinnerStatus');
+                        if (sts) sts.textContent = `[Próba: ${e.data.attempts}]`;
+                    }
+                };
+                
+                worker.onerror = function(err) {
+                    console.error("Worker error:", err);
+                    worker.terminate();
+                    resolve(null);
+                };
+                
+                worker.postMessage({ prefix: prefixHex });
+            });
+        }
+
+        // -------------------------------------------------------------
+        // SPRAWDZANIE PREFIKSU W BAZIE MESHCORE
+        // -------------------------------------------------------------
+        async function checkPrefix(log = false) {
+            const pubKeyEl = document.getElementById('conf_pub_key');
+            const displayPrefix = document.getElementById('display_prefix');
+            const statusMsg = document.getElementById('prefix_status_msg');
+            const nameEl = document.getElementById('conf_name');
+            const keyWarning = document.getElementById('key_collision_warning');
+            const keyWarningPrefix = document.getElementById('key_collision_prefix');
+
+            if (!pubKeyEl || !displayPrefix || !statusMsg || !nameEl) return;
+
+            const pubKey = pubKeyEl.value.trim();
+            const currentNodeName = nameEl.value.trim();
+
+            if (keyWarning) keyWarning.classList.add('hidden');
+
+            if (!pubKey || pubKey.length < 2) {
+                statusMsg.innerHTML = `<span class="text-yellow-500">Brak klucza publicznego. Kliknij "Odśwież Informacje", aby odczytać go z repeatera.</span>`;
+                return;
+            }
+
+            const prefix = pubKey.substring(0, 2).toLowerCase();
+            displayPrefix.textContent = prefix.toUpperCase();
+            statusMsg.innerHTML = `<span class="text-gray-400 flex items-center">Sprawdzanie w bazie online... <span class="loader ml-3"></span></span>`;
+
+            try {
+                const response = await fetch('https://prefix.meshcoresouth.pl/export.json');
+                if (!response.ok) throw new Error("Błąd HTTP: " + response.status);
+                const data = await response.json();
+
+                const prefixData = data.find(p => p.prefix.toLowerCase() === prefix);
+
+                if (!prefixData) {
+                    statusMsg.innerHTML = `<span class="text-yellow-500 font-bold">Prefiks ${prefix.toUpperCase()} nieznany (brak w pobranej bazie).</span>`;
+                    if (log) logMsg(`Sprawdzanie prefiksu: ${prefix.toUpperCase()} (Brak w bazie online)`);
+                } else if (prefixData.status === "free") {
+                    statusMsg.innerHTML = `<span class="text-brand font-bold text-lg"><i data-lucide="check-circle" class="w-5 h-5 inline mr-1 -mt-1"></i> OK!</span> <span class="text-gray-200 ml-2">Ten prefiks jest WOLNY.</span>`;
+                    if (log) logMsg(`Sprawdzanie prefiksu: OK! Prefiks ${prefix.toUpperCase()} jest wolny.`);
+                } else if (prefixData.status === "taken") {
+                    const names = prefixData.names || [];
+                    const isOurNode = currentNodeName && names.some(n => n.trim().toLowerCase() === currentNodeName.trim().toLowerCase());
+                    const otherNames = names.filter(n => n.trim().toLowerCase() !== currentNodeName.trim().toLowerCase());
+
+                    if (isOurNode && names.length === 1) {
+                        statusMsg.innerHTML = `<span class="text-brand font-bold text-lg"><i data-lucide="check-circle" class="w-5 h-5 inline mr-1 -mt-1"></i> OK!</span> <span class="text-gray-200 ml-2">Ten prefiks jest przypisany wyłącznie do Twojego węzła (${currentNodeName}).</span>`;
+                        if (log) logMsg(`Sprawdzanie prefiksu: OK! Przypisany wyłącznie do Twojego węzła (${currentNodeName}).`);
+                    } else if (names.length > 1) {
+                        const namesStr = names.join(", ");
+                        statusMsg.innerHTML = `
+                            <div class="text-red-500 font-bold mb-1 text-base"><i data-lucide="alert-triangle" class="w-5 h-5 inline mr-1 -mt-1"></i> UWAGA! DUPLIKAT PREFIKSU!</div>
+                            <div class="text-gray-300 text-xs mb-1">Prefiks ${prefix.toUpperCase()} jest zajęty przez wiele wpisów (duplikaty lub inne węzły): <span class="text-white font-mono bg-red-900/50 px-1 rounded">${namesStr}</span></div>
+                            <div class="text-gray-400 text-xs mt-1">Nawet jeśli nazwa się zgadza, wielokrotne wpisy powodują konflikty w sieci. Musisz zmienić prefiks! Wygeneruj nowy klucz podając wolny prefiks z <a href="https://prefix.meshcoresouth.pl/" target="_blank" class="text-brand hover:underline">listy</a>.</div>
+                        `;
+                        if (log) logMsg(`Sprawdzanie prefiksu: KONFLIKT (DUPLIKAT)! Prefiks ${prefix.toUpperCase()} posiada wiele rekordów: ${namesStr}`);
+                        
+                        if (keyWarning && keyWarningPrefix) {
+                            keyWarningPrefix.textContent = prefix.toUpperCase();
+                            keyWarning.classList.remove('hidden');
+                        }
+                    } else {
+                        const namesStr = names.join(", ") || "Nieznany Węzeł";
+                        statusMsg.innerHTML = `
+                            <div class="text-red-500 font-bold mb-1 text-base"><i data-lucide="alert-triangle" class="w-5 h-5 inline mr-1 -mt-1"></i> KOLIZJA PREFIKSU!</div>
+                            <div class="text-gray-300 text-xs mb-1">Ten prefiks jest już zajęty przez węzeł: <span class="text-white font-mono bg-red-900/50 px-1 rounded">${namesStr}</span></div>
+                            <div class="text-gray-400 text-xs mt-1">Musisz zmienić prefiks! Wygeneruj nowy klucz (Klucz Prywatny / Publiczny) podając wolny prefiks z <a href="https://prefix.meshcoresouth.pl/" target="_blank" class="text-brand hover:underline">listy</a>.</div>
+                        `;
+                        if (log) logMsg(`Sprawdzanie prefiksu: KOLIZJA! Prefiks ${prefix.toUpperCase()} jest zajęty przez: ${namesStr}`);
+                        
+                        if (keyWarning && keyWarningPrefix) {
+                            keyWarningPrefix.textContent = prefix.toUpperCase();
+                            keyWarning.classList.remove('hidden');
+                        }
+                    }
+                }
+                if (window.lucide) lucide.createIcons();
+            } catch (error) {
+                console.error("Prefix check error:", error);
+                statusMsg.innerHTML = `<span class="text-red-400 text-xs">Błąd połączenia z bazą (https://prefix.meshcoresouth.pl/export.json).</span>`;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // SERIAL & PARSER
+        // -------------------------------------------------------------
+        let port;
+        let reader;
+        let writer;
+        let isConnected = false;
+        let keepReading = false;
+        const encoder = new TextEncoder();
+
+        let cmdQueue = [];
+        let isProcessingQueue = false;
+        let lastCommandSent = "";
+        let resolveWait = null;
+        let retryMissingCount = 0; 
+        let activeParserContext = "";
+        let espWarningShown = false;
+
+        function logTerminalLine(line, hasNewline = true) {
+            if (line.trim() === "") return;
+            const termOut = document.getElementById('terminalOutput');
+            if (!termOut) return;
+
+            // Ukrycie CAŁYCH zapytań o get acl
+            if (line.toLowerCase().includes("get acl") || line.toLowerCase().startsWith("acl:")) return;
+
+            let displayLine = line;
+            let cmdLower = (lastCommandSent || "").toLowerCase();
+
+            // Maskowanie WYŁĄCZNIE haseł. Klucz prywatny podczas wysyłania (set prv) jest JAWNY.
+            if (cmdLower.startsWith("password") || cmdLower.startsWith("set guest.password") || displayLine.toLowerCase().includes("password")) {
+                displayLine = displayLine.replace(/(password\s+)(\S+)/i, "$1<UKRYTE_HASLO>");
+                displayLine = displayLine.replace(/(set guest\.password\s+)(\S+)/i, "$1<UKRYTE_HASLO>");
+            }
+
+            let isPrompt = displayLine.trim().endsWith('>') && !displayLine.includes('->') && !displayLine.startsWith('[');
+            
+            let cmdLowerForColor = displayLine.trim().toLowerCase();
+            if (cmdLowerForColor.startsWith("> ")) cmdLowerForColor = cmdLowerForColor.substring(2);
+
+            // Wyciszenie linijki z ODCZYTANĄ wartością klucza w terminalu, żeby nie spamować
+            if ((cmdLowerForColor.startsWith("get prv") || cmdLowerForColor.startsWith("get private")) && displayLine.includes("->")) {
+                return; 
+            }
+
+            const span = document.createElement('span');
+
+            let maskedCmd = lastCommandSent || "";
+            if (cmdLower.startsWith("password") || cmdLower.startsWith("set guest.password")) {
+                maskedCmd = maskedCmd.replace(/(password\s+)(\S+)/i, "$1<UKRYTE_HASLO>");
+                maskedCmd = maskedCmd.replace(/(set guest\.password\s+)(\S+)/i, "$1<UKRYTE_HASLO>");
+            }
+
+            let isCommand = (displayLine.trim() === (lastCommandSent || "") || displayLine.trim() === "> " + (lastCommandSent || ""));
+
+            if (isCommand || isPrompt) {
+                span.className = 'text-brand font-bold'; 
+            } else if (displayLine.includes("->")) {
+                if (displayLine.toLowerCase().includes("error")) {
+                    span.className = 'text-red-400 font-bold'; // Koloruje odrzucone klucze/hasła na czerwono
+                } else {
+                    span.className = 'text-gray-300 font-bold'; // Pogrubione i jasne, by łatwiej czytać potwierdzenia (np. -> OK)
+                }
+            } else if (displayLine.startsWith("---") || displayLine.startsWith("Wysyłanie") || displayLine.startsWith("[System]")) {
+                span.className = 'text-gray-500 italic';
+            } else if (displayLine.startsWith("Validation Status:")) {
+                span.className = 'text-brand italic font-bold'; // Specjalny kolor dla potwierdzenia walidacji
+            } else {
+                span.className = 'text-gray-400';
+            }
+
+            span.textContent = displayLine + (hasNewline ? '\n' : '');
+            termOut.appendChild(span);
+            termOut.scrollTop = termOut.scrollHeight;
+        }
+
+        function logMsg(text) {
+            logTerminalLine("[System] " + text, true);
+        }
+
+        async function connectSerial() {
+            try {
+                if (!navigator.serial) {
+                     showModal("Błąd", "Web Serial API nie jest wspierane w tej przeglądarce.");
+                     return;
+                }
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 }); 
+                
+                try {
+                    await port.setSignals({ dataTerminalReady: true, requestToSend: true });
+                } catch (e) {}
+
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (statusDot) {
+                    statusDot.classList.replace('bg-red-500', 'bg-brand');
+                    statusDot.classList.replace('shadow-[0_0_5px_rgba(239,68,68,0.8)]', 'shadow-[0_0_5px_rgba(16,185,129,0.8)]');
+                }
+                if (statusText) {
+                    statusText.textContent = `POŁĄCZONO`;
+                    statusText.classList.replace('text-gray-300', 'text-brand');
+                }
+                
+                document.getElementById('btnConnect')?.classList.add('hidden');
+                document.getElementById('btnDisconnect')?.classList.remove('hidden');
+                document.getElementById('configForms')?.classList.remove('opacity-50', 'pointer-events-none');
+                
+                const termInput = document.getElementById('terminalInput');
+                if (termInput) termInput.disabled = false;
+                
+                isConnected = true;
+                keepReading = true;
+                
+                readLoop();
+                
+                setTimeout(() => queueCommand(""), 100); 
+                setTimeout(() => readAllInfo(), 500);
+
+            } catch (error) {
+                let msg = error.message || "Nieznany błąd";
+                logMsg(`Błąd połączenia: ${msg}`);
+                showModal("Błąd połączenia USB", `Nie udało się otworzyć portu komunikacyjnego.\n\nSzczegóły: ${msg}`);
+            }
+        }
+
+        async function disconnectSerial(isAuto = false) {
+            keepReading = false; 
+            if (resolveWait) { resolveWait(); resolveWait = null; }
+
+            try { if (reader) await reader.cancel(); } catch(e) {}
+            try { if (writer) writer.releaseLock(); } catch(e) {}
+            try { if (port) await port.close(); } catch(e) {}
+            
+            isConnected = false;
+            
+            if (!isAuto) {
+                espWarningShown = false; 
+            }
+            
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const statusInfoId = document.getElementById('status_info_id');
+            
+            if (statusDot) {
+                statusDot.classList.replace('bg-brand', 'bg-red-500');
+                statusDot.classList.replace('shadow-[0_0_5px_rgba(239,68,68,0.8)]', 'shadow-[0_0_5px_rgba(16,185,129,0.8)]');
+            }
+            if (statusText) {
+                statusText.textContent = "ROZŁĄCZONO";
+                statusText.classList.replace('text-brand', 'text-gray-300');
+            }
+            if (statusInfoId) {
+                statusInfoId.textContent = "";
+                statusInfoId.classList.add('hidden');
+            }
+            
+            document.getElementById('btnConnect')?.classList.remove('hidden');
+            document.getElementById('btnDisconnect')?.classList.add('hidden');
+            document.getElementById('configForms')?.classList.add('opacity-50', 'pointer-events-none');
+            
+            const termInput = document.getElementById('terminalInput');
+            if (termInput) termInput.disabled = true;
+            
+            logMsg("Połączenie z portem zakończone.");
+        }
+
+        async function readLoop() {
+            const decoder = new TextDecoder('utf-8');
+            let lineBuffer = '';
+
+            while (port && port.readable && keepReading) {
+                try {
+                    reader = port.readable.getReader();
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value, { stream: true });
+                        lineBuffer += chunk;
+                        
+                        // WYCINKA BŁĘDÓW I2C ESP32
+                        lineBuffer = lineBuffer.replace(/\[\s*\d+\]\[E\]\[Wire\.cpp:\d+\].*?Error\s*-?\d+(?:\r?\n)?/g, '');
+                        
+                        let lines = lineBuffer.split(/\r?\n/);
+                        lineBuffer = lines.pop(); 
+                        
+                        for(let line of lines) {
+                            if(line.trim() === "") continue;
+                            logTerminalLine(line, true);
+                            processSerialLine(line);
+                        }
+                        
+                        if (lineBuffer.trim().endsWith('>')) {
+                            logTerminalLine(lineBuffer, false);
+                            processSerialLine(lineBuffer);
+                            lineBuffer = '';
+                        }
+                    }
+                } catch (error) {
+                    disconnectSerial(true);
+                    break;
+                } finally {
+                    if (reader) { reader.releaseLock(); reader = null; }
+                }
+            }
+        }
+
+        function checkClockSync(timeStr, log = false) {
+            if (!timeStr) return;
+            const clockEl = document.getElementById('info_clock');
+            const btnSync = document.getElementById('btnSyncClock');
+            const clockWarning = document.getElementById('clock_warning');
+            
+            if (clockEl) clockEl.textContent = timeStr;
+            
+            let isOutOfSync = false;
+            let timeMatch = timeStr.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            
+            if (timeMatch) {
+                let [_, hours, minutes, day, month, year] = timeMatch;
+                let deviceDate = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+                let diffHours = Math.abs(Date.now() - deviceDate.getTime()) / (1000 * 60 * 60);
+                if (diffHours > 12) isOutOfSync = true;
+            } else {
+                let yearMatch = timeStr.match(/\d{4}/);
+                if (yearMatch) {
+                    let year = parseInt(yearMatch[0]);
+                    if (year < new Date().getFullYear() - 1) isOutOfSync = true;
+                }
+            }
+
+            if (isOutOfSync) {
+                if (clockEl) {
+                    clockEl.classList.remove('text-white');
+                    clockEl.classList.add('text-red-400');
+                }
+                if (btnSync) btnSync.classList.remove('hidden');
+                if (clockWarning) clockWarning.classList.remove('hidden');
+                if (log) logMsg("Sprawdzanie zegara: BŁĄD! Czas różni się o ponad 12h.");
+            } else {
+                if (clockEl) {
+                    clockEl.classList.remove('text-red-400');
+                    clockEl.classList.add('text-white');
+                }
+                if (btnSync) btnSync.classList.add('hidden');
+                if (clockWarning) clockWarning.classList.add('hidden');
+                if (log) logMsg(`Sprawdzanie zegara: OK (${timeStr}).`);
+            }
+        }
+
+        function checkRadioSettings(log = false) {
+            const freqEl = document.getElementById('conf_freq');
+            const bwEl = document.getElementById('conf_bw');
+            const sfEl = document.getElementById('conf_sf');
+            const crEl = document.getElementById('conf_cr');
+            const warning = document.getElementById('radio_warning');
+
+            if (!freqEl || !bwEl || !sfEl || !crEl) return;
+
+            const freq = freqEl.value;
+            const bw = bwEl.value;
+            const sf = sfEl.value;
+            const cr = crEl.value;
+
+            if (freq !== "869.618" || bw !== "62.5" || sf !== "6" || cr !== "8") {
+                if (warning) warning.classList.remove('hidden');
+                if (log) logMsg("Sprawdzanie radia: BŁĄD! Ustawienia różnią się od profilu MeshCore Południe.");
+            } else {
+                if (warning) warning.classList.add('hidden');
+                if (log) logMsg("Sprawdzanie radia: OK (Zgodne z presetem).");
+            }
+        }
+
+        function checkBoardType(boardName) {
+            if (espWarningShown || !boardName) return;
+            const nameLower = boardName.toLowerCase();
+            
+            if (nameLower.includes("nrf")) {
+                currentBoardType = "nrf";
+            } else if (nameLower.includes("esp32") || nameLower.includes("heltec") || nameLower.includes("t-beam") || nameLower.includes("t-lora") || nameLower.includes("wroom")) {
+                currentBoardType = "esp32";
+                if (!espWarningShown) {
+                    showModal(
+                        "⚠️ Wykryto procesor ESP32", 
+                        "Zauważyliśmy, że podłączona płytka bazuje na układzie ESP32. Ten typ procesora średnio nadaje się na urządzenie typu Repeater, nawet przy wykorzystaniu oprogramowania Power Saving, ze względu na dość wysoki pobór prądu.\n\nZdecydowanie zalecamy używanie energooszczędnych płytek z procesorami nRF (np. seria nRF52, RAK, Xiao nRF) do budowy stacji przekaźnikowych."
+                    );
+                    espWarningShown = true;
+                    logMsg("Ostrzeżenie: Wykryto układ ESP32. Zalecana zmiana na nRF52 dla węzłów Repeater.");
+                }
+            }
+        }
+
+        function processSerialLine(line) {
+            let trimmed = line.trim();
+            if(trimmed === "") return;
+
+            // 1. Wykrycie Prompta 
+            if (trimmed.endsWith('>') && !trimmed.includes('->')) {
+                const nameMatch = trimmed.substring(0, trimmed.length - 1).trim();
+                if (!nameMatch.startsWith("[")) {
+                    if (nameMatch.length > 0 && nameMatch.length < 30) {
+                        const statusInfoId = document.getElementById('status_info_id');
+                        if(statusInfoId) {
+                            statusInfoId.textContent = `[${nameMatch}]`;
+                            statusInfoId.classList.remove('hidden');
+                        }
+                    }
+                    activeParserContext = "";
+                    if (resolveWait) { resolveWait(); resolveWait = null; }
+                    return; 
+                }
+            }
+
+            // Łapanie Echa do bezpiecznego kontekstu parsera
+            const knownCommands = [
+                "get public.key", "get prv.key", "get private.key", "get name", 
+                "board", "ver", "clock", 
+                "get repeat", "get radio", "get tx", "get af", "get advert.interval",
+                "get flood.max", "get flood.advert.interval", "get lat", "get lon"
+            ];
+            if (knownCommands.includes(trimmed.toLowerCase())) {
+                activeParserContext = trimmed.toLowerCase();
+                return; 
+            }
+
+            let contextToUse = activeParserContext || (lastCommandSent || "").trim().toLowerCase();
+
+            // 2. Parsowanie odpowiedzi z "->"
+            if (line.includes("->")) {
+                let val = line.split("->")[1].trim();
+                if (val.startsWith(">")) val = val.substring(1).trim(); 
+
+                if (contextToUse === "board") {
+                    const el = document.getElementById('info_board');
+                    if (el) el.textContent = val;
+                    checkBoardType(val);
+                }
+                else if (contextToUse === "ver") {
+                    const el = document.getElementById('info_fw');
+                    if (el) el.textContent = val;
+                }
+                else if (contextToUse === "clock") checkClockSync(val, true);
+                else if (contextToUse === "get name") {
+                    const el = document.getElementById("conf_name");
+                    if (el) el.value = val; 
+                    const pub = document.getElementById('conf_pub_key');
+                    if (pub && pub.value.length >= 2) checkPrefix(true);
+                }
+                else if (contextToUse === "get repeat") {
+                    const isRepeat = (val.toLowerCase() === "on" || val === "1");
+                    const infoRep = document.getElementById('info_repeat');
+                    if (infoRep) {
+                        if(isRepeat) {
+                            infoRep.textContent = "Włączony";
+                            infoRep.className = "font-mono text-sm text-brand font-bold";
+                        } else {
+                            infoRep.textContent = "Wyłączony";
+                            infoRep.className = "font-mono text-sm text-gray-400";
+                        }
+                    }
+                }
+                else if (contextToUse === "get tx") {
+                    const el = document.getElementById("conf_tx");
+                    if (el) el.value = val;
+                }
+                else if (contextToUse === "get af") {
+                    const el = document.getElementById("conf_af");
+                    if (el) el.value = val;
+                }
+                else if (contextToUse === "get advert.interval") {
+                    const el = document.getElementById("conf_adv_int");
+                    if (el) el.value = val;
+                }
+                else if (contextToUse === "get flood.max") {
+                    const el = document.getElementById("conf_flood_max");
+                    if (el) el.value = val;
+                }
+                else if (contextToUse === "get flood.advert.interval") {
+                    const el = document.getElementById("conf_flood_adv_int");
+                    if (el) el.value = val;
+                }
+                else if (contextToUse === "get lat") { 
+                    const el = document.getElementById("conf_lat");
+                    if(val && el && !isNaN(parseFloat(val))) el.value = val.trim(); 
+                }
+                else if (contextToUse === "get lon") { 
+                    const el = document.getElementById("conf_lon");
+                    if(val && el && !isNaN(parseFloat(val))) el.value = val.trim(); 
+                }
+                else if (contextToUse === "get public.key") {
+                    let cleanPub = val.replace(/[^0-9a-fA-F]/g, '');
+                    if (cleanPub.length >= 50) {
+                        const el = document.getElementById("conf_pub_key");
+                        if(el) el.value = cleanPub.toUpperCase();
+                        checkPrefix(false); 
+                    }
+                }
+                else if (contextToUse === "get prv.key" || contextToUse === "get private.key" || contextToUse === "get private_key") {
+                    let cleanPrv = val.replace(/[^0-9a-fA-F]/g, '');
+                    if (cleanPrv.length >= 50) {
+                        const el = document.getElementById("conf_priv_key");
+                        if(el) el.value = cleanPrv.toUpperCase();
+                    }
+                }
+                else if (contextToUse === "get radio") {
+                    let parts = val.split(",");
+                    if(parts.length >= 4) {
+                        const freqEl = document.getElementById("conf_freq");
+                        const bwEl = document.getElementById("conf_bw");
+                        const sfEl = document.getElementById("conf_sf");
+                        const crEl = document.getElementById("conf_cr");
+                        if(freqEl) freqEl.value = parseFloat(parts[0]).toFixed(3);
+                        if(bwEl) bwEl.value = parts[1].trim();
+                        if(sfEl) sfEl.value = parts[2].trim();
+                        if(crEl) crEl.value = parts[3].trim();
+                        checkRadioSettings(true); 
+                    }
+                }
+            } 
+            
+            // 3. Wyłapywanie tekstów bez "->"
+            else if (!trimmed.startsWith(">") && !trimmed.startsWith("[")) {
+
+                // Ignorujemy bootlog repeatera żeby nie wpisał się w formularze!
+                if (trimmed.startsWith("Repeater ID:") || trimmed.startsWith("ESP-ROM:") || trimmed.startsWith("Build:") || trimmed.startsWith("rst:") || trimmed.startsWith("load:") || trimmed.startsWith("entry ") || trimmed.startsWith("mode:") || trimmed.startsWith("Saved PC:")) {
+                    return;
+                }
+
+                let hexMatch = trimmed.match(/^([0-9a-fA-F]{50,130})$/i);
+                if (hexMatch) {
+                    if (contextToUse === "get public.key") {
+                        const el = document.getElementById('conf_pub_key');
+                        if (el) el.value = hexMatch[1].toUpperCase();
+                        checkPrefix(false); 
+                    } else if (contextToUse === "get prv.key" || contextToUse === "get private.key" || contextToUse === "get private_key") {
+                        const el = document.getElementById('conf_priv_key');
+                        if (el) el.value = hexMatch[1].toUpperCase();
+                    }
+                    return; 
+                }
+
+                if (!trimmed.includes("->")) {
+                    if (contextToUse === "board" && trimmed !== "board" && trimmed.length < 40) {
+                        const el = document.getElementById('info_board');
+                        if (el) el.textContent = trimmed;
+                        checkBoardType(trimmed);
+                    }
+                    else if (contextToUse === "ver" && trimmed !== "ver" && trimmed.startsWith("v")) {
+                        const el = document.getElementById('info_fw');
+                        if (el) el.textContent = trimmed;
+                    }
+                    else if (contextToUse === "clock" && trimmed !== "clock" && trimmed.includes(":")) {
+                        checkClockSync(trimmed, true);
+                    }
+                    else if (contextToUse === "get lat" && trimmed !== "get lat" && !isNaN(parseFloat(trimmed))) {
+                        const el = document.getElementById('conf_lat');
+                        if (el) el.value = trimmed;
+                    }
+                    else if (contextToUse === "get lon" && trimmed !== "get lon" && !isNaN(parseFloat(trimmed))) {
+                        const el = document.getElementById('conf_lon');
+                        if (el) el.value = trimmed;
+                    }
+                    else if (contextToUse === "get name" && trimmed !== "get name" && trimmed.length < 40) {
+                        const el = document.getElementById('conf_name');
+                        if (el) el.value = trimmed;
+                        const pub = document.getElementById('conf_pub_key');
+                        if (pub && pub.value.length >= 2) checkPrefix(true);
+                    }
+                }
+            }
+        }
+
+        function verifyAndRetryMissingInfo() {
+            let missingCmds = [];
+            const checkEmptyText = (id) => { const el = document.getElementById(id); return el ? el.textContent === "-" : false; };
+            const checkEmptyVal = (id, minLen=0) => { const el = document.getElementById(id); return el ? el.value.length <= minLen : false; };
+
+            if (checkEmptyText('info_board')) missingCmds.push("board");
+            if (checkEmptyText('info_fw')) missingCmds.push("ver");
+            if (checkEmptyText('info_clock')) missingCmds.push("clock");
+            if (checkEmptyVal('conf_pub_key', 49)) missingCmds.push("get public.key");
+            if (checkEmptyVal('conf_name')) missingCmds.push("get name");
+            if (checkEmptyVal('conf_freq')) missingCmds.push("get radio");
+            if (checkEmptyVal('conf_tx')) missingCmds.push("get tx");
+            if (checkEmptyVal('conf_af')) missingCmds.push("get af");
+            if (checkEmptyVal('conf_adv_int')) missingCmds.push("get advert.interval");
+            if (checkEmptyVal('conf_flood_max')) missingCmds.push("get flood.max");
+            if (checkEmptyVal('conf_flood_adv_int')) missingCmds.push("get flood.advert.interval");
+            if (checkEmptyVal('conf_lat')) missingCmds.push("get lat");
+            if (checkEmptyVal('conf_lon')) missingCmds.push("get lon");
+
+            if (missingCmds.length > 0 && retryMissingCount < 3) {
+                retryMissingCount++;
+                logMsg(`Wykryto braki w danych. Ponawiam odczyt dla ${missingCmds.length} parametrów (Próba ${retryMissingCount}/3)...`);
+                missingCmds.forEach(c => cmdQueue.push(c));
+                cmdQueue.push("__CHECK_MISSING__");
+                processCmdQueue(); 
+            } else if (missingCmds.length > 0) {
+                logMsg("Osiągnięto limit prób odczytu. Niektóre pola mogą pozostać puste.");
+                retryMissingCount = 0;
+            } else {
+                if (retryMissingCount > 0) logMsg("Wszystkie dane zostały pomyślnie uzupełnione!");
+                retryMissingCount = 0;
+            }
+        }
+
+        async function queueCommand(cmd) {
+            cmdQueue.push(cmd);
+            if (!isProcessingQueue) processCmdQueue();
+        }
+
+        async function processCmdQueue() {
+            if (isProcessingQueue) return;
+            isProcessingQueue = true;
+            
+            try {
+                writer = port.writable.getWriter();
+                while (cmdQueue.length > 0 && isConnected) {
+                    const cmd = cmdQueue.shift();
+
+                    if (cmd === "__CHECK_MISSING__") {
+                        verifyAndRetryMissingInfo();
+                        continue; 
+                    }
+
+                    lastCommandSent = cmd;
+                    
+                    await writer.write(encoder.encode(cmd + "\r"));
+
+                    if (cmd.trim() === "reboot") {
+                        if (currentBoardType === "nrf") {
+                            logMsg("Wysłano komendę reboot. Węzeł zostanie uruchomiony ponownie.");
+                            setTimeout(() => {
+                                showModal("Wymagane ponowne połączenie", "Płytka nRF traci łączność USB po restarcie.\n\nOdczekaj kilka sekund i kliknij 'Połącz', aby wznowić konfigurację.");
+                            }, 500);
+                        } else {
+                            logMsg("Wysłano komendę reboot. ESP połączy się ponownie. Odświeżanie danych za 4 sekundy...");
+                            setTimeout(() => {
+                                if (isConnected) window.readAllInfo();
+                            }, 4000);
+                        }
+                    }
+                    
+                    await new Promise(resolve => {
+                        resolveWait = resolve;
+                        setTimeout(() => {
+                            if(resolveWait === resolve) {
+                                resolveWait = null;
+                                resolve();
+                            }
+                        }, 300); 
+                    });
+                }
+            } catch (err) {
+                console.error("Queue error", err);
+            } finally {
+                if (writer) { writer.releaseLock(); writer = null; }
+                isProcessingQueue = false;
+                lastCommandSent = "";
+            }
+        }
+
+        // -------------------------------------------------------------
+        // Inicjalizacja całego interfejsu (Po wczytaniu DOM!)
+        // -------------------------------------------------------------
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            if (window.lucide) { lucide.createIcons(); }
+
+            let map = null;
+            let mapMarker = null;
+
+            const addEvt = (id, event, handler) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener(event, handler);
+                }
+            };
+
+            addEvt('btnOpenMap', 'click', () => {
+                document.getElementById('mapModal').classList.replace('hidden', 'flex');
+                
+                if (!map) {
+                    // Domyślnie Katowice (Śląsk)
+                    let defaultLat = 50.2649;
+                    let defaultLon = 19.0238;
+                    let zoom = 9;
+
+                    map = L.map('mapContainer').setView([defaultLat, defaultLon], zoom);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    mapMarker = L.marker([defaultLat, defaultLon], {draggable: true}).addTo(map);
+
+                    mapMarker.on('dragend', function (e) {
+                        const pos = mapMarker.getLatLng();
+                        document.getElementById('mapSelectedCoords').textContent = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
+                    });
+
+                    map.on('click', function(e) {
+                        mapMarker.setLatLng(e.latlng);
+                        document.getElementById('mapSelectedCoords').textContent = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+                    });
+
+                    // Próba pobrania GPS
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                const userLat = position.coords.latitude;
+                                const userLon = position.coords.longitude;
+                                map.setView([userLat, userLon], 13);
+                                mapMarker.setLatLng([userLat, userLon]);
+                                document.getElementById('mapSelectedCoords').textContent = `${userLat.toFixed(5)}, ${userLon.toFixed(5)}`;
+                            },
+                            (error) => {
+                                console.log("GPS niedostępny, używam domyślnej lokalizacji (Śląsk).");
+                                document.getElementById('mapSelectedCoords').textContent = `${defaultLat.toFixed(5)}, ${defaultLon.toFixed(5)}`;
+                            }
+                        );
+                    } else {
+                        document.getElementById('mapSelectedCoords').textContent = `${defaultLat.toFixed(5)}, ${defaultLon.toFixed(5)}`;
+                    }
+                } else {
+                    // Fix dla Leaflet w ukrytych divach
+                    setTimeout(() => map.invalidateSize(), 100);
+                    
+                    const currLat = parseFloat(document.getElementById('conf_lat').value);
+                    const currLon = parseFloat(document.getElementById('conf_lon').value);
+                    if(!isNaN(currLat) && !isNaN(currLon) && currLat !== 0) {
+                        map.setView([currLat, currLon], 13);
+                        mapMarker.setLatLng([currLat, currLon]);
+                        document.getElementById('mapSelectedCoords').textContent = `${currLat.toFixed(5)}, ${currLon.toFixed(5)}`;
+                    }
+                }
+            });
+
+            addEvt('btnCloseMap', 'click', () => {
+                document.getElementById('mapModal').classList.replace('hidden', 'flex');
+            });
+
+            addEvt('btnConfirmMap', 'click', () => {
+                if (mapMarker) {
+                    const pos = mapMarker.getLatLng();
+                    document.getElementById('conf_lat').value = pos.lat.toFixed(5);
+                    document.getElementById('conf_lon').value = pos.lng.toFixed(5);
+                }
+                document.getElementById('mapModal').classList.replace('hidden', 'flex');
+            });
+
+            addEvt('btnSyncClock', 'click', () => {
+                const epoch = Math.floor(Date.now() / 1000);
+                queueCommand(`time ${epoch}`);
+                setTimeout(() => queueCommand('clock'), 500);
+                logMsg("Wysłano polecenie synchronizacji czasu.");
+            });
+
+            ['conf_freq', 'conf_bw', 'conf_sf', 'conf_cr'].forEach(id => {
+                addEvt(id, 'change', () => checkRadioSettings(false));
+            });
+
+            addEvt('presetSelect', 'change', (e) => {
+                if(e.target.value === 'mc_poludnie') {
+                    document.getElementById('conf_freq').value = "869.618";
+                    document.getElementById('conf_bw').value = "62.5";
+                    document.getElementById('conf_sf').value = "6";
+                    document.getElementById('conf_cr').value = "8";
+                    document.getElementById('conf_flood_adv_int').value = "3";
+                    document.getElementById('conf_adv_int').value = "0";
+                    document.getElementById('conf_flood_max').value = "64";
+                    checkRadioSettings(false);
+                    logMsg("Załadowano preset 'MeshCore Południe' do formularzy Radia i Advert. Użyj przycisków Zastosuj, by zapisać na urządzeniu.");
+                }
+            });
+
+            addEvt('btnGenerateKey', 'click', async () => {
+                const desiredId = document.getElementById('conf_desired_id').value.trim();
+                const spinner = document.getElementById('genSpinner');
+                const statusLabel = document.getElementById('genSpinnerStatus');
+                const btnText = document.getElementById('btnGenerateKey');
+                
+                if(desiredId.length > 0 && !/^[0-9A-Fa-f]+$/.test(desiredId)) {
+                    showModal("Błąd", "Prefix musi składać się z poprawnych znaków Hex (0-9, A-F)!");
+                    return;
+                }
+
+                spinner.classList.remove('hidden');
+                btnText.classList.add('opacity-80', 'cursor-wait');
+                statusLabel.textContent = "[Uruchamianie...]";
+                
+                let idLog = desiredId || "losowy";
+                logMsg(`Szukanie klucza z prefiksem: ${idLog.toUpperCase()} (Pełne obciążenie JS - może zająć dłuższą chwilę)...`);
+                
+                const result = await generateVanityKey(desiredId);
+                
+                spinner.classList.add('hidden');
+                btnText.classList.remove('opacity-80', 'cursor-wait');
+                statusLabel.textContent = "";
+                
+                if(result) {
+                    document.getElementById('conf_priv_key').value = result.privHex.toUpperCase();
+                    document.getElementById('conf_pub_key').value = result.pubHex.toUpperCase();
+                    logMsg(`Sukces! Znaleziono po ${result.attempts} próbach.`);
+                    logTerminalLine("Validation Status: ✓ RFC 8032 Ed25519 compliant - Proper SHA-512 expansion, scalar clamping, and key consistency verified");
+                    checkPrefix(true);
+                } else {
+                    logMsg(`Przerwano - zadanie zbyt trudne (limit 15 milionów prób przeglądarki).`);
+                }
+            });
+
+            addEvt('btnApplyKey', 'click', () => {
+                const privKey = document.getElementById('conf_priv_key').value.trim().toLowerCase();
+                if(privKey.length === 128) {
+                    queueCommand(`set prv.key ${privKey}`);
+                    queueCommand(`region save`);
+                    showModal(
+                        "Klucz Prywatny Wysłany", 
+                        "Klucz prywatny został poprawnie przesłany do urządzenia. Zmieniło to również przypisane ID węzła.\n\nAby zmiany zostały w pełni wdrożone w systemie radia, musisz ręcznie zrestartować noda. Kliknij przycisk 'Restart' na górze ekranu."
+                    );
+                } else {
+                    showModal("Błąd", `Nieprawidłowa długość klucza prywatnego.\n\nZgodnie ze standardem MeshCore Ed25519, klucz musi zawierać dokładnie 128 znaków hex.\nObecna długość to: ${privKey.length}`);
+                }
+            });
+
+            addEvt('btnApplyLoc', 'click', () => {
+                const name = document.getElementById('conf_name').value;
+                const lat = document.getElementById('conf_lat').value.replace(',', '.');
+                const lon = document.getElementById('conf_lon').value.replace(',', '.');
+                
+                if(name) queueCommand(`set name ${name}`);
+                if(lat) queueCommand(`set lat ${lat}`);
+                if(lon) queueCommand(`set lon ${lon}`);
+                queueCommand(`region save`);
+                logMsg("Wysłano polecenia zmiany nazwy i lokalizacji.");
+            });
+
+            addEvt('btnApplyAdvert', 'click', () => {
+                const floodAdv = document.getElementById('conf_flood_adv_int').value;
+                const zeroHop = document.getElementById('conf_adv_int').value;
+                const floodMax = document.getElementById('conf_flood_max').value;
+                
+                if(floodAdv) queueCommand(`set flood.advert.interval ${floodAdv}`);
+                if(zeroHop) queueCommand(`set advert.interval ${zeroHop}`);
+                if(floodMax) queueCommand(`set flood.max ${floodMax}`);
+                queueCommand(`region save`);
+                logMsg("Wysłano ustawienia Advert.");
+            });
+
+            addEvt('btnApplyRadio', 'click', () => {
+                const freq = document.getElementById('conf_freq').value;
+                const bw = document.getElementById('conf_bw').value;
+                const sf = document.getElementById('conf_sf').value;
+                const cr = document.getElementById('conf_cr').value;
+                const tx = document.getElementById('conf_tx').value;
+                const af = document.getElementById('conf_af').value;
+
+                if(freq && bw && sf && cr) queueCommand(`set radio ${freq},${bw},${sf},${cr}`);
+                if(tx) queueCommand(`set tx ${tx}`);
+                if(af) queueCommand(`set af ${af}`);
+                queueCommand(`region save`);
+                
+                logMsg("Wysłano ustawienia radia i zapisano region.");
+            });
+
+            addEvt('btnSetPasswords', 'click', () => {
+                const adminP = document.getElementById('conf_admin_pass').value;
+                const guestP = document.getElementById('conf_guest_pass').value;
+                if(adminP) queueCommand(`password ${adminP}`);
+                if(guestP) queueCommand(`set guest.password ${guestP}`);
+                logMsg("Wysłano polecenia zmiany haseł.");
+            });
+
+            addEvt('btnSetACL', 'click', () => {
+                const key = document.getElementById('conf_acl_key').value.trim();
+                const perm = document.getElementById('conf_acl_perm').value;
+                if(key) {
+                    queueCommand(`setperm ${key} ${perm}`);
+                    logMsg(`Wysłano uprawnienia dla klucza: ${key}`);
+                }
+            });
+
+            addEvt('btnAdvert', 'click', () => queueCommand('advert'));
+            addEvt('btnOTA', 'click', () => queueCommand('start ota'));
+            addEvt('btnReboot', 'click', () => {
+                showModal("Restart Urządzenia", "Czy na pewno chcesz zrestartować to urządzenie?", true, () => queueCommand('reboot'));
+            });
+            addEvt('btnFactory', 'click', () => {
+                showModal("Ustawienia Fabryczne", "UWAGA! Usunie to całą konfigurację repeatera (erase). Czy kontynuować?", true, () => queueCommand('erase'));
+            });
+            
+            // --- EXPORT / IMPORT ---
+            addEvt('btnExport', 'click', () => {
+                const config = {
+                    name: document.getElementById('conf_name').value,
+                    lat: document.getElementById('conf_lat').value,
+                    lon: document.getElementById('conf_lon').value,
+                    radio: {
+                        freq: document.getElementById('conf_freq').value,
+                        bw: document.getElementById('conf_bw').value,
+                        sf: document.getElementById('conf_sf').value,
+                        cr: document.getElementById('conf_cr').value,
+                        tx: document.getElementById('conf_tx').value,
+                        af: document.getElementById('conf_af').value
+                    },
+                    advert: {
+                        flood_adv_int: document.getElementById('conf_flood_adv_int').value,
+                        adv_int: document.getElementById('conf_adv_int').value,
+                        flood_max: document.getElementById('conf_flood_max').value
+                    },
+                    keys: {
+                        priv: document.getElementById('conf_priv_key').value,
+                        pub: document.getElementById('conf_pub_key').value
+                    }
+                };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                const safeName = (config.name || "meshcore").replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                downloadAnchorNode.setAttribute("download", `${safeName}_config.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                logMsg("Wyeksportowano ustawienia do pliku JSON.");
+            });
+
+            addEvt('btnImport', 'click', () => {
+                document.getElementById('fileImportConfig').click();
+            });
+
+            addEvt('fileImportConfig', 'change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const config = JSON.parse(event.target.result);
+                        
+                        // Zasilanie widoku formularzy
+                        if(config.name) document.getElementById('conf_name').value = config.name;
+                        if(config.lat) document.getElementById('conf_lat').value = config.lat;
+                        if(config.lon) document.getElementById('conf_lon').value = config.lon;
+                        
+                        if(config.radio) {
+                            if(config.radio.freq) document.getElementById('conf_freq').value = config.radio.freq;
+                            if(config.radio.bw) document.getElementById('conf_bw').value = config.radio.bw;
+                            if(config.radio.sf) document.getElementById('conf_sf').value = config.radio.sf;
+                            if(config.radio.cr) document.getElementById('conf_cr').value = config.radio.cr;
+                            if(config.radio.tx) document.getElementById('conf_tx').value = config.radio.tx;
+                            if(config.radio.af) document.getElementById('conf_af').value = config.radio.af;
+                        }
+                        
+                        if(config.advert) {
+                            if(config.advert.flood_adv_int) document.getElementById('conf_flood_adv_int').value = config.advert.flood_adv_int;
+                            if(config.advert.adv_int) document.getElementById('conf_adv_int').value = config.advert.adv_int;
+                            if(config.advert.flood_max) document.getElementById('conf_flood_max').value = config.advert.flood_max;
+                        }
+                        
+                        if(config.keys) {
+                            if(config.keys.priv) document.getElementById('conf_priv_key').value = config.keys.priv;
+                            if(config.keys.pub) document.getElementById('conf_pub_key').value = config.keys.pub;
+                        }
+
+                        // Sprawdzenie na nowo wizualizacji błędów lub prefiksu
+                        checkRadioSettings(false);
+                        if (document.getElementById('conf_pub_key').value.length >= 2) checkPrefix(false);
+                        
+                        // Wyzerowanie inputu, żeby można było wczytać ponownie ten sam plik
+                        document.getElementById('fileImportConfig').value = '';
+                        
+                        logMsg("Wczytano ustawienia z pliku do formularza.");
+                        
+                        if (isConnected) {
+                            document.getElementById('btnApplyImport').classList.remove('hidden');
+                            logMsg("Sprawdź poprawność danych w formularzach, a następnie kliknij 'Zastosuj Import i Restart'.");
+                        } else {
+                            logMsg("Podłącz urządzenie, aby móc zastosować zaimportowane ustawienia.");
+                        }
+                        
+                    } catch(err) {
+                        showModal("Błąd importu", "Wybrany plik konfiguracyjny jest uszkodzony lub ma nieprawidłowy format JSON.");
+                        logMsg("Błąd importu pliku JSON: " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            addEvt('btnApplyImport', 'click', () => {
+                const name = document.getElementById('conf_name').value;
+                const lat = document.getElementById('conf_lat').value.replace(',', '.');
+                const lon = document.getElementById('conf_lon').value.replace(',', '.');
+                if(name) queueCommand(`set name ${name}`);
+                if(lat) queueCommand(`set lat ${lat}`);
+                if(lon) queueCommand(`set lon ${lon}`);
+                
+                const freq = document.getElementById('conf_freq').value;
+                const bw = document.getElementById('conf_bw').value;
+                const sf = document.getElementById('conf_sf').value;
+                const cr = document.getElementById('conf_cr').value;
+                const tx = document.getElementById('conf_tx').value;
+                const af = document.getElementById('conf_af').value;
+                if(freq && bw && sf && cr) queueCommand(`set radio ${freq},${bw},${sf},${cr}`);
+                if(tx) queueCommand(`set tx ${tx}`);
+                if(af) queueCommand(`set af ${af}`);
+                
+                const floodAdv = document.getElementById('conf_flood_adv_int').value;
+                const zeroHop = document.getElementById('conf_adv_int').value;
+                const floodMax = document.getElementById('conf_flood_max').value;
+                if(floodAdv) queueCommand(`set flood.advert.interval ${floodAdv}`);
+                if(zeroHop) queueCommand(`set advert.interval ${zeroHop}`);
+                if(floodMax) queueCommand(`set flood.max ${floodMax}`);
+                
+                const privKey = document.getElementById('conf_priv_key').value.trim().toLowerCase();
+                if(privKey && privKey.length === 128) queueCommand(`set prv.key ${privKey}`);
+                
+                queueCommand(`region save`);
+                queueCommand(`reboot`);
+                
+                logMsg("Wysłano całą paczkę zaimportowanych ustawień, zapisano region i zainicjowano restart.");
+                document.getElementById('btnApplyImport').classList.add('hidden');
+                
+                // Odświeżenie ikon na przycisku
+                if (window.lucide) { lucide.createIcons(); }
+            });
+
+            window.readAllInfo = function() {
+                logTerminalLine("--- Odczytywanie danych z Repeatera... ---", true);
+                
+                const setEmpty = (id) => { const el = document.getElementById(id); if(el) el.textContent = "-"; };
+                const setVal = (id) => { const el = document.getElementById(id); if(el) el.value = ""; };
+
+                setEmpty('info_board'); setEmpty('info_fw'); setEmpty('info_clock');
+                setVal('conf_pub_key'); setVal('conf_priv_key'); setVal('conf_name');
+                setVal('conf_freq'); setVal('conf_tx'); setVal('conf_af');
+                setVal('conf_adv_int'); setVal('conf_flood_max'); setVal('conf_flood_adv_int');
+                setVal('conf_lat'); setVal('conf_lon');
+
+                retryMissingCount = 0;
+
+                const cmds = [
+                    "get public.key", "get prv.key", "get name", 
+                    "board", "ver", "clock", 
+                    "get repeat", "get radio", "get tx", "get af", "get advert.interval",
+                    "get flood.max", "get flood.advert.interval", "get lat", "get lon"
+                ];
+                cmds.forEach(c => queueCommand(c));
+                queueCommand("__CHECK_MISSING__");
+            };
+
+            addEvt('btnReload', 'click', window.readAllInfo);
+
+            addEvt('btnToggleRepeat', 'click', () => {
+                const repState = document.getElementById('info_repeat')?.textContent;
+                if(repState === "Wyłączony") queueCommand('set repeat on');
+                else queueCommand('set repeat off');
+                setTimeout(() => queueCommand('get repeat'), 500);
+            });
+            
+            addEvt('btnCheckPrefix', 'click', () => checkPrefix(true));
+            addEvt('btnConnect', 'click', connectSerial);
+            addEvt('btnDisconnect', 'click', disconnectSerial);
+            addEvt('btnClear', 'click', () => {
+                const term = document.getElementById('terminalOutput');
+                if (term) term.textContent = '';
+            });
+
+            addEvt('terminalInput', 'keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const cmd = e.target.value;
+                    e.target.value = '';
+                    if(isConnected) queueCommand(cmd);
+                }
+            });
+
+            if (!("serial" in navigator)) {
+                const statusText = document.getElementById('statusText');
+                const btnConnect = document.getElementById('btnConnect');
+                if (statusText) statusText.innerHTML = `<span class="text-red-400 font-bold">Brak API USB.</span> Użyj Chrome lub Edge na PC.`;
+                if (btnConnect) {
+                    btnConnect.disabled = true;
+                    btnConnect.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
