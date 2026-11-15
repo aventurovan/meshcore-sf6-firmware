@@ -32,6 +32,10 @@ const fileUrl = p => new URL(p, new URL(MANIFEST_URL, location.href)).href;
 const baseName = p => p.split("/").pop();
 function log(msg) { const l = $("flLog"); l.textContent += msg + "\n"; l.scrollTop = l.scrollHeight; }
 function setStatus(msg, kind = "") { const s = $("flStatus"); s.textContent = msg; s.className = "fl-status " + kind; }
+// po wgraniu firmware urządzenie nie ma już starych kluczy parowania Bluetooth — telefon trzeba sparować od nowa
+const PAIR_HINT = "Jeśli to urządzenie było już sparowane z telefonem: usuń je z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj od nowa — inaczej aplikacja może łączyć się tylko częściowo (np. bez odbierania wiadomości).";
+const isBtRole = () => !/rpt|repeater|usb|room/i.test(state.role || "");
+const doneMsg = () => "Gotowe. Urządzenie uruchamia się z nowym firmware." + (isBtRole() ? " " + PAIR_HINT : "");
 function setProgress(p) { $("flBar").style.width = Math.max(0, Math.min(100, p)) + "%"; }
 function setVersion(val, sub, base) {
   $("flVer").innerHTML = `<div class="lbl">Wersja</div><div class="val mono">${esc(val)}</div>` +
@@ -314,7 +318,7 @@ async function nrfFlash(port, fw) {
     await lib.flashNrfDfu(port, pkg, { onProgress: f => setProgress(f * 100), log });
     setProgress(100);
     $("flNrfCont").hidden = true;
-    setStatus("Gotowe. Urządzenie uruchamia się z nowym firmware.", "ok");
+    setStatus(doneMsg(), "ok");
     log("Zakończono.");
   } catch (e) {
     console.error(e);
@@ -370,7 +374,7 @@ async function flashEspFiles(getFiles, full) {
     });
     await loader.after();
     setProgress(100);
-    setStatus("Gotowe. Urządzenie uruchamia się z nowym firmware.", "ok");
+    setStatus(doneMsg(), "ok");
     log("Zakończono.");
   } catch (e) {
     console.error(e);

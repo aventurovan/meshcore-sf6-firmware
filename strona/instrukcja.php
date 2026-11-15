@@ -37,6 +37,7 @@ $radio = PRESET_FREQ . ',' . PRESET_BW . ',' . PRESET_SF . ',' . PRESET_CR;
             <li><b>MeshSpeed (ThinkNode M9)</b> – nasz firmware dla ThinkNode M9: polski interfejs z klawiaturą, mapa i aktualizacje przez WiFi.</li>
           </ul>
           <p>Jeśli to pierwsza instalacja albo wcześniej było inne oprogramowanie (np. Meshtastic), zaznacz <b>„Najpierw wyczyść całą pamięć”</b>. Firmware z flashera ma od razu ustawione radio SF6.</p>
+          <p><b>Aktualizujesz urządzenie, które było już sparowane z telefonem?</b> Po wgraniu usuń je z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj od nowa.</p>
         </li>
         <li>
           <h3>Zainstaluj aplikację i połącz się</h3>
@@ -73,6 +74,7 @@ $radio = PRESET_FREQ . ',' . PRESET_BW . ',' . PRESET_SF . ',' . PRESET_CR;
       <div class="in-faq">
         <h2>Najczęstsze problemy</h2>
         <details><summary>Nikogo nie widzę</summary><p>Sprawdź ustawienia radia (krok 4) i prefiks 2 bajty (krok 5), wyślij advert i poczekaj kilka minut. Na mapie w sekcji <a href="/#zasieg">Zasięg</a> sprawdź, czy w Twojej okolicy jest repeater.</p></details>
+        <details><summary>Po aktualizacji firmware nie przychodzą wiadomości</summary><p>Telefon pamięta stare parowanie Bluetooth, a urządzenie po wgraniu firmware już go nie ma. Połączenie działa wtedy tylko częściowo: kontakty i wysyłanie mogą działać, a wiadomości z radia nie docierają. Usuń urządzenie z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj je od nowa z PIN-em (krok 3). MeshSpeed od wersji 0.21.1 sam wykrywa ten problem i podpowiada ponowne parowanie.</p></details>
         <details><summary>Telefon nie łączy się przez Bluetooth</summary><p>Usuń urządzenie z listy sparowanych w ustawieniach telefonu i połącz się ponownie z aplikacji. Sprawdź PIN (krok 3).</p></details>
         <details><summary>Urządzenie działa dziwnie po innym oprogramowaniu</summary><p>Wgraj firmware jeszcze raz przez flasher z zaznaczonym „Najpierw wyczyść całą pamięć”.</p></details>
       </div>

@@ -36,6 +36,7 @@ require __DIR__ . '/includes/header.php';
       <div class="fl-progress" aria-hidden="true"><div id="flBar"></div></div>
       <div class="fl-status" id="flStatus" role="status" aria-live="polite"></div>
       <details class="fl-log"><summary>Dziennik</summary><pre id="flLog"></pre></details>
+      <p class="fl-hint"><b>Po aktualizacji companiona:</b> usuń urządzenie z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj je od nowa. Po wgraniu firmware radio nie ma już starych kluczy parowania, a telefon dalej ich używa — połączenie działa wtedy tylko częściowo, np. kontakty się wczytują, a wiadomości nie przychodzą.</p>
     </div>
 
     <p class="fl-foot">Firmware budowany automatycznie z oficjalnych wydań <a href="https://github.com/meshcore-dev/MeshCore/releases" target="_blank" rel="noopener">meshcore-dev/MeshCore</a>. Źródła i wszystkie pliki: <a href="<?= URL_SF6_FIRMWARE_REPO ?>" target="_blank" rel="noopener">GitHub</a>. Ustawienia SF6 obowiązują przy czystej instalacji; aktualizacja zachowuje to, co już jest zapisane w urządzeniu.</p>
