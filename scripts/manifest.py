@@ -7,6 +7,7 @@ ROLE_SUFFIX = [  # (sufiks env, klucz roli w manifeście, typ wydania)
     ("_companion_radio_ble", "companion_ble", "companion"),
     ("_companion_radio_usb", "companion_usb", "companion"),
     ("_companion_mapper", "companion_mapper", "companion-mapper"),
+    ("_companion_meshspeed", "companion_meshspeed", "meshspeed"),
     ("_room_server", "room_server", "room-server"),
     ("_repeater", "repeater", "repeater"),
 ]
@@ -74,6 +75,8 @@ def cmd_build(outdir):
             plat = platform_of(t["files"])
             d = devices.setdefault(did, {"id": did, "name": pretty(t["device"], names), "platform": plat, "firmware": {}})
             d["firmware"][t["role"]] = {k: v for k, v in entry(plat, t["files"]).items() if v}
+            if t.get("reset_ota"):
+                d["firmware"][t["role"]]["reset_ota"] = True
     vers = sorted({r["version"] for r in roles.values() if r["version"].endswith("-sf6")})
     manifest = {"version": vers[-1] if vers else "", "upstream": "meshcore-dev/MeshCore",
                 "built": max((r["built"] for r in roles.values()), default=""),

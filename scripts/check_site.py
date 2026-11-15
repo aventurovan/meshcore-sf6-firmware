@@ -44,6 +44,8 @@ if man:
         for role, fw in d["firmware"].items():
             roles[role] = roles.get(role, 0) + 1
             for k, p in fw.items():
+                if not isinstance(p, str):
+                    continue  # np. reset_ota
                 files.append((d["id"], role, k, p))
         if d["platform"] == "esp32" and any(not fw.get("update") or not fw.get("full") for fw in d["firmware"].values()):
             warnings.append(f"{d['id']}: ESP32 bez pliku .bin lub merged")
@@ -72,7 +74,7 @@ if man:
 
     # 3. zgodność z indeksem w repo
     ROLES_OF = {"repeater": ["repeater"], "companion": ["companion_ble", "companion_usb"],
-                "companion-mapper": ["companion_mapper"]}
+                "companion-mapper": ["companion_mapper"], "meshspeed": ["companion_meshspeed"]}
     on_site = {r: v["version"] for r, v in man.get("roles", {}).items()}
     for t, rs in ROLES_OF.items():
         try:

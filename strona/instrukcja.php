@@ -34,6 +34,7 @@ $radio = PRESET_FREQ . ',' . PRESET_BW . ',' . PRESET_SF . ',' . PRESET_CR;
             <li><b>Companion Bluetooth</b> – do telefonu (najczęstszy wybór),</li>
             <li><b>Companion USB</b> – do komputera,</li>
             <li><b>Companion + Mapper SF6</b> – nasz firmware dla Wio Tracker L1 i T-Echo, z mapowaniem bez telefonu.</li>
+            <li><b>MeshSpeed (ThinkNode M9)</b> – nasz firmware dla ThinkNode M9: polski interfejs z klawiaturą, mapa i aktualizacje przez WiFi.</li>
           </ul>
           <p>Jeśli to pierwsza instalacja albo wcześniej było inne oprogramowanie (np. Meshtastic), zaznacz <b>„Najpierw wyczyść całą pamięć”</b>. Firmware z flashera ma od razu ustawione radio SF6.</p>
         </li>

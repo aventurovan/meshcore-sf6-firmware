@@ -7,8 +7,10 @@ const ROLES = {
   repeater:      { name: "Repeater",            desc: "Przekaźnik sieci (RPT)" },
   companion_ble: { name: "Companion Bluetooth", desc: "Do telefonu przez BLE" },
   companion_usb: { name: "Companion USB",       desc: "Do komputera przez kabel" },
-  companion_mapper: { name: "Companion + Mapper SF6", desc: "Nasz firmware: companion z mapowaniem bez telefonu" }
+  companion_mapper: { name: "Companion + Mapper SF6", desc: "Nasz firmware: companion z mapowaniem bez telefonu" },
+  companion_meshspeed: { name: "MeshSpeed (ThinkNode M9)", desc: "Nasz firmware: polski interfejs z klawiaturą" }
 };
+const ESP_OTADATA = 0xe000, ESP_OTADATA_SIZE = 0x2000;
 const PLATFORM = { esp32: "ESP32", nrf52: "nRF52", rp2040: "RP2040", stm32: "STM32" };
 const ESP_APP_OFFSET = 0x10000;
 
@@ -103,6 +105,8 @@ function renderFlash() {
   const fw = d.firmware[state.role];
   const note = state.role === "companion_mapper"
     ? `<p class="fl-note">Firmware MeshCore Południe: zwykły companion BLE (działa z aplikacją MeshCore) z wbudowanym Mapperem SF6 i polskim interfejsem na ekranie urządzenia. Dane z mapowania zrzucasz do aplikacji <a href="/mapper" target="_blank" rel="noopener">Mapper SF6</a>.</p>`
+    : state.role === "companion_meshspeed"
+    ? `<p class="fl-note">Firmware MeshSpeed dla ThinkNode M9: companion MeshCore z polskim interfejsem na ekranie, obsługą klawiatury, mapą i presetem SF6. Działa z aplikacją <a href="/meshspeed.php">MeshSpeed</a> i oficjalną aplikacją MeshCore. Później aktualizuje się sam przez WiFi (Narzędzia › Aktualizacja). Przy pierwszym wgraniu na M9 z innym firmware zaznacz kasowanie pamięci.</p>`
     : "";
 
   if (d.platform === "esp32") {
@@ -320,13 +324,20 @@ async function flashEsp(fw, full) {
   try {
     setStatus("Pobieranie firmware…");
     const data = await fetchBinary(full ? fw.full : fw.update);
+    const files = [{ data, address: full ? 0x0 : ESP_APP_OFFSET }];
+    if (!full && fw.reset_ota) {
+      // po aktualizacji przez WiFi aplikacja może działać z drugiej partycji (app1) – czyścimy otadata,
+      // żeby urządzenie uruchomiło właśnie wgraną wersję z app0; dane i ustawienia zostają
+      const blank = new Uint8Array(ESP_OTADATA_SIZE).fill(0xff);
+      files.unshift({ data: Array.from(blank, b => String.fromCharCode(b)).join(""), address: ESP_OTADATA });
+    }
     setStatus("Łączenie z urządzeniem…");
     transport = new Transport(port, true);
     const loader = new ESPLoader({ transport, baudrate: 460800, romBaudrate: 115200, terminal });
     log("Wykryto: " + await loader.main());
     setStatus(full ? "Kasowanie i wgrywanie… nie odłączaj urządzenia" : "Wgrywanie… nie odłączaj urządzenia");
     await loader.writeFlash({
-      fileArray: [{ data, address: full ? 0x0 : ESP_APP_OFFSET }],
+      fileArray: files,
       flashSize: "keep", flashMode: "keep", flashFreq: "keep",
       eraseAll: full, compress: true,
       reportProgress: (_i, written, total) => setProgress(written / total * 100)
