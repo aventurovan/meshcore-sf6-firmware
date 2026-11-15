@@ -3,6 +3,7 @@
 i przygotowuje go dla flashera: site/firmware/meshspeed-m9/<wersja>/ + index/meshspeed.json.
 Wynik w GITHUB_OUTPUT: changed=true/false, version=<wersja>."""
 import datetime, json, os, re, urllib.request
+from base_version import base_version
 
 REPO = "aventurovan/thinknode-m9-sf6"
 TAG = "latest-build"
@@ -34,7 +35,9 @@ if set(found) != {"pelny", "aktualizacja"}:
 
 idx_path = "index/meshspeed.json"
 old = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
-changed = force or old.get("version") != version
+base = base_version(get, REPO, TAG, "m9_sf6/companion/MyMesh.h") or old.get("base")  # gdy API zawiedzie, zostaje poprzednia; oficjalne wydanie MeshCore, na którym oparty jest build
+print(f"Oparty na MeshCore: {base or 'nieznane'}")
+changed = force or old.get("version") != version or old.get("base") != base
 print(f"MeshSpeed M9 {version} (na stronie: {old.get('version', 'brak')})" + (" – aktualizuję" if changed else " – bez zmian"))
 
 if changed:
@@ -51,7 +54,7 @@ if changed:
         print(f"  {a['name']}: {len(data)} B")
     os.makedirs("index", exist_ok=True)
     json.dump({"type": "meshspeed", "version": version, "display_version": f"MeshSpeed {version}",
-               "upstream": "repo thinknode-m9-sf6",
+               "upstream": "repo thinknode-m9-sf6", "base": base,
                "built": max([x.get("updated_at") or "" for x in list(found.values())] + [""]) or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),  # data plików, nie wydania (wydanie latest-build jest stare)
                # reset_ota: przy aktualizacji bez kasowania flasher czyści otadata (0xe000), żeby po aktualizacji
                # przez WiFi (aplikacja w app1) urządzenie uruchomiło nową wersję z app0

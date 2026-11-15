@@ -3,6 +3,7 @@
 i przygotowuje go dla flashera: site/firmware/companion-mapper/<wersja>/ + index/companion-mapper.json.
 Wynik w GITHUB_OUTPUT: changed=true/false, version=<wersja>."""
 import datetime, json, os, re, urllib.request
+from base_version import base_version
 
 REPO = "aventurovan/meshcore-sf6-mapper-firmware"
 TAG = "latest-build"
@@ -31,7 +32,9 @@ for a in rel["assets"]:
 
 idx_path = "index/companion-mapper.json"
 old = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
-changed = force or old.get("version") != version
+base = base_version(get, REPO, TAG, "companion_mapper/MyMesh.h") or old.get("base")  # gdy API zawiedzie, zostaje poprzednia; oficjalne wydanie MeshCore, na którym oparty jest build
+print(f"Oparty na MeshCore: {base or 'nieznane'}")
+changed = force or old.get("version") != version or old.get("base") != base
 missing = [d for d in DEVICES if not {"uf2", "zip"} <= set(found.get(d, {}))]
 if missing:
     raise SystemExit(f"::error::w wydaniu {TAG} brakuje plików dla: {', '.join(missing)}")
@@ -51,7 +54,7 @@ if changed:
         targets[f"{DEVICES[dev]}_companion_mapper"] = entry
     os.makedirs("index", exist_ok=True)
     json.dump({"type": "companion-mapper", "version": version, "display_version": f"Mapper {version}",
-               "upstream": "repo meshcore-sf6-mapper-firmware",
+               "upstream": "repo meshcore-sf6-mapper-firmware", "base": base,
                "built": max([x.get("updated_at") or "" for x in [a for d in found.values() for a in d.values()]] + [""]) or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),  # data plików, nie wydania (wydanie latest-build jest stare)
                "targets": targets}, open(idx_path, "w"), indent=1, ensure_ascii=False)
 

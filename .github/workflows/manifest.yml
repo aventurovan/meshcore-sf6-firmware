@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}   # najnowszy stan gałęzi (nie z chwili uruchomienia), żeby manifest miał świeże indeksy innych firmware
       - run: python3 scripts/manifest.py build site
       - name: FTP
         env:

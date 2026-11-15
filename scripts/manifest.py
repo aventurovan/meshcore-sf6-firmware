@@ -70,6 +70,8 @@ def cmd_build(outdir):
             if typ == idx["type"]:
                 roles[role] = {"version": idx.get("display_version") or idx["version"] + "-sf6",
                                "upstream": idx["upstream"], "built": idx["built"]}
+                if idx.get("base"):
+                    roles[role]["base"] = idx["base"]
         for env, t in idx["targets"].items():
             did = t["device"].lower()
             plat = platform_of(t["files"])

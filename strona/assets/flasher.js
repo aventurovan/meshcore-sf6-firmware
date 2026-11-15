@@ -33,7 +33,10 @@ const baseName = p => p.split("/").pop();
 function log(msg) { const l = $("flLog"); l.textContent += msg + "\n"; l.scrollTop = l.scrollHeight; }
 function setStatus(msg, kind = "") { const s = $("flStatus"); s.textContent = msg; s.className = "fl-status " + kind; }
 function setProgress(p) { $("flBar").style.width = Math.max(0, Math.min(100, p)) + "%"; }
-function setVersion(val, sub) { $("flVer").innerHTML = `<div class="lbl">Wersja</div><div class="val mono">${esc(val)}</div><div class="sub">${esc(sub)}</div>`; }
+function setVersion(val, sub, base) {
+  $("flVer").innerHTML = `<div class="lbl">Wersja</div><div class="val mono">${esc(val)}</div>` +
+    (base ? `<div class="base">na bazie oficjalnego MeshCore <b>${esc(base)}</b></div>` : "") + `<div class="sub">${esc(sub)}</div>`;
+}
 
 async function loadManifest() {
   try {
@@ -57,7 +60,7 @@ function showVersion() {
   const v = r ? r.version : m.version;
   const built = (r && r.built) || m.built;
   const date = built ? new Date(built).toLocaleDateString("pl-PL") : "";
-  setVersion(v || "?", (r ? "z " + r.upstream : "oficjalny MeshCore") + (date ? ", " + date : ""));
+  setVersion(v || "?", (r ? "z " + r.upstream : "oficjalny MeshCore") + (date ? ", " + date : ""), r && r.base);
 }
 
 function renderRoles() {
