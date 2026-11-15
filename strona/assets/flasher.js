@@ -52,6 +52,7 @@ async function loadManifest() {
 }
 
 function showVersion() {
+  if (state.role === "custom") return setVersion("własny", "plik z dysku");
   const m = state.m, r = state.role && m.roles && m.roles[state.role];
   const v = r ? r.version : m.version;
   const built = (r && r.built) || m.built;
@@ -64,11 +65,17 @@ function renderRoles() {
   $("flRoles").innerHTML = present.map(r => {
     const n = state.m.devices.filter(d => d.firmware[r]).length;
     return `<button class="fl-role" data-role="${r}" aria-pressed="false"><b>${ROLES[r].name}</b><small>${ROLES[r].desc}, ${n} urządz.</small></button>`;
-  }).join("");
+  }).join("") + `<button class="fl-role fl-role-custom" data-role="custom" aria-pressed="false"><b>Własny firmware</b><small>Dla zaawansowanych: plik .bin lub .zip z dysku, do testów</small></button>`;
   $("flRoles").querySelectorAll(".fl-role").forEach(b => b.onclick = () => {
     if (state.busy) return;
     state.role = b.dataset.role;
     $("flRoles").querySelectorAll(".fl-role").forEach(x => x.setAttribute("aria-pressed", x === b));
+    if (state.role === "custom") {
+      state.device = null;
+      $("flS2").classList.add("off");
+      setVersion("własny", "plik z dysku");
+      return renderCustom();
+    }
     if (state.device && !state.device.firmware[state.role]) state.device = null;
     $("flS2").classList.remove("off");
     showVersion();
@@ -93,7 +100,7 @@ function renderDevices() {
     renderFlash();
   });
 }
-$("flSearch").addEventListener("input", () => state.m && state.role && renderDevices());
+$("flSearch").addEventListener("input", () => state.m && state.role && state.role !== "custom" && renderDevices());
 
 const eraseBox = disabled => `
   <label class="fl-check"><input type="checkbox" id="flErase" ${disabled ? "disabled" : ""}>
@@ -324,7 +331,21 @@ async function fetchBinary(path) {
   return s;
 }
 
+const otadataBlank = () => String.fromCharCode(0xff).repeat(ESP_OTADATA_SIZE);
+const u8ToStr = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return s; };
+
 async function flashEsp(fw, full) {
+  return flashEspFiles(async () => {
+    const data = await fetchBinary(full ? fw.full : fw.update);
+    const files = [{ data, address: full ? 0x0 : ESP_APP_OFFSET }];
+    // po aktualizacji przez WiFi aplikacja może działać z drugiej partycji (app1) – czyścimy otadata,
+    // żeby urządzenie uruchomiło właśnie wgraną wersję z app0; dane i ustawienia zostają
+    if (!full && fw.reset_ota) files.unshift({ data: otadataBlank(), address: ESP_OTADATA });
+    return files;
+  }, full);
+}
+
+async function flashEspFiles(getFiles, full) {
   let port, transport;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
@@ -332,14 +353,7 @@ async function flashEsp(fw, full) {
   const terminal = { clean() {}, writeLine: l => log(l), write: l => log(l) };
   try {
     setStatus("Pobieranie firmware…");
-    const data = await fetchBinary(full ? fw.full : fw.update);
-    const files = [{ data, address: full ? 0x0 : ESP_APP_OFFSET }];
-    if (!full && fw.reset_ota) {
-      // po aktualizacji przez WiFi aplikacja może działać z drugiej partycji (app1) – czyścimy otadata,
-      // żeby urządzenie uruchomiło właśnie wgraną wersję z app0; dane i ustawienia zostają
-      const blank = new Uint8Array(ESP_OTADATA_SIZE).fill(0xff);
-      files.unshift({ data: Array.from(blank, b => String.fromCharCode(b)).join(""), address: ESP_OTADATA });
-    }
+    const files = await getFiles();
     setStatus("Łączenie z urządzeniem…");
     transport = new Transport(port, true);
     const loader = new ESPLoader({ transport, baudrate: 460800, romBaudrate: 115200, terminal });
@@ -386,6 +400,103 @@ async function enterDfu(d) {
     log("BŁĄD: " + (e.message || e));
     setStatus("Nie udało się włączyć DFU: " + (e.message || e) + ". Kliknij szybko dwa razy RESET na urządzeniu.", "err");
   } finally { lockUi(false); }
+}
+
+// ---------- własny firmware (dla zaawansowanych) ----------
+function detectEsp(u8) {
+  if (u8[0] !== 0xe9) return { kind: "unknown", addr: ESP_APP_OFFSET };
+  // pełny obraz (merged): bootloader od 0x0 i tablica partycji (magic AA 50) pod 0x8000
+  if (u8.length > 0x9000 && u8[0x8000] === 0xaa && u8[0x8001] === 0x50) return { kind: "merged", addr: 0x0 };
+  return { kind: "app", addr: ESP_APP_OFFSET };
+}
+
+function renderCustom() {
+  $("flS3").classList.remove("off");
+  setProgress(0); setStatus("");
+  $("flArea").innerHTML = `
+    <div class="fl-notice">Tylko dla zaawansowanych – do testów własnych buildów. Strona nie sprawdza, czy plik pasuje do urządzenia:
+      zły plik może sprawić, że urządzenie przestanie się uruchamiać (zwykle da się je odzyskać, wgrywając właściwy firmware w trybie BOOT/DFU).</div>
+    <label class="fl-file"><span>Plik firmware</span>
+      <input type="file" id="flCuFile" accept=".bin,.zip,.uf2"></label>
+    <p class="fl-hint">ESP32: plik <b>.bin</b> (pełny obraz od 0x0 albo sama aplikacja od 0x10000).
+      nRF52: paczka DFU <b>.zip</b> (np. <span class="mono">…-ota.zip</span> z buildu MeshCore).
+      Plik <b>.uf2</b> wgrywa się, kopiując go na dysk bootloadera.</p>
+    <div id="flCuOpts"></div>`;
+  $("flCuFile").onchange = onCustomFile;
+}
+
+async function onCustomFile(e) {
+  const f = e.target.files[0], box = $("flCuOpts");
+  box.innerHTML = ""; setStatus(""); setProgress(0);
+  if (!f) return;
+  const u8 = new Uint8Array(await f.arrayBuffer());
+  const ext = (f.name.split(".").pop() || "").toLowerCase();
+  log("Wybrano plik " + f.name + " (" + (u8.length / 1024).toFixed(0) + " KB)");
+  if (ext === "uf2") {
+    box.innerHTML = `<div class="fl-actions"><button class="btn btn-green-line" id="flDfu" ${na(!hasSerial)}>Włącz tryb DFU</button></div>
+      <p class="fl-hint">Plików .uf2 nie wgrywa się przez port szeregowy. Kliknij „Włącz tryb DFU” (albo szybko dwa razy RESET),
+      a gdy pojawi się dysk bootloadera, skopiuj na niego plik ${esc(f.name)}.</p>`;
+    $("flDfu").onclick = () => enterDfu({ name: "urządzenie" });
+    return;
+  }
+  if (ext === "zip") {
+    let pkg;
+    try { pkg = await (await nrfLib()).readDfuZip(u8.buffer); }
+    catch (err) { setStatus("To nie jest paczka DFU nRF52: " + (err.message || err), "err"); return; }
+    const key = "local:" + f.name + ":" + f.size + ":" + f.lastModified;
+    state.nrfPkg = { url: key, pkg };
+    const fw = { zip: key };
+    log("Paczka DFU nRF52: aplikacja " + (pkg.bin.length / 1024).toFixed(0) + " KB");
+    box.innerHTML = `<p class="fl-hint"><b>nRF52</b> · paczka DFU, aplikacja ${(pkg.bin.length / 1024).toFixed(0)} KB</p>
+      ${eraseBox(false)}
+      <div class="fl-actions">
+        <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
+        <button class="btn btn-green-line" id="flNrfCont" hidden>Kontynuuj – wybierz port DFU</button>
+      </div>
+      <p class="fl-hint">Urządzenie zrestartuje się w tryb DFU; jeśli strona poprosi, kliknij „Kontynuuj” i wybierz nowy port.
+      Urządzenie jest już w trybie DFU? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</p>`;
+    $("flNrf").onclick = () => {
+      state.nrfErase = $("flErase").checked;
+      if (state.nrfErase && !confirmErase()) return;
+      nrfStart({ name: "urządzenie" }, fw);
+    };
+    $("flNrfCont").onclick = () => nrfPickAndFlash();
+    $("flNrfDirect").onclick = ev => {
+      ev.preventDefault();
+      if (state.busy || !hasSerial) return;
+      state.nrfErase = $("flErase").checked;
+      if (state.nrfErase && !confirmErase()) return;
+      nrfPickAndFlash(fw);
+    };
+    return;
+  }
+  if (ext !== "bin") { setStatus("Nieobsługiwany plik – wybierz .bin, .zip albo .uf2.", "err"); return; }
+  const det = detectEsp(u8);
+  const kindTxt = det.kind === "merged" ? "pełny obraz (bootloader + partycje + aplikacja)"
+    : det.kind === "app" ? "sama aplikacja" : "nierozpoznany plik – sprawdź adres";
+  box.innerHTML = `<p class="fl-hint"><b>ESP32</b> · ${kindTxt}, ${(u8.length / 1024).toFixed(0)} KB</p>
+    <label class="fl-file"><span>Adres w pamięci</span>
+      <input type="text" id="flCuAddr" class="mono" value="0x${det.addr.toString(16)}" spellcheck="false"></label>
+    <label class="fl-check"><input type="checkbox" id="flCuOta" ${det.kind === "merged" ? "" : "checked"}>
+      <span><b>Wyczyść otadata (0xe000)</b><br>Żeby urządzenie uruchomiło wgraną aplikację z app0, nawet jeśli wcześniej działało z app1 (np. po aktualizacji przez WiFi). Dane i ustawienia zostają.</span></label>
+    ${eraseBox(false)}
+    <div class="fl-actions"><button class="btn btn-green" id="flCuEsp" ${na(!hasSerial)}>Wgraj przez USB</button></div>`;
+  const data = u8ToStr(u8);
+  $("flCuEsp").onclick = () => {
+    const addr = parseInt($("flCuAddr").value.trim(), 16);
+    if (!Number.isFinite(addr) || addr < 0 || addr % 0x1000) { setStatus("Nieprawidłowy adres – podaj wielokrotność 0x1000, np. 0x0 albo 0x10000.", "err"); return; }
+    if (det.kind === "merged" && addr !== 0 && !confirm("To wygląda na pełny obraz, który wgrywa się od 0x0. Wgrać pod 0x" + addr.toString(16) + "?")) return;
+    if (det.kind === "app" && addr === 0 && !confirm("To wygląda na samą aplikację – pod 0x0 nadpisze bootloader i urządzenie się nie uruchomi. Na pewno?")) return;
+    const wipe = $("flErase").checked;
+    if (wipe && !confirmErase()) return;
+    const ota = $("flCuOta").checked;
+    log("Własny plik " + f.name + " → 0x" + addr.toString(16) + (wipe ? ", z kasowaniem" : "") + (ota && !wipe && addr ? ", reset otadata" : ""));
+    flashEspFiles(async () => {
+      const files = [{ data, address: addr }];
+      if (ota && !wipe && addr !== 0) files.unshift({ data: otadataBlank(), address: ESP_OTADATA });
+      return files;
+    }, wipe);
+  };
 }
 
 loadManifest();
