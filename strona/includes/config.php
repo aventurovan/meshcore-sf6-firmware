@@ -5,6 +5,9 @@
 define('SITE_NAME', 'MeshCore Południe');
 
 define('URL_LIVE_MAP', 'https://meshcorekk.xyz/');
+// Nasza mapa na żywo (live-mesh-map-pl na serwerze w Proxmoxie, tunel Cloudflare) i jej statystyki dla statystyki.php
+define('URL_OUR_LIVE_MAP', 'https://live.meshcoresouth.pl/');
+define('URL_LIVE_STATS', 'https://live.meshcoresouth.pl/api/export/statystyki.json');
 define('URL_MAPPER', 'https://meshcoresouth.pl/mapper');
 define('URL_MAPPER_APK', 'https://meshcoresouth.pl/mapper/apk/');
 // MeshSpeed na iPhone'a: odkomentuj i wpisz link TestFlight, a na meshspeed.php pojawi się przycisk
