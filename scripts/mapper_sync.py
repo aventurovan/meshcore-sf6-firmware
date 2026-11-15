@@ -52,7 +52,7 @@ if changed:
     os.makedirs("index", exist_ok=True)
     json.dump({"type": "companion-mapper", "version": version, "display_version": f"Mapper {version}",
                "upstream": "repo meshcore-sf6-mapper-firmware",
-               "built": rel.get("published_at") or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "built": max([x.get("updated_at") or "" for x in [a for d in found.values() for a in d.values()]] + [""]) or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),  # data plików, nie wydania (wydanie latest-build jest stare)
                "targets": targets}, open(idx_path, "w"), indent=1, ensure_ascii=False)
 
 if os.environ.get("GITHUB_OUTPUT"):

@@ -52,7 +52,7 @@ if changed:
     os.makedirs("index", exist_ok=True)
     json.dump({"type": "meshspeed", "version": version, "display_version": f"MeshSpeed {version}",
                "upstream": "repo thinknode-m9-sf6",
-               "built": rel.get("published_at") or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "built": max([x.get("updated_at") or "" for x in list(found.values())] + [""]) or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),  # data plików, nie wydania (wydanie latest-build jest stare)
                # reset_ota: przy aktualizacji bez kasowania flasher czyści otadata (0xe000), żeby po aktualizacji
                # przez WiFi (aplikacja w app1) urządzenie uruchomiło nową wersję z app0
                "targets": {f"{DEVICE}_companion_meshspeed": {"device": DEVICE, "role": "companion_meshspeed",
