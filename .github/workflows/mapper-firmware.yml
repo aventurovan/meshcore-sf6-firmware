@@ -3,7 +3,7 @@ name: Firmware Companion + Mapper SF6
 # Nasz firmware z repo meshcore-sf6-mapper-firmware (wydanie „Najnowszy build”) -> flasher na stronie.
 on:
   schedule:
-    - cron: "41 3 * * *"   # raz dziennie, po sprawdzeniu oficjalnych wydań
+    - cron: "41 */6 * * *"   # co 6 godzin
   workflow_dispatch:
     inputs:
       force:
