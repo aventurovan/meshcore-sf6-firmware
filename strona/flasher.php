@@ -15,7 +15,8 @@ require __DIR__ . '/includes/header.php';
       <div class="fl-ver card" id="flVer"><div class="lbl">Wersja</div><div class="val mono">…</div><div class="sub">wczytywanie</div></div>
     </div>
 
-    <div class="fl-notice" id="flNoSerial" hidden>Ta przeglądarka nie obsługuje Web Serial. Otwórz stronę w Chrome lub Edge na komputerze. Pliki możesz nadal pobrać ręcznie.</div>
+    <div class="fl-notice" id="flNoSerial" hidden>Ta przeglądarka nie obsługuje wgrywania przez USB. Otwórz stronę w Chrome lub Edge na komputerze albo w Chrome na Androidzie (iPhone nie pozwala na to żadnej przeglądarce). Pliki możesz nadal pobrać ręcznie.</div>
+    <div class="fl-notice" id="flAndroid" hidden><b>Telefon z Androidem:</b> podłącz urządzenie kablem USB-C ↔ USB-C (albo przez przejściówkę OTG) i używaj Chrome. Działają płytki z wbudowanym USB – ESP32-S3/C3/C6 z natywnym USB (np. ThinkNode M9), nRF52 (RAK 4631, T114, T-Echo, Wio) i RP2040. Płytki z osobnym układem USB (CP2102, CH340 – np. Heltec V3, T-Beam) wgrasz tylko z komputera. Gdy Chrome zapyta o dostęp do urządzenia USB, wybierz je i zezwól.</div>
     <div class="fl-notice err" id="flLoadErr" hidden></div>
 
     <div class="card fl-step" id="flS1">

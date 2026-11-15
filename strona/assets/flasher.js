@@ -1,6 +1,7 @@
 // Flasher SF6 – MeshCore Południe
 // Lista firmware: /flasher/manifest.json (generowany automatycznie przez repo meshcore-sf6-firmware)
 import { ESPLoader, Transport } from "https://cdn.jsdelivr.net/npm/esptool-js@0.5.7/bundle.js";
+import { serial as usbSerial } from "./web-serial-polyfill.js";
 
 const MANIFEST_URL = "/flasher/manifest.json";
 const ROLES = {
@@ -16,8 +17,14 @@ const ESP_APP_OFFSET = 0x10000;
 
 const $ = id => document.getElementById(id);
 const state = { m: null, role: null, device: null, busy: false };
-const hasSerial = "serial" in navigator;
+// Android: Web Serial przez WebUSB (polyfill). Chrome na Androidzie nie widzi zwykle portów szeregowych,
+// a przez WebUSB działają płytki z wbudowanym USB (klasa CDC: ESP32-S3/C3/C6, nRF52, RP2040).
+const ANDROID = /Android/i.test(navigator.userAgent);
+const USB_MODE = ANDROID && "usb" in navigator;
+const SERIAL = USB_MODE ? usbSerial : navigator.serial;
+const hasSerial = !!SERIAL;
 if (!hasSerial) $("flNoSerial").hidden = false;
+if (USB_MODE) $("flAndroid").hidden = false;
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -200,7 +207,7 @@ async function nrfPackage(fw) {
 
 async function nrfStart(d, fw) {
   let port;
-  try { port = await navigator.serial.requestPort(); }
+  try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0); $("flNrfCont").hidden = true;
   try {
@@ -213,7 +220,7 @@ async function nrfStart(d, fw) {
     await lib.touch1200(port);
     await sleep(2500);
     // jeśli przeglądarka zna już port bootloadera (np. z poprzedniego wgrywania), wgrywamy od razu
-    const known = (await navigator.serial.getPorts()).filter(p => p !== port && !p.readable && p.getInfo().usbVendorId === vid);
+    const known = (await SERIAL.getPorts()).filter(p => p !== port && !p.readable && p.getInfo().usbVendorId === vid);
     if (known.length === 1) { lockUi(false); return nrfFlash(known[0], fw); }
     setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
     state.nrfFw = fw;
@@ -228,7 +235,7 @@ async function nrfPickAndFlash(fw) {
   if (state.busy) return;
   fw = fw || state.nrfFw;
   let port;
-  try { port = await navigator.serial.requestPort(); }
+  try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   return nrfFlash(port, fw);
 }
@@ -248,9 +255,11 @@ function waitForPort(vid, pid, timeout) {
       const i = e.target.getInfo();
       if (i.usbVendorId === vid && i.usbProductId === pid) { done(); resolve(e.target); }
     };
+    // polyfill (Android) nie zgłasza podłączenia: czekamy, aż kasowanie się skończy, potem użytkownik wybiera port
+    if (!SERIAL.addEventListener) return void setTimeout(() => resolve(null), 40000);
     const t = setTimeout(() => { done(); resolve(null); }, timeout);
-    const done = () => { clearTimeout(t); navigator.serial.removeEventListener("connect", h); };
-    navigator.serial.addEventListener("connect", h);
+    const done = () => { clearTimeout(t); SERIAL.removeEventListener("connect", h); };
+    SERIAL.addEventListener("connect", h);
   });
 }
 
@@ -317,7 +326,7 @@ async function fetchBinary(path) {
 
 async function flashEsp(fw, full) {
   let port, transport;
-  try { port = await navigator.serial.requestPort(); }
+  try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0);
   const terminal = { clean() {}, writeLine: l => log(l), write: l => log(l) };
@@ -358,7 +367,7 @@ async function flashEsp(fw, full) {
 
 async function enterDfu(d) {
   let port;
-  try { port = await navigator.serial.requestPort(); }
+  try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true);
   try {

@@ -13,6 +13,12 @@
   const REPLY_TIMEOUT = 1500;
   const MULTI = new Set(["neighbors"]);
   const enc = new TextEncoder();
+  // Android: Web Serial przez WebUSB (polyfill) – działają płytki z wbudowanym USB (klasa CDC)
+  const USB_MODE = /Android/i.test(navigator.userAgent) && "usb" in navigator;
+  let SERIAL = USB_MODE ? null : navigator.serial;
+  const serialReady = USB_MODE
+    ? import("/assets/web-serial-polyfill.js").then((m) => { SERIAL = m.serial; }).catch(() => {})
+    : Promise.resolve();
 
   let port = null, reader = null, writer = null, connected = false, keepReading = false;
   let rxBuf = "", pending = null, chain = Promise.resolve();
@@ -119,8 +125,9 @@
   }
 
   async function connectSerial() {
-    if (!("serial" in navigator)) return;
-    try { port = await navigator.serial.requestPort(); } catch (e) { return; }
+    await serialReady;
+    if (!SERIAL) return;
+    try { port = await SERIAL.requestPort(); } catch (e) { return; }
     try {
       await port.open({ baudRate: 115200 });
     } catch (e) {
@@ -137,14 +144,15 @@
     setStatus("on", "Połączono przez USB");
     evInfo("Połączono przez USB", info.usbVendorId ? `VID 0x${info.usbVendorId.toString(16).padStart(4, "0")}` : "");
     readLoop();
-    navigator.serial.addEventListener("disconnect", onUsbGone);
+    if (SERIAL.addEventListener) SERIAL.addEventListener("disconnect", onUsbGone);
+    else if (navigator.usb) navigator.usb.addEventListener("disconnect", onUsbGone);
     await sleep(400);
     await readAllInfo();
     liveTimer = setInterval(() => { if (connected && !reading && document.visibilityState === "visible") refreshLive(); }, 30000);
   }
 
   function onUsbGone(e) {
-    if (port && e.target === port) disconnectSerial(true);
+    if (port && (e.target === port || (e.device && port.device_ === e.device))) disconnectSerial(true);
   }
 
   async function disconnectSerial(lost) {
@@ -154,7 +162,8 @@
     try { if (writer) writer.releaseLock(); } catch (e) {}
     try { if (port && !lost) await port.close(); } catch (e) {}
     reader = writer = null; port = null;
-    if (navigator.serial) navigator.serial.removeEventListener("disconnect", onUsbGone);
+    if (SERIAL && SERIAL.removeEventListener) SERIAL.removeEventListener("disconnect", onUsbGone);
+    if (navigator.usb) navigator.usb.removeEventListener("disconnect", onUsbGone);
     showDash(false);
     setStatus("", "Rozłączono");
     closeWizard();
@@ -1216,7 +1225,7 @@
 
   /* start */
   checkDesiredId(); updateOwnerCounter(); renderChecks();
-  if (!("serial" in navigator)) {
+  if (!USB_MODE && !("serial" in navigator)) {
     $("rpNoSerial").hidden = false;
     $("btnConnect").disabled = true;
   }

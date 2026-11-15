@@ -14,8 +14,8 @@ $asset = fn($f) => '/assets/' . $f . '?v=' . filemtime(__DIR__ . '/../assets/' .
       <div class="rp-start-text">
         <span class="pill">Preset: Południe SF6</span>
         <h1>Konfigurator <span>RPT</span></h1>
-        <p>Podłącz repeater kablem USB i ustaw go w przeglądarce (Chrome lub Edge na komputerze). Sprawdzimy, czy jest zgodny z siecią Południe SF6, i jednym kliknięciem poprawimy to, co odbiega od standardu.</p>
-        <div class="fl-notice" id="rpNoSerial" hidden>Ta przeglądarka nie obsługuje połączenia USB (Web Serial). Otwórz stronę w Chrome lub Edge na komputerze.</div>
+        <p>Podłącz repeater kablem USB i ustaw go w przeglądarce (Chrome lub Edge na komputerze albo Chrome na Androidzie – kablem USB-C, tylko płytki z wbudowanym USB). Sprawdzimy, czy jest zgodny z siecią Południe SF6, i jednym kliknięciem poprawimy to, co odbiega od standardu.</p>
+        <div class="fl-notice" id="rpNoSerial" hidden>Ta przeglądarka nie obsługuje połączenia USB (Web Serial). Otwórz stronę w Chrome lub Edge na komputerze albo w Chrome na Androidzie.</div>
         <div class="rp-start-actions">
           <button type="button" id="btnConnect" class="btn btn-green rp-big">Połącz przez USB</button>
           <a class="rp-link" href="/instrukcja.php#repeater">Wolisz telefon? Instrukcja repeatera →</a>
