@@ -9,6 +9,9 @@
   const naMapie = (cle) => (cle ? ` <a class="st-map" href="${MAPA}?mc=${encodeURIComponent(String(cle).slice(0, 16))}" target="_blank" rel="noopener" title="Zobacz na mapie na żywo">na mapie ↗</a>` : '');
   // odmiana: 1 repeater, 2 repeatery, 5 repeaterów
   const odm = (n, a, b, c) => { n = Math.abs(n); const d = n % 10, s = n % 100; return n === 1 ? a : d >= 2 && d <= 4 && (s < 12 || s > 14) ? b : c; };
+  // link do mapy z narysowanym łączem / trasą
+  const naMapieLacze = (a, b) => (a && b && a.cle && b.cle ? ` <a class="st-map st-map-btn" href="${MAPA}?lacze=${encodeURIComponent(a.cle.slice(0, 16))},${encodeURIComponent(b.cle.slice(0, 16))}" target="_blank" rel="noopener">pokaż na mapie ↗</a>` : '');
+  const naMapieTrasa = (klucze) => (klucze && klucze.length >= 2 ? ` <a class="st-map st-map-btn" href="${MAPA}?trasa=${klucze.map((k) => encodeURIComponent(String(k).slice(0, 16))).join(',')}" target="_blank" rel="noopener">pokaż trasę na mapie ↗</a>` : '');
   const nazwaW = (w) => (w ? esc(w.nazwa) : '?');
   const kiedy = (t) => {
     if (!t) return '';
@@ -56,6 +59,8 @@
     const rz = ((d.rekordy || {}).zawsze || {}).lacze;
     set('rekordKm', rz ? `${fmt(rz.km, 1)} km` : '–');
     set('rekord-sub', rz ? `${rz.a.nazwa} ↔ ${rz.b.nazwa}` : 'najdłuższe łącze od początku');
+    const rl = $('stRekordLink');
+    if (rl) { if (rz && rz.a.cle && rz.b.cle) { rl.href = `${MAPA}?lacze=${encodeURIComponent(rz.a.cle.slice(0, 16))},${encodeURIComponent(rz.b.cle.slice(0, 16))}`; rl.hidden = false; } else rl.hidden = true; }
   }
 
   function records(d) {
@@ -64,9 +69,9 @@
     const karta = (tytul, wartosc, opis, czas) => `<div class="st-rec"><div class="st-lbl">${tytul}</div><div class="st-rec-val">${wartosc}</div><div class="st-rec-desc">${opis}</div>${czas ? `<div class="st-sub">${kiedy(czas)}</div>` : ''}</div>`;
     const brak = '<div class="st-rec-desc st-empty">brak danych w tym okresie</div>';
     box.innerHTML = [
-      r.lacze ? karta('Najdłuższe łącze', `${fmt(r.lacze.km, 1)} km`, `${nazwaW(r.lacze.a)}${naMapie(r.lacze.a && r.lacze.a.cle)}<br>↔ ${nazwaW(r.lacze.b)}${naMapie(r.lacze.b && r.lacze.b.cle)}`, r.lacze.czas) : `<div class="st-rec"><div class="st-lbl">Najdłuższe łącze</div>${brak}</div>`,
-      r.snr ? karta('Najlepszy sygnał (≥ 10 km)', `${fmt(r.snr.snr, 1)} dB`, `${nazwaW(r.snr.a)} ↔ ${nazwaW(r.snr.b)} · ${fmt(r.snr.km, 1)} km`, r.snr.czas) : `<div class="st-rec"><div class="st-lbl">Najlepszy sygnał (≥ 10 km)</div>${brak}</div>`,
-      r.skoki ? karta('Najdłuższa trasa', `${fmt(r.skoki.skoki)} ${odm(r.skoki.skoki, 'skok', 'skoki', 'skoków')}`, r.skoki.od ? `nadawca: ${nazwaW(r.skoki.od)}${naMapie(r.skoki.od.cle)}` : 'nadawca nieznany', r.skoki.czas) : `<div class="st-rec"><div class="st-lbl">Najdłuższa trasa</div>${brak}</div>`,
+      r.lacze ? karta('Najdłuższe łącze', `${fmt(r.lacze.km, 1)} km`, `${nazwaW(r.lacze.a)} ↔ ${nazwaW(r.lacze.b)}${naMapieLacze(r.lacze.a, r.lacze.b)}`, r.lacze.czas) : `<div class="st-rec"><div class="st-lbl">Najdłuższe łącze</div>${brak}</div>`,
+      r.snr ? karta('Najlepszy sygnał (≥ 30 km)', `${fmt(r.snr.snr, 1)} dB`, `${nazwaW(r.snr.a)} ↔ ${nazwaW(r.snr.b)} · ${fmt(r.snr.km, 1)} km${naMapieLacze(r.snr.a, r.snr.b)}`, r.snr.czas) : `<div class="st-rec"><div class="st-lbl">Najlepszy sygnał (≥ 30 km)</div>${brak}</div>`,
+      r.skoki ? karta('Najdłuższa trasa', `${fmt(r.skoki.skoki)} ${odm(r.skoki.skoki, 'skok', 'skoki', 'skoków')}`, `${r.skoki.od ? `nadawca: ${nazwaW(r.skoki.od)}` : 'nadawca nieznany'}${naMapieTrasa(r.skoki.trasa)}`, r.skoki.czas) : `<div class="st-rec"><div class="st-lbl">Najdłuższa trasa</div>${brak}</div>`,
     ].join('');
   }
 

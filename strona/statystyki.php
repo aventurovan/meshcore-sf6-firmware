@@ -30,12 +30,12 @@ require __DIR__ . '/includes/header.php';
       <div class="card st-tile"><div class="st-lbl">Pokrycie strefy</div><div class="st-num" data-k="pokrycie">–</div><div class="st-sub" data-k="pokrycie-sub">obliczone z terenu</div></div>
       <div class="card st-tile"><div class="st-lbl">Nowe węzły (7 dni)</div><div class="st-num" data-k="nowe7">–</div><div class="st-sub" data-k="nowe-sub">&nbsp;</div></div>
       <div class="card st-tile"><div class="st-lbl">Wiadomości na kanałach</div><div class="st-num" data-k="kanaly24">–</div><div class="st-sub">ostatnia doba, bez treści</div></div>
-      <div class="card st-tile"><div class="st-lbl">Rekord zasięgu</div><div class="st-num" data-k="rekordKm">–</div><div class="st-sub" data-k="rekord-sub">najdłuższe łącze od początku</div></div>
+      <div class="card st-tile"><div class="st-lbl">Rekord zasięgu</div><div class="st-num" data-k="rekordKm">–</div><div class="st-sub" data-k="rekord-sub">najdłuższe łącze od początku</div><a class="st-map" id="stRekordLink" href="#" target="_blank" rel="noopener" hidden>pokaż na mapie ↗</a></div>
     </div>
 
     <div class="card st-block">
       <div class="st-head">
-        <div><h2>Rekordy sieci</h2><p class="st-note">Najdłuższe bezpośrednie łącze, najlepszy sygnał na łączu dłuższym niż 10 km i najdłuższa trasa pakietu.</p></div>
+        <div><h2>Rekordy sieci</h2><p class="st-note">Najdłuższe bezpośrednie łącze, najlepszy sygnał na łączu dłuższym niż 30 km i najdłuższa trasa pakietu.</p></div>
         <div class="st-seg" id="stRecTabs" role="tablist">
           <button type="button" data-o="doba" class="on" role="tab">Doba</button><button type="button" data-o="tydzien" role="tab">7 dni</button><button type="button" data-o="miesiac" role="tab">30 dni</button><button type="button" data-o="zawsze" role="tab">Od początku</button>
         </div>
