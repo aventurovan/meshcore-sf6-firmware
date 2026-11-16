@@ -121,3 +121,8 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - `statystyki.php` + `assets/statystyki.js`: kafelki (aktywne węzły, repeatery, obserwatorzy online, łącza 24 h, pakiety/min, /h, /24 h, zajęcie kanału), wykres ruchu godzinowego 24 h, top 10 repeaterów, rozkład skoków. Odświeżanie co minutę z przeglądarki.
 - Źródło: `URL_LIVE_STATS` = https://live.meshcoresouth.pl/api/export/statystyki.json (endpoint w repo aventurovan/live-mesh-map-pl, cache 60 s, CORS *). `URL_OUR_LIVE_MAP` = https://live.meshcoresouth.pl/. `URL_LIVE_MAP` (menu „Mapa ↗”, „Otwórz mapę”) = https://live.meshcoresouth.pl/ (od 16.11.2026, wcześniej meshcorekk.xyz).
 - Style: sekcja `.st-*` na końcu `assets/style.css`.
+
+## loop.detect moderate (16.11.2026)
+- Firmware: `sf6.conf` → `LOOP_DETECT=moderate`; `apply-sf6.py` zmienia domyślne `_prefs.loop_detect` w `examples/simple_repeater/MyMesh.cpp` (wszystkie płytki RPT; oficjalnie `minimal`). Działa przy czystej instalacji / z kasowaniem.
+- /rpt/: 7. kafelek „Wykrywanie pętli” (`get loop.detect`), w presecie i „Napraw wszystko” (`set loop.detect moderate`); na firmware bez tej komendy kafelek „brak w tym firmware” i preset ją pomija.
+- instrukcja.php: `set loop.detect moderate` w komendach repeatera. Mapa na żywo: szablon „Repeater podstawowy (Południe SF6)” ma loop.detect moderate.

@@ -140,6 +140,7 @@ set tx 22
 set path.hash.mode 1
 set advert.interval 60
 set flood.advert.interval 12
+set loop.detect moderate
 reboot</pre>
             <button type="button" class="cmd-copy" data-copy-from="rptCmds">Kopiuj wszystko</button>
           </div>
@@ -149,6 +150,7 @@ reboot</pre>
             <tr><td><code>set path.hash.mode 1</code></td><td>prefiks 2 bajty – <b>obowiązkowy</b> w regionie Południe</td></tr>
             <tr><td><code>set advert.interval 60</code></td><td>advert lokalny (0-hop) co 60 minut</td></tr>
             <tr><td><code>set flood.advert.interval 12</code></td><td>advert do całej sieci (flood) co 12 godzin</td></tr>
+            <tr><td><code>set loop.detect moderate</code></td><td>odrzuca pakiety krążące w pętli (od firmware 1.18; starszy odpowie błędem – pomiń)</td></tr>
             <tr><td><code>reboot</code></td><td>restart – zapisuje i włącza nowe ustawienia radia</td></tr>
           </table>
           <p class="in-note">Płytki ze wzmacniaczem mocy (np. moduły 1 W) przy <code>set tx 22</code> nadają mocniej niż 22 dBm. Pamiętaj o limicie dla pasma 869,4–869,65 MHz: 500 mW ERP.</p>

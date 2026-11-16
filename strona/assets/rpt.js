@@ -7,7 +7,8 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const P = Object.assign({ freq: "869.618", bw: "62.5", sf: "6", cr: "8" }, window.RP_PRESET || {});
-  const STD = { tx: 22, hash: 1, adv: 60, flood: 12, floodMax: 32 };
+  const STD = { tx: 22, hash: 1, adv: 60, flood: 12, floodMax: 32, loop: "moderate" };
+  let loopRead = null; // odczytany loop.detect (null = nie odczytano / firmware bez tej komendy)
   const HOP_CAPS = { 0: 64, 1: 32, 2: 21 };
   const NAME_BAD = /[\[\]\\:,?*]/;
   const REPLY_TIMEOUT = 1500;
@@ -297,7 +298,7 @@
     "get prv.key": (v) => { const h = v.replace(/[^0-9a-f]/gi, ""); if (h.length === 128) $("conf_priv_key").value = h.toUpperCase(); },
     "get dutycycle": (v) => { const n = parseFloat(v); if (!isNaN(n)) $("conf_dutycycle").value = n; },
     "get owner.info": (v) => { $("conf_owner_info").value = v.replace(/\|/g, "\n"); updateOwnerCounter(); },
-    "get loop.detect": (v) => setSelect("conf_loop_detect", v.toLowerCase()),
+    "get loop.detect": (v) => { const m = v.toLowerCase().match(/off|minimal|moderate|strict/); if (!m) throw new Error("loop"); loopRead = m[0]; setSelect("conf_loop_detect", m[0]); },
     "get int.thresh": (v) => { $("conf_int_thresh").value = parseInt(v, 10); },
     "get agc.reset.interval": (v) => { $("conf_agc_reset").value = parseInt(v, 10); },
     "get rxdelay": (v) => { $("conf_rxdelay").value = parseFloat(v); },
@@ -332,6 +333,7 @@
     ["live_batt", "live_noise", "live_up", "live_pkts", "info_repeat"].forEach((id) => ($(id).textContent = "–"));
     $("live_nb").textContent = "–"; $("live_nb").disabled = true; $("nbList").hidden = true;
     clockOffsetMin = null;
+    loopRead = null;
     unsupported.clear();
     renderChecks();
   }
@@ -515,6 +517,7 @@
     return {
       radio: radioOk(), hash: g("conf_path_hash_mode") === "1", tx: +g("conf_tx") === STD.tx,
       adv: +g("conf_adv_int") === STD.adv && +g("conf_flood_adv_int") === STD.flood && +g("conf_flood_max") === STD.floodMax,
+      loop: loopRead == null ? null : loopRead === STD.loop, // null = nie da się sprawdzić (np. starszy firmware)
     };
   }
   function renderChecks(announce) {
@@ -531,6 +534,8 @@
         sub: g("conf_tx") !== "" ? (ps && ps.tx ? "maksymalna" : `teraz ${g("conf_tx")} dBm`) : "nie odczytano", fix: "preset" },
       { key: "adv", title: "Adverty", st: ps && g("conf_adv_int") !== "" ? (ps.adv ? "ok" : "warn") : "unk",
         sub: g("conf_adv_int") !== "" ? (ps && ps.adv ? "60 min · 12 h · 32 skoki" : `${g("conf_adv_int")} min · ${g("conf_flood_adv_int")} h · ${g("conf_flood_max")} skoków`) : "nie odczytano", fix: "preset" },
+      { key: "loop", title: "Wykrywanie pętli", st: !ps || ps.loop == null ? "unk" : ps.loop ? "ok" : "warn",
+        sub: loopRead == null ? (ps ? "brak w tym firmware" : "nie odczytano") : ps.loop ? "loop.detect moderate" : `teraz ${loopRead}`, fix: "preset" },
       { key: "loc", title: "Lokalizacja", st: g("conf_lat") === "" && !connected ? "unk" : hasLoc ? "ok" : "warn",
         sub: hasLoc ? `${lat.toFixed(3)}, ${lon.toFixed(3)}` : "brak – nie pojawi się na mapie", fix: "loc", fixLabel: "Ustaw" },
       { key: "clock", title: "Zegar", st: clockOffsetMin == null ? "unk" : Math.abs(clockOffsetMin) <= 5 ? "ok" : "bad",
@@ -557,10 +562,11 @@
     const known = items.filter((i) => i.st !== "unk");
     const ok = items.filter((i) => i.st === "ok").length;
     const ring = $("scoreRing");
-    $("scoreText").textContent = known.length ? `${ok}/6` : "–";
-    ring.style.setProperty("--p", known.length ? Math.round((ok / 6) * 100) : 0);
-    ring.style.setProperty("--c", ok === 6 ? "#9EE6C4" : ok >= 4 ? "#F5C451" : "#F7A196");
-    ring.setAttribute("aria-label", `Zgodność z siecią: ${ok} z 6`);
+    const all = items.length;
+    $("scoreText").textContent = known.length ? `${ok}/${all}` : "–";
+    ring.style.setProperty("--p", known.length ? Math.round((ok / all) * 100) : 0);
+    ring.style.setProperty("--c", ok === all ? "#9EE6C4" : ok >= all - 2 ? "#F5C451" : "#F7A196");
+    ring.setAttribute("aria-label", `Zgodność z siecią: ${ok} z ${all}`);
     const fixable = items.filter((i) => (i.st === "bad" || i.st === "warn") && (i.fix === "preset" || i.fix === "clock"));
     const fb = $("btnFixAll");
     fb.disabled = !fixable.length;
@@ -569,7 +575,7 @@
     $("wizardHint").hidden = !needsWizard;
     if (announce && known.length) {
       const bad = items.filter((i) => i.st === "bad" || i.st === "warn").map((i) => i.title);
-      if (bad.length) evWarn(`Zgodność z siecią: ${ok} z 6`, "Do poprawy: " + bad.join(", "));
+      if (bad.length) evWarn(`Zgodność z siecią: ${ok} z ${all}`, "Do poprawy: " + bad.join(", "));
       else evOk("Repeater zgodny ze standardem Południe SF6");
     }
   }
@@ -585,21 +591,26 @@
     const before = presetState();
     if (ask) {
       const ok = await confirmModal("Preset Południe SF6",
-        `Repeater dostanie ustawienia:\n• radio ${P.freq} MHz, BW ${P.bw}, SF${P.sf}, CR${P.cr}\n• moc TX ${STD.tx} dBm (maksimum)\n• prefiks 2 bajty\n• advert lokalny co ${STD.adv} min, flood co ${STD.flood} h, flood.max ${STD.floodMax}\n\nNazwa, lokalizacja, hasła i klucz zostają bez zmian.`, "Ustaw preset");
+        `Repeater dostanie ustawienia:\n• radio ${P.freq} MHz, BW ${P.bw}, SF${P.sf}, CR${P.cr}\n• moc TX ${STD.tx} dBm (maksimum)\n• prefiks 2 bajty\n• advert lokalny co ${STD.adv} min, flood co ${STD.flood} h, flood.max ${STD.floodMax}${loopRead != null ? `\n• wykrywanie pętli: ${STD.loop}` : ""}\n\nNazwa, lokalizacja, hasła i klucz zostają bez zmian.`, "Ustaw preset");
       if (!ok) return false;
     }
     setStatus("busy", "Zapisywanie…");
-    const errors = await sendAll([
+    const withLoop = loopRead != null; // starszy firmware nie zna loop.detect – wtedy pomijamy
+    const cmds = [
       `set radio ${P.freq},${P.bw},${P.sf},${P.cr}`, `set tx ${STD.tx}`, `set path.hash.mode ${STD.hash}`,
       `set advert.interval ${STD.adv}`, `set flood.advert.interval ${STD.flood}`, `set flood.max ${STD.floodMax}`,
-    ]);
+    ];
+    if (withLoop) cmds.push(`set loop.detect ${STD.loop}`);
+    const errors = await sendAll(cmds);
     for (const c of ["get radio", "get tx", "get path.hash.mode", "get advert.interval", "get flood.advert.interval", "get flood.max"]) await readOne(c);
+    if (withLoop) await readOne("get loop.detect");
     setStatus("on", "Połączono przez USB");
     const after = presetState() || {};
     const bad = [];
     if (!after.radio) bad.push(`radio: ${$("conf_freq").value} / ${$("conf_bw").value} / SF${$("conf_sf").value}`);
     if (!after.hash) bad.push("prefiks: tryb " + $("conf_path_hash_mode").value);
     if (!after.tx) bad.push("moc TX: " + $("conf_tx").value);
+    if (withLoop && !after.loop) bad.push("wykrywanie pętli: " + loopRead);
     if (!after.adv) bad.push("adverty: " + [$("conf_adv_int").value, $("conf_flood_adv_int").value, $("conf_flood_max").value].join(" / "));
     renderChecks();
     if (errors.length || bad.length) {
@@ -608,7 +619,7 @@
       if (ask) showModal("Nie wszystko się zapisało", d + "\n\nSzczegóły w konsoli CLI.");
       return false;
     }
-    evOk("Preset Południe SF6 zapisany", "6 ustawień potwierdzonych odczytem");
+    evOk("Preset Południe SF6 zapisany", `${cmds.length} ustawień potwierdzonych odczytem`);
     const radioChanged = before && !before.radio;
     if (radioChanged) { needReboot = true; evWarn("Radio zacznie działać po restarcie"); }
     if (ask && radioChanged) askReboot("Nowe radio zacznie działać po restarcie repeatera.");
@@ -637,11 +648,11 @@
 
   async function fixAll() {
     const ps = presetState();
-    const needPreset = ps && (!ps.radio || !ps.hash || !ps.tx || !ps.adv);
+    const needPreset = ps && (!ps.radio || !ps.hash || !ps.tx || !ps.adv || ps.loop === false);
     const clockBehind = clockOffsetMin != null && clockOffsetMin < -5;
     const clockAhead = clockOffsetMin != null && clockOffsetMin > 5;
     const list = [];
-    if (needPreset) list.push("• preset Południe SF6 (radio, moc, prefiks, adverty)");
+    if (needPreset) list.push("• preset Południe SF6 (radio, moc, prefiks, adverty, wykrywanie pętli)");
     if (clockBehind) list.push("• synchronizacja zegara");
     if (clockAhead) list.push("• zegar jest do przodu – zostanie wyzerowany przy restarcie (clkreboot)");
     if (!list.length) return;
@@ -1039,7 +1050,7 @@
     $("wzNext").disabled = false;
     if (n === 1) {
       const ps = presetState();
-      const ok = ps && ps.radio && ps.hash && ps.tx && ps.adv;
+      const ok = ps && ps.radio && ps.hash && ps.tx && ps.adv && ps.loop !== false;
       setCheck("wzPresetState", ok ? "ok" : "warn", ok ? "✓ Repeater już ma te ustawienia – możesz przejść dalej." : "Repeater ma inne ustawienia – kliknij „Ustaw preset”.");
       $("wzNext").textContent = ok ? "Dalej →" : "Ustaw preset →";
     } else if (n === 4) {
@@ -1071,7 +1082,7 @@
     try {
       if (wzStep === 1) {
         const ps = presetState();
-        if (!(ps && ps.radio && ps.hash && ps.tx && ps.adv)) ok = await applyPreset(false);
+        if (!(ps && ps.radio && ps.hash && ps.tx && ps.adv && ps.loop !== false)) ok = await applyPreset(false);
         if (!ok) showModal("Preset nie zapisał się w całości", "Szczegóły w dzienniku. Możesz spróbować ponownie albo pominąć krok.");
       } else if (wzStep === 2) {
         const name = $("wz_name").value.trim();

@@ -279,6 +279,7 @@ $asset = fn($f) => '/assets/' . $f . '?v=' . filemtime(__DIR__ . '/../assets/' .
             <li>moc TX <b>22 dBm</b> (maksymalna)</li>
             <li>prefiks ID <b>2 bajty</b></li>
             <li>advert lokalny co <b>60 min</b>, flood co <b>12 h</b>, flood.max <b>32</b></li>
+            <li>wykrywanie pętli <b>moderate</b> (od firmware 1.18)</li>
           </ul>
           <p id="wzPresetState" class="rp-check"></p>
         </section>

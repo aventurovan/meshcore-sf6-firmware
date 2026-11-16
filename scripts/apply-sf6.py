@@ -80,6 +80,12 @@ for f in ("examples/simple_repeater/MyMesh.cpp",):
     if flood_h is not None:
         edit(f, r"(_prefs\.flood_advert_interval\s*=\s*)\d+\s*;", rf"\g<1>{int(float(flood_h))};", expect=1)
 
+print("Wykrywanie pętli (repeater):")
+ld = conf.get("LOOP_DETECT", "").strip().lower()
+if ld:
+    if ld not in ("off", "minimal", "moderate", "strict"): die("LOOP_DETECT musi być off, minimal, moderate albo strict")
+    edit("examples/simple_repeater/MyMesh.cpp", r"(_prefs\.loop_detect\s*=\s*)LOOP_DETECT_[A-Z]+\s*;", rf"\g<1>LOOP_DETECT_{ld.upper()};", expect=1)
+
 print("ID ścieżki:")
 pb = num("PATH_HASH_BYTES")
 if pb:
