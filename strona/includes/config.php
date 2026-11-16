@@ -4,7 +4,7 @@
 
 define('SITE_NAME', 'MeshCore Południe');
 
-define('URL_LIVE_MAP', 'https://meshcorekk.xyz/');
+define('URL_LIVE_MAP', 'https://live.meshcoresouth.pl/');
 // Nasza mapa na żywo (live-mesh-map-pl na serwerze w Proxmoxie, tunel Cloudflare) i jej statystyki dla statystyki.php
 define('URL_OUR_LIVE_MAP', 'https://live.meshcoresouth.pl/');
 define('URL_LIVE_STATS', 'https://live.meshcoresouth.pl/api/export/statystyki.json');

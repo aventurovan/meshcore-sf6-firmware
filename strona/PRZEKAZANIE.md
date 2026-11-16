@@ -119,5 +119,5 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 
 ## Statystyki (15.11.2026)
 - `statystyki.php` + `assets/statystyki.js`: kafelki (aktywne węzły, repeatery, obserwatorzy online, łącza 24 h, pakiety/min, /h, /24 h, zajęcie kanału), wykres ruchu godzinowego 24 h, top 10 repeaterów, rozkład skoków. Odświeżanie co minutę z przeglądarki.
-- Źródło: `URL_LIVE_STATS` = https://live.meshcoresouth.pl/api/export/statystyki.json (endpoint w repo aventurovan/live-mesh-map-pl, cache 60 s, CORS *). `URL_OUR_LIVE_MAP` = https://live.meshcoresouth.pl/. `URL_LIVE_MAP` (menu „Mapa ↗”) nadal wskazuje meshcorekk.xyz.
+- Źródło: `URL_LIVE_STATS` = https://live.meshcoresouth.pl/api/export/statystyki.json (endpoint w repo aventurovan/live-mesh-map-pl, cache 60 s, CORS *). `URL_OUR_LIVE_MAP` = https://live.meshcoresouth.pl/. `URL_LIVE_MAP` (menu „Mapa ↗”, „Otwórz mapę”) = https://live.meshcoresouth.pl/ (od 16.11.2026, wcześniej meshcorekk.xyz).
 - Style: sekcja `.st-*` na końcu `assets/style.css`.
