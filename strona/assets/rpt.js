@@ -7,7 +7,7 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const P = Object.assign({ freq: "869.618", bw: "62.5", sf: "6", cr: "8" }, window.RP_PRESET || {});
-  const STD = { tx: 22, hash: 1, adv: 60, flood: 12, floodMax: 32, loop: "moderate" };
+  const STD = { tx: 22, hash: 1, adv: 60, flood: 12, floodMax: 32, loop: "minimal" };
   let loopRead = null; // odczytany loop.detect (null = nie odczytano / firmware bez tej komendy)
   const HOP_CAPS = { 0: 64, 1: 32, 2: 21 };
   const NAME_BAD = /[\[\]\\:,?*]/;
@@ -535,7 +535,7 @@
       { key: "adv", title: "Adverty", st: ps && g("conf_adv_int") !== "" ? (ps.adv ? "ok" : "warn") : "unk",
         sub: g("conf_adv_int") !== "" ? (ps && ps.adv ? "60 min · 12 h · 32 skoki" : `${g("conf_adv_int")} min · ${g("conf_flood_adv_int")} h · ${g("conf_flood_max")} skoków`) : "nie odczytano", fix: "preset" },
       { key: "loop", title: "Wykrywanie pętli", st: !ps || ps.loop == null ? "unk" : ps.loop ? "ok" : "warn",
-        sub: loopRead == null ? (ps ? "brak w tym firmware" : "nie odczytano") : ps.loop ? "loop.detect moderate" : `teraz ${loopRead}`, fix: "preset" },
+        sub: loopRead == null ? (ps ? "brak w tym firmware" : "nie odczytano") : ps.loop ? "loop.detect minimal" : `teraz ${loopRead}`, fix: "preset" },
       { key: "loc", title: "Lokalizacja", st: g("conf_lat") === "" && !connected ? "unk" : hasLoc ? "ok" : "warn",
         sub: hasLoc ? `${lat.toFixed(3)}, ${lon.toFixed(3)}` : "brak – nie pojawi się na mapie", fix: "loc", fixLabel: "Ustaw" },
       { key: "clock", title: "Zegar", st: clockOffsetMin == null ? "unk" : Math.abs(clockOffsetMin) <= 5 ? "ok" : "bad",
