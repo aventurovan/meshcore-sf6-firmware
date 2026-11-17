@@ -1069,7 +1069,13 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 .st-row-top{ display:flex; justify-content:space-between; gap:12px; font-size:14.5px; }
 .st-row-top b{ font-variant-numeric:tabular-nums; }
 .st-row .st-bar{ margin-top:4px; }
-.st-hist{ display:flex; align-items:flex-end; gap:2px; height:200px; border-bottom:1px solid var(--line); }
+.st-hist{ display:flex; align-items:flex-end; gap:2px; height:200px; padding-top:22px; border-bottom:1px solid var(--line); }
+.st-hist .st-col i{ position:relative; }
+.st-val{ position:absolute; bottom:100%; left:50%; transform:translateX(-50%); padding-bottom:4px; font-size:12.5px; font-weight:700; color:var(--text); white-space:nowrap; font-variant-numeric:tabular-nums; pointer-events:none; font-style:normal; }
+.st-hist-gesto .st-val.st-val-l{ left:0; transform:none; }
+.st-hist-gesto .st-val.st-val-p, .st-hist .st-val.st-val-p{ left:auto; right:0; transform:none; }
+.st-hist-gesto .st-val{ font-size:10.5px; font-weight:600; }
+@media (max-width:700px){ .st-hist-gesto .st-val:not(.st-val-k){ display:none; } }
 .st-hist .st-empty{ align-self:center; margin:auto; }
 .st-hist:hover .st-col i{ opacity:.45; }
 .st-hist .st-col:hover i{ opacity:1; }

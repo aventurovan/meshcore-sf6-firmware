@@ -118,10 +118,7 @@
 
   function nowe(d) {
     const n = d.nowe || {}, ul = $('stNewList');
-    const tydzienOdStartu = d.od && Date.now() - d.od < 8 * 86400000;
-    $('stNewNote').textContent = tydzienOdStartu
-      ? 'Mapa działa krócej niż tydzień, więc na razie każdy usłyszany węzeł liczy się jako nowy.'
-      : 'Repeatery, które mapa usłyszała pierwszy raz w ostatnich 7 dniach.';
+    $('stNewNote').textContent = 'Repeatery, które mapa usłyszała pierwszy raz w ostatnich 7 dniach.';
     const l = n.repeatery || [];
     ul.innerHTML = l.length ? l.map((x) => `<li><span>${esc(x.nazwa)}${naMapie(x.cle)}</span><small>${kiedy(x.od)}</small></li>`).join('') : '<li class="st-empty">Brak nowych repeaterów w tym tygodniu.</li>';
   }
@@ -156,7 +153,19 @@
     const max = Math.max(1e-9, ...z.map(wart));
     const jedn = { pakiety: 'pakietów', aktywne: 'aktywnych węzłów', repeatery: 'aktywnych repeaterów', pokrycie: '% strefy' }[miara];
     const data = (s) => new Date(s + 'T12:00:00').toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' });
-    box.innerHTML = dni.map((x) => { const v = wart(x); return `<div class="st-col" tabindex="0" title="${data(x.dzien)}: ${v == null ? 'brak danych' : fmt(v, 1) + ' ' + jedn}"><i style="height:${v ? Math.max(3, (v / max) * 100) : 0}%"></i></div>`; }).join('');
+    // Liczby nad słupkami: przy ≤ 31 dniach nad każdym, przy dłuższym zakresie tylko maksimum i ostatni dzień
+    const wszystkie = dni.length <= 31;
+    const iMax = dni.reduce((b, x, i) => (wart(x) != null && (b < 0 || wart(x) > wart(dni[b])) ? i : b), -1);
+    const gesto = dni.length > 14;
+    const krotko = (v) => (miara === 'pokrycie' ? fmt(v, gesto ? 0 : 1) + '%'
+      : gesto && v >= 1000 ? fmt(v >= 10000 ? Math.round(v / 1000) : Math.round(v / 100) / 10, 1) + 'k'
+      : v >= 10000 ? fmt(Math.round(v / 100) / 10, 1) + ' tys.' : fmt(v, 0));
+    box.classList.toggle('st-hist-gesto', gesto);
+    box.innerHTML = dni.map((x, i) => {
+      const v = wart(x), kluczowa = i === iMax || i === dni.length - 1;
+      const etyk = v != null && (wszystkie || kluczowa) ? `<b class="st-val${kluczowa ? ' st-val-k' : ''}${i === 0 ? ' st-val-l' : ''}${i === dni.length - 1 && dni.length > 2 ? ' st-val-p' : ''}">${krotko(v)}</b>` : '';
+      return `<div class="st-col" tabindex="0" title="${data(x.dzien)}: ${v == null ? 'brak danych' : fmt(v, 1) + ' ' + jedn}"><i style="height:${v ? Math.max(3, (v / max) * 100) : 0}%">${etyk}</i></div>`;
+    }).join('');
     const co = Math.max(1, Math.ceil(dni.length / 6));
     axis.innerHTML = dni.map((x, i) => `<span>${i % co === 0 || i === dni.length - 1 ? data(x.dzien) : ''}</span>`).join('');
     $('stHistNote').textContent = `Jedno podsumowanie na każdy zakończony dzień · ${dni.length} ${dni.length === 1 ? 'dzień' : 'dni'} w historii.`;
