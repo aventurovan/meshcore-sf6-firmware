@@ -32,6 +32,7 @@ jobs:
         run: |
           python3 sf6/scripts/apply-sf6.py sf6/sf6.conf mc
           shopt -s nullglob
+          cp -v sf6/patches/filtr/src/* mc/examples/simple_repeater/   # nasze nowe pliki (SF6KeyBlock …)
           for p in sf6/patches/filtr/*.patch; do echo "Łatka $(basename "$p")"; git -C mc apply --verbose "../$p"; done
       - uses: actions/cache@v5
         with:

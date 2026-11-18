@@ -5,7 +5,13 @@ filtr pakietów opisany w ich `FILTER.md` (komendy CLI `filter …`).
 
 Na to nakładamy:
 1. ustawienia SF6 z `sf6.conf` (`scripts/apply-sf6.py` — ten sam skrypt co dla oficjalnego firmware),
-2. nasze dodatki: pliki `*.patch` z tego katalogu (`git apply`, w kolejności nazw).
+2. nasze dodatki: nowe pliki z `src/` (kopiowane do `examples/simple_repeater/`) i łatki `*.patch` z tego katalogu
+   (`git apply`, w kolejności nazw).
+
+Nasze dodatki:
+- `01-blokada-po-kluczu.patch` + `src/SF6KeyBlock.*` — komendy `filter key …`: blokada nadawców po kluczu publicznym
+  (adverty, zapytania anonimowe, nick zablokowanego klucza na odczytywanych kanałach, opcjonalnie prywatne).
+  Osobny plik `/sf6keys`, format konfiguracji forka bez zmian.
 
 Build testowy: workflow **„Repeater z filtrem — build testowy”** (ręcznie, tylko artefakt do pobrania,
 bez wydania i bez flashera). Do flashera trafi dopiero po testach i decyzji.

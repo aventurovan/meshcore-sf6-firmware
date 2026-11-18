@@ -1,0 +1,59 @@
+diff --git a/examples/simple_repeater/MyMesh.cpp b/examples/simple_repeater/MyMesh.cpp
+index 867f37b..6a4cd63 100644
+--- a/examples/simple_repeater/MyMesh.cpp
++++ b/examples/simple_repeater/MyMesh.cpp
+@@ -449,6 +449,7 @@ bool MyMesh::allowPacketForward(const mesh::Packet *packet) {
+   // only when the filter is enabled; with `filter off` nothing about the
+   // receive path is spent on it (the value would never be read).
+   const uint32_t filter_air_ms = filter.isEnabled() ? _radio->getEstAirtimeFor(packet->getRawLength()) : 0;
++  if (filter.isEnabled() && keyblock.blocks(packet)) return false;   // SF6: zablokowany klucz nadawcy (filter key)
+   if (filter.checkPacket(packet, millis(), recv_pkt_region, filter_air_ms) == FILTER_ACT_DROP) return false;   // packet filter rules + advert rate limiter
+   if (_prefs.disable_fwd) return false;
+   if (packet->isRouteFlood()
+@@ -506,6 +507,8 @@ void MyMesh::onGroupDataRecv(mesh::Packet* packet, uint8_t type, const mesh::Gro
+   if (filter.checkContent(packet, type, channel, data, len, recv_pkt_region, filter_air_ms) == FILTER_ACT_DROP) {
+     MESH_DEBUG_PRINTLN("filter: dropping group packet by content rule");
+     packet->markDoNotRetransmit();
++  } else if (filter.isEnabled() && keyblock.blocksGroupText(type, data, len)) {   // SF6: nick zablokowanego klucza
++    packet->markDoNotRetransmit();
+   }
+ }
+ 
+@@ -1177,6 +1180,7 @@ void MyMesh::begin(FILESYSTEM *fs) {
+ #endif
+   acl.load(_fs, self_id);
+   filter.begin(fs);
++  keyblock.begin(fs);
+   battGate.begin(fs);
+   fleet.setClock(fleetClock, this);
+   fleet.setJitter(fleetJitter, this);
+@@ -1563,7 +1567,8 @@ void MyMesh::handleCommand(uint32_t sender_timestamp, char *command, char *reply
+   else if (memcmp(command, "filter", 6) == 0 && (command[6] == ' ' || command[6] == 0)) {
+     const char* sub = command + 6;
+     while (*sub == ' ') sub++;
+-    filterCLI(filter, sub, reply, &region_map);
++    if (memcmp(sub, "key", 3) == 0 && (sub[3] == ' ' || sub[3] == 0)) keyblock.cli(sub + 3, reply);   // SF6
++    else filterCLI(filter, sub, reply, &region_map);
+   } else if (memcmp(command, "battery", 7) == 0 && (command[7] == ' ' || command[7] == 0)) {
+     const char* sub = command + 7;
+     while (*sub == ' ') sub++;
+diff --git a/examples/simple_repeater/MyMesh.h b/examples/simple_repeater/MyMesh.h
+index 1f78111..f1fc1b5 100644
+--- a/examples/simple_repeater/MyMesh.h
++++ b/examples/simple_repeater/MyMesh.h
+@@ -37,6 +37,7 @@
+ #include <helpers/RoutingPolicy.h>
+ #include "RateLimiter.h"
+ #include "PacketFilter.h"
++#include "SF6KeyBlock.h"   // SF6: blokada po kluczu (filter key …)
+ #include "BatteryGate.h"
+ #include "FleetManager.h"
+ #include "MeshClockSync.h"
+@@ -122,6 +123,7 @@ class MyMesh : public mesh::Mesh, public CommonCLICallbacks {
+   TransportKey default_scope;
+   RateLimiter discover_limiter, anon_limiter;
+   FilterRules filter;
++  SF6KeyBlock keyblock;   // SF6: blokada po kluczu
+   BatteryGate battGate;
+   FleetManager fleet;
+   MeshClockSync meshClock;
