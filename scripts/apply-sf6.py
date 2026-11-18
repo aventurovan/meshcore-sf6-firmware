@@ -93,6 +93,21 @@ if pb:
     if mode not in (0, 1, 2): die("PATH_HASH_BYTES musi być 1, 2 albo 3")
     edit("src/helpers/CommonCLI.h", r"(uint8_t\s+path_hash_mode\s*=\s*)\d+\s*;", rf"\g<1>{mode};", expect=1)
 
+print("Filtr repeatera (działa tylko z -D SF6_FILTER=1, czyli w wariancie „Repeater SF6 + filtr”):")
+import shutil
+pdir = os.path.join(os.path.dirname(os.path.abspath(conf_path)), "patches", "repeater-filter")
+for fn in ("SF6Filter.h", "SF6Filter.cpp"):
+    shutil.copy(os.path.join(pdir, fn), os.path.join(root, "examples/simple_repeater", fn))
+rh, rc = "examples/simple_repeater/MyMesh.h", "examples/simple_repeater/MyMesh.cpp"
+edit(rh, r'^(#include <helpers/RoutingPolicy.h>)', r'\1\n#ifdef SF6_FILTER\n  #include "SF6Filter.h"\n#endif', expect=1)
+edit(rh, r"^(class MyMesh : public mesh::Mesh, public CommonCLICallbacks \{\n  FILESYSTEM\* _fs;)",
+     r"\1\n#ifdef SF6_FILTER\n  SF6Filter sf6_filter;\n#endif", expect=1)
+edit(rc, r"^(  region_map\.load\(_fs\);)", r"\1\n#ifdef SF6_FILTER\n  sf6_filter.begin(_fs);\n#endif", expect=1)
+edit(rc, r"^(bool MyMesh::allowPacketForward\(const mesh::Packet \*packet\) \{\n  if \(_prefs\.disable_fwd\) return false;)",
+     r"\1\n#ifdef SF6_FILTER\n  if (sf6_filter.blocks(packet)) return false;\n#endif", expect=1)
+edit(rc, r'^(  // handle ACL related commands\n  if )(\(memcmp\(command, "setperm ", 8\) == 0\))',
+     r'''#ifdef SF6_FILTER\n  if (memcmp(command, "filter", 6) == 0 && (command[6] == 0 || command[6] == ' ')) {\n    sf6_filter.handleCommand(command + 6, reply);\n  } else\n#endif\n\1\2''', expect=1)
+
 print("Poprawki buildu (nie zmieniają działania firmware):")
 # Część wariantów używa EnvironmentSensorManager w target.h, ale niektóre role nie mają
 # jego źródła w build_src_filter -> błąd linkera (np. ThinkNode_M8_repeater w v1.18.0).

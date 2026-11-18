@@ -6,6 +6,7 @@ import { serial as usbSerial } from "./web-serial-polyfill.js";
 const MANIFEST_URL = "/flasher/manifest.json";
 const ROLES = {
   repeater:      { name: "Repeater",            desc: "Przekaźnik sieci (RPT)" },
+  repeater_filter: { name: "Repeater + filtr",  desc: "RPT z blokowaniem nadawców (boty, companiony)" },
   companion_ble: { name: "Companion Bluetooth", desc: "Do telefonu przez BLE" },
   companion_usb: { name: "Companion USB",       desc: "Do komputera przez kabel" },
   companion_mapper: { name: "Companion + Mapper SF6", desc: "Nasz firmware: companion z mapowaniem bez telefonu" },

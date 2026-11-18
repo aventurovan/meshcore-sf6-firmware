@@ -9,6 +9,7 @@ ROLE_SUFFIX = [  # (sufiks env, klucz roli w manifeście, typ wydania)
     ("_companion_mapper", "companion_mapper", "companion-mapper"),
     ("_companion_meshspeed", "companion_meshspeed", "meshspeed"),
     ("_room_server", "room_server", "room-server"),
+    ("_repeater_filtr", "repeater_filter", "repeater-filtr"),
     ("_repeater", "repeater", "repeater"),
 ]
 FILE_RE = re.compile(r"^(?P<env>.+?)-(?P<ver>v\d+\.\d+\.\d+-sf6)-(?P<sha>[0-9a-f]{6,})(?P<merged>-merged)?\.(?P<ext>bin|uf2|zip|hex)$")

@@ -39,10 +39,11 @@ def release_exists(tag):
 refs = sh("git", "ls-remote", "--tags", UPSTREAM)
 builds, chunks = [], []
 for t in types:
+    base = t[:-len("-filtr")] if t.endswith("-filtr") else t   # repeater-filtr = oficjalny repeater + nasz filtr
     best = None
     for line in refs.splitlines():
         sha, ref = line.split("\t")
-        m = re.fullmatch(rf"refs/tags/{re.escape(t)}-v(\d+)\.(\d+)\.(\d+)", ref)
+        m = re.fullmatch(rf"refs/tags/{re.escape(base)}-v(\d+)\.(\d+)\.(\d+)", ref)
         if m:
             ver = tuple(map(int, m.groups()))
             if best is None or ver > best[0]:
@@ -61,7 +62,7 @@ for t in types:
     sh("git", "clone", "-q", "--depth", "1", "--branch", tag, UPSTREAM, d)
     # wczesna kontrola poprawki – błąd tutaj zatrzymuje cały workflow
     subprocess.run([sys.executable, "sf6/scripts/apply-sf6.py", "sf6/sf6.conf", d], check=True)
-    envs = sh("bash", "build.sh", f"get-{t}-firmwares-to-build", cwd=d).split()
+    envs = sh("bash", "build.sh", f"get-{base}-firmwares-to-build", cwd=d).split()
     if test_targets:
         envs = [e for e in envs if e in test_targets]
         if not envs:
