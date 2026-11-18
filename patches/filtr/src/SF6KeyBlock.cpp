@@ -124,7 +124,7 @@ static bool kbWord(const char* s, const char* w) {
 }
 static const char* kbNext(const char* s) { while (*s && *s != ' ') s++; while (*s == ' ') s++; return s; }
 
-void SF6KeyBlock::cli(const char* a, char* reply) {
+void SF6KeyBlock::command(const char* a, char* reply) {
   while (*a == ' ') a++;
   if (!*a || kbWord(a, "list")) {
     int start = 0;

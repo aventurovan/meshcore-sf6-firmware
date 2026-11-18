@@ -32,7 +32,7 @@ index 867f37b..6a4cd63 100644
      const char* sub = command + 6;
      while (*sub == ' ') sub++;
 -    filterCLI(filter, sub, reply, &region_map);
-+    if (memcmp(sub, "key", 3) == 0 && (sub[3] == ' ' || sub[3] == 0)) keyblock.cli(sub + 3, reply);   // SF6
++    if (memcmp(sub, "key", 3) == 0 && (sub[3] == ' ' || sub[3] == 0)) keyblock.command(sub + 3, reply);   // SF6
 +    else filterCLI(filter, sub, reply, &region_map);
    } else if (memcmp(command, "battery", 7) == 0 && (command[7] == ' ' || command[7] == 0)) {
      const char* sub = command + 7;

@@ -34,7 +34,7 @@ public:
   bool blocks(const mesh::Packet* pkt);
   /** odszyfrowana wiadomość kanału: true = nick to nazwa zablokowanego klucza */
   bool blocksGroupText(uint8_t type, const uint8_t* data, size_t len);
-  void cli(const char* args, char* reply);
+  void command(const char* args, char* reply);   // nie „cli”: na ESP32 cli() to makro (wyłączenie przerwań)
 
   int count() const { return n; }
 
