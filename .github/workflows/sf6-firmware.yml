@@ -143,7 +143,12 @@ jobs:
           for row in $(echo "$BUILDS" | jq -c '.[]'); do
             t=$(echo "$row" | jq -r .type); v=$(echo "$row" | jq -r .version); tag=$(echo "$row" | jq -r .tag)
             dir="site/firmware/$t/$v"; mkdir -p "$dir"
-            find art -path "art/fw-$t-*" -type f -exec cp {} "$dir/" \;
+            # paczki fw-<typ>-<nr>; „-[0-9]” odróżnia repeater od repeater-filtr. Jedna paczka bywa rozpakowana prosto do art/.
+            if ls -d art/fw-$t-[0-9]* >/dev/null 2>&1; then
+              find art -path "art/fw-$t-[0-9]*" -type f -exec cp {} "$dir/" \;
+            elif [ "$(echo "$BUILDS" | jq length)" = 1 ]; then
+              find art -maxdepth 1 -type f -exec cp {} "$dir/" \;
+            fi
             n=$(ls "$dir" | wc -l)
             echo "$t $v: $n plików"
             [ "$n" -gt 0 ] || { echo "::error::$t: brak plików"; exit 1; }
