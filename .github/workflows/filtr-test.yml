@@ -1,0 +1,77 @@
+name: Repeater z filtrem — build testowy
+
+# Nasz fork „Repeater SF6 + filtr”: wydanie forka jhuebert/MeshCore (filtr pakietów) + ustawienia SF6 z sf6.conf
+# + nasze ewentualne dodatki z patches/filtr/*.patch. TYLKO DO TESTÓW: pliki lądują w artefakcie tego uruchomienia,
+# bez wydania na GitHubie i bez wgrywania do flashera na meshcoresouth.pl.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Wydanie forka jhuebert/MeshCore (tag)"
+        default: "filter-v1.18.0-r4"
+      targets:
+        description: "Płytki (nazwy env, spacją). Puste = wszystkie repeatery"
+        default: "Heltec_v3_repeater heltec_v4_repeater RAK_4631_repeater Xiao_nrf52_repeater WioTrackerL1_repeater t1000e_repeater Station_G2_repeater Xiao_S3_WIO_repeater"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: sf6
+      - uses: actions/checkout@v6
+        with:
+          repository: jhuebert/MeshCore
+          ref: ${{ inputs.tag }}
+          path: mc
+      - name: Ustawienia SF6 i nasze dodatki
+        run: |
+          python3 sf6/scripts/apply-sf6.py sf6/sf6.conf mc
+          shopt -s nullglob
+          for p in sf6/patches/filtr/*.patch; do echo "Łatka $(basename "$p")"; git -C mc apply --verbose "../$p"; done
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: pio-${{ runner.os }}-${{ hashFiles('mc/platformio.ini') }}
+          restore-keys: pio-${{ runner.os }}-
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: pip install -q platformio
+      - name: Build
+        working-directory: mc
+        env:
+          FIRMWARE_VERSION: ${{ inputs.tag }}-sf6
+          PLATFORMIO_BUILD_FLAGS: "-DCFG_DEBUG=0"
+          TARGETS: ${{ inputs.targets }}
+        run: |
+          envs="$TARGETS"
+          [ -n "$envs" ] || envs=$(bash build.sh get-repeater-firmwares-to-build)
+          mkdir -p ../out ../logs
+          failed=""
+          for e in $envs; do
+            echo "::group::$e"
+            if bash build.sh build-firmware "$e" > "../logs/$e.log" 2>&1 && ls out | grep -q "^$e-"; then
+              for f in out/*; do b=$(basename "$f"); cp "$f" "../out/${b/#$e-/${e}_filtr-}"; done
+              grep -E "^(RAM|Flash):" "../logs/$e.log" | tail -2
+              echo "OK $e"
+            else
+              failed="$failed $e"; tail -n 40 "../logs/$e.log"
+              echo "::error title=$e::build nie powiódł się"
+            fi
+            echo "::endgroup::"
+          done
+          ls -l ../out
+          if [ -n "$failed" ]; then echo "::warning::Nie zbudowały się:$failed"; fi
+          [ -n "$(ls ../out)" ]
+      - uses: actions/upload-artifact@v7
+        with:
+          name: repeater-sf6-filtr-test-${{ inputs.tag }}
+          path: out
+          retention-days: 30

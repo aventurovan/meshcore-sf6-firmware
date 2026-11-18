@@ -90,9 +90,9 @@ jobs:
         run: |
           mkdir -p ../logs
           failed=""
-          # wersja z filtrem nadawców: ten sam repeater + -DSF6_FILTER=1, pliki z sufiksem _filtr
+          # typ repeater-filtr (na przyszłość, gdy wersja z filtrem przejdzie testy): pliki z sufiksem _filtr
           sfx=""
-          if [ "${{ matrix.type }}" = "repeater-filtr" ]; then export PLATFORMIO_BUILD_FLAGS="$PLATFORMIO_BUILD_FLAGS -DSF6_FILTER=1"; sfx="_filtr"; fi
+          if [ "${{ matrix.type }}" = "repeater-filtr" ]; then sfx="_filtr"; fi
           for e in ${{ matrix.envs }}; do
             echo "::group::$e"
             # build.sh czyści out/ przy starcie, więc pliki zbieramy po każdej płytce
