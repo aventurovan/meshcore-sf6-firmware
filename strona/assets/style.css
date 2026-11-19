@@ -1171,3 +1171,10 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 .al-tag{ padding:2px 9px; border-radius:999px; background:var(--panel-2); color:var(--text); font-weight:600; font-size:12.5px; }
 .al-ok{ font-style:normal; color:var(--green); font-weight:700; }
 @media (max-width:700px){ .al-sum{ grid-template-columns:1fr 1fr; } .al-all{ grid-column:1 / -1; } }
+.al-tools{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:14px; }
+.al-search{ flex:1 1 280px; }
+.al-search input, .al-sort select{ font:inherit; font-size:15px; padding:11px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card, #fff); color:var(--text); }
+.al-search input{ width:100%; }
+.al-search input:focus, .al-sort select:focus{ outline:2px solid var(--green); outline-offset:1px; }
+.al-sort{ display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); }
+.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }

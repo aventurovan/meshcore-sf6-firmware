@@ -143,3 +143,4 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 ## Alerty sieci (19.11.2026)
 - `alerty.php` + `assets/alerty.js` (menu Sieć → Alerty sieci): krytyczne i pozostałe problemy, kafelki z liczbą (klik = filtr), filtr rodzaju, „od kiedy”, link „na mapie”.
 - Dane: `/dane/alerty.json` (workflow „Statystyki – zapis danych”, co godzinę), awaryjnie `URL_LIVE_ALERTS` = https://live.meshcoresouth.pl/api/export/alerty.json. Eksport w live-mesh-map-pl: alerty MeshCore bez stanu companiona mapy i usług serwera, komunikaty tłumaczone na polski po stronie serwera (`src/tlumacz-pl.js`, słownik i18n-pl.json).
+- 19.11.2026: alerty.php – wyszukiwanie repeatera (nazwa i treść, bez polskich znaków) i sortowanie: od najstarszych / od najnowszych / nazwa A–Z / Z–A.

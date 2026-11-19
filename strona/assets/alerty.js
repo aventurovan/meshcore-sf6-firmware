@@ -15,7 +15,9 @@
     const d = Math.round(h / 24);
     return `od ${d} ${odm(d, 'dnia', 'dni', 'dni')}`;
   };
-  let dane = null, filtrPoziom = '', filtrTyp = '';
+  let dane = null, filtrPoziom = '', filtrTyp = '', szukaj = '', sortuj = '';
+  const norm = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l');
+  const nazwaA = (a) => a.nazwa || a.wiadomosc || '';
 
   function wiersz(a) {
     return `<li class="al-item al-${a.poziom === 'krytyczny' ? 'k' : 'u'}">
@@ -37,10 +39,19 @@
     for (const a of l) { const k = a.typNazwa || 'Inne'; typy.set(k, (typy.get(k) || 0) + 1); }
     $('alTypes').innerHTML = typy.size > 1 ? [['', 'Wszystkie rodzaje', l.length], ...[...typy.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, k, n])]
       .map(([k, t, n]) => `<button type="button" class="al-chip${filtrTyp === k ? ' on' : ''}" data-t="${esc(k)}">${esc(t)} <b>${n}</b></button>`).join('') : '';
-    const widac = l.filter((a) => (!filtrTyp || (a.typNazwa || 'Inne') === filtrTyp));
+    const q = norm(szukaj.trim());
+    const widac = l.filter((a) => (!filtrTyp || (a.typNazwa || 'Inne') === filtrTyp) && (!q || norm(a.nazwa).includes(q) || norm(a.wiadomosc).includes(q)));
+    const porownaj = {
+      az: (a, b) => nazwaA(a).localeCompare(nazwaA(b), 'pl', { sensitivity: 'base' }),
+      za: (a, b) => nazwaA(b).localeCompare(nazwaA(a), 'pl', { sensitivity: 'base' }),
+      nowe: (a, b) => String(b.od).localeCompare(String(a.od)),
+      '': (a, b) => String(a.od).localeCompare(String(b.od)),
+    }[sortuj];
+    widac.sort(porownaj);
     const k = widac.filter((a) => a.poziom === 'krytyczny'), u = widac.filter((a) => a.poziom !== 'krytyczny');
-    $('alKryt').innerHTML = k.length ? k.map(wiersz).join('') : '<li class="st-empty">Brak alertów krytycznych.</li>';
-    $('alUwaga').innerHTML = u.length ? u.map(wiersz).join('') : '<li class="st-empty">Brak innych problemów.</li>';
+    const brak = (t) => `<li class="st-empty">${q ? 'Nic nie pasuje do „' + esc(szukaj.trim()) + '”.' : t}</li>`;
+    $('alKryt').innerHTML = k.length ? k.map(wiersz).join('') : brak('Brak alertów krytycznych.');
+    $('alUwaga').innerHTML = u.length ? u.map(wiersz).join('') : brak('Brak innych problemów.');
     $('alKrytBlock').hidden = filtrPoziom === 'uwaga';
     $('alUwagaBlock').hidden = filtrPoziom === 'krytyczny';
     if (!l.length) $('alKryt').innerHTML = '<li class="st-empty al-ok">✔ Brak alertów – sieć jest w dobrym stanie.</li>';
@@ -52,6 +63,8 @@
     document.querySelectorAll('.al-tile').forEach((x) => x.classList.toggle('on', x === b));
     rysuj();
   });
+  $('alQ').addEventListener('input', (e) => { szukaj = e.target.value; rysuj(); });
+  $('alSort').addEventListener('change', (e) => { sortuj = e.target.value; rysuj(); });
   $('alTypes').addEventListener('click', (e) => { const b = e.target.closest('[data-t]'); if (!b) return; filtrTyp = b.dataset.t; rysuj(); });
 
   async function pobierz() {

@@ -23,6 +23,15 @@ require __DIR__ . '/includes/header.php';
       <button type="button" class="card al-tile al-all on" data-f=""><div class="st-lbl">Wszystkie</div><div class="st-num" id="alNA">–</div><div class="st-sub">pokaż wszystkie</div></button>
     </div>
 
+    <div class="al-tools">
+      <label class="al-search"><span class="sr-only">Szukaj repeatera</span><input type="search" id="alQ" placeholder="Szukaj repeatera po nazwie…" autocomplete="off"></label>
+      <label class="al-sort"><span>Sortuj</span><select id="alSort">
+        <option value="">od najstarszych</option>
+        <option value="nowe">od najnowszych</option>
+        <option value="az">nazwa A–Z</option>
+        <option value="za">nazwa Z–A</option>
+      </select></label>
+    </div>
     <div class="al-types" id="alTypes" role="tablist"></div>
 
     <div class="card st-block" id="alKrytBlock">
