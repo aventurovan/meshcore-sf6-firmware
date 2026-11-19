@@ -9,6 +9,7 @@ define('URL_LIVE_MAP', 'https://live.meshcoresouth.pl/');
 define('URL_OUR_LIVE_MAP', 'https://live.meshcoresouth.pl/');
 define('URL_LIVE_STATS', 'https://live.meshcoresouth.pl/api/export/statystyki.json');
 define('URL_LIVE_HISTORY', 'https://live.meshcoresouth.pl/api/export/statystyki-historia.json');
+define('URL_LIVE_ALERTS', 'https://live.meshcoresouth.pl/api/export/alerty.json');
 define('URL_LIVE_POPULATION', 'https://live.meshcoresouth.pl/api/export/ludnosc.json');
 define('URL_MAPPER', 'https://meshcoresouth.pl/mapper');
 define('URL_MAPPER_APK', 'https://meshcoresouth.pl/mapper/apk/');

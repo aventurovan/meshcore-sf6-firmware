@@ -41,6 +41,7 @@ $page_description = $page_description ?? 'Niezależna sieć LoRa off-grid dla Po
         ['/#co-to-jest', 'Co to jest?', 'MeshCore i sieć Południe w skrócie'],
         ['/#zasieg', 'Zasięg', 'Mapa repeaterów w regionie'],
         ['/statystyki.php', 'Statystyki', 'Dane o sieci'],
+        ['/alerty.php', 'Alerty sieci', 'Problemy z repeaterami'],
         [URL_LIVE_MAP, 'Mapa na żywo ↗', 'Węzły i ruch w sieci', true],
       ],
       'Start' => [

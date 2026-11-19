@@ -1,7 +1,7 @@
 name: Statystyki – zapis danych
 
 # Co godzinę pobiera dane z mapy na żywo (live.meshcoresouth.pl) i wgrywa je na hosting jako zwykłe pliki
-# do /dane/ – statystyki.php czyta je z własnego serwera, więc pokazuje wszystko od razu po wejściu.
+# do /dane/ – statystyki.php i alerty.php czytają je z własnego serwera, więc pokazuje wszystko od razu po wejściu.
 # Gdy któryś adres nie odpowie, na serwerze zostaje poprzedni plik.
 
 on:
@@ -34,6 +34,7 @@ jobs:
           pobierz https://live.meshcoresouth.pl/api/export/statystyki.json statystyki.json
           pobierz https://live.meshcoresouth.pl/api/export/statystyki-historia.json statystyki-historia.json
           pobierz https://live.meshcoresouth.pl/api/export/ludnosc.json ludnosc.json
+          pobierz https://live.meshcoresouth.pl/api/export/alerty.json alerty.json
           ls -la dane
       - name: Wgraj na hosting (/dane/)
         env:
