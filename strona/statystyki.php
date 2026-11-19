@@ -130,6 +130,6 @@ require_once __DIR__ . '/includes/map-svg.php';
   <ul class="st-pop-leg st-strefa-leg"><li><i class="st-pop-dobry"></i><span>województwa strefy</span></li><li><i class="st-strefa-dot"></i><span id="stStrefaRpt">repeatery z pozycją</span></li></ul>
 </dialog>
 
-<script>window.ST_URL = <?= json_encode(URL_LIVE_STATS) ?>; window.ST_HIST_URL = <?= json_encode(URL_LIVE_HISTORY) ?>; window.ST_MAP_URL = <?= json_encode(URL_OUR_LIVE_MAP) ?>; window.ST_POP_URL = <?= json_encode(URL_LIVE_POPULATION) ?>;</script>
+<script>window.ST_DANE = { st: '/dane/statystyki.json', hist: '/dane/statystyki-historia.json', pop: '/dane/ludnosc.json' }; window.ST_URL = <?= json_encode(URL_LIVE_STATS) ?>; window.ST_HIST_URL = <?= json_encode(URL_LIVE_HISTORY) ?>; window.ST_MAP_URL = <?= json_encode(URL_OUR_LIVE_MAP) ?>; window.ST_POP_URL = <?= json_encode(URL_LIVE_POPULATION) ?>;</script>
 <script src="/assets/statystyki.js?v=<?= filemtime(__DIR__ . '/assets/statystyki.js') ?>"></script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

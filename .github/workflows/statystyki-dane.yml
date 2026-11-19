@@ -1,0 +1,49 @@
+name: Statystyki – zapis danych
+
+# Co godzinę pobiera dane z mapy na żywo (live.meshcoresouth.pl) i wgrywa je na hosting jako zwykłe pliki
+# do /dane/ – statystyki.php czyta je z własnego serwera, więc pokazuje wszystko od razu po wejściu.
+# Gdy któryś adres nie odpowie, na serwerze zostaje poprzedni plik.
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: statystyki-dane
+  cancel-in-progress: false
+
+jobs:
+  dane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Pobierz dane z mapy na żywo
+        run: |
+          mkdir -p dane
+          pobierz() {  # $1 = adres, $2 = plik; do 4 prób (ludność liczy się kilka minut po restarcie mapy)
+            for i in 1 2 3 4; do
+              if curl -fsS --max-time 120 "$1?t=$(date +%s)" -o "dane/$2.tmp" && python3 -c "import json,sys; d=json.load(open(sys.argv[1])); assert isinstance(d, dict) and 'erreur' not in d" "dane/$2.tmp"; then
+                mv "dane/$2.tmp" "dane/$2"; echo "OK $2 ($(stat -c %s "dane/$2") B)"; return 0
+              fi
+              echo "Próba $i dla $2 nieudana"; sleep 60
+            done
+            rm -f "dane/$2.tmp"; echo "::warning::$2 – brak odpowiedzi, zostaje poprzedni plik na serwerze"
+          }
+          pobierz https://live.meshcoresouth.pl/api/export/statystyki.json statystyki.json
+          pobierz https://live.meshcoresouth.pl/api/export/statystyki-historia.json statystyki-historia.json
+          pobierz https://live.meshcoresouth.pl/api/export/ludnosc.json ludnosc.json
+          ls -la dane
+      - name: Wgraj na hosting (/dane/)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+        run: |
+          if ls dane/*.json >/dev/null 2>&1; then
+            D="${FTP_DIR:-/}"; python3 scripts/ftp_sync.py upload dane "${D%/}/dane"
+          else
+            echo "::warning::Nic do wgrania"
+          fi

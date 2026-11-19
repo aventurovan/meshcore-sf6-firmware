@@ -1,5 +1,6 @@
 // Statystyki sieci z mapy na żywo (live.meshcoresouth.pl/api/export/statystyki.json + statystyki-historia.json).
-// Wszystkie dane odświeżane co godzinę.
+// Dane zapisuje co godzinę GitHub (workflow „Statystyki – zapis danych”) do /dane/ na tym hostingu –
+// strona czyta je stąd (od razu po wejściu); mapa na żywo tylko awaryjnie, gdy plików jeszcze nie ma.
 (function () {
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -250,28 +251,35 @@
   segment('stHistMetric', 'm', (v) => { miara = v; hist(); });
   segment('stHistRange', 'r', (v) => { zakres = Number(v); hist(); });
 
+  // Najpierw zapisany plik z tego hostingu, mapa na żywo tylko gdy go brak
+  async function pobierz(zapisany, naZywo) {
+    for (const u of [zapisany, naZywo].filter(Boolean)) {
+      try {
+        const r = await fetch(u + '?t=' + Math.floor(Date.now() / 300000), { cache: 'no-cache' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        if (d && !d.erreur) return d;
+      } catch { /* następne źródło */ }
+    }
+    throw new Error('brak danych');
+  }
   async function load() {
     try {
-      const r = await fetch(window.ST_URL + '?t=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const d = await r.json();
+      const d = await pobierz(window.ST_DANE && window.ST_DANE.st, window.ST_URL);
       ostatnie = d;
       $('stErr').hidden = true;
       for (const f of [tiles, records, hours, rank, wysokie, types, hops, nowe, kanaly, rejony, notice]) { try { f(d); } catch (e) { console.error(f.name, e); } }
       const t = d.heure ? new Date(d.heure) : new Date();
       $('stTime').textContent = t.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-      $('stState').textContent = 'na żywo · co godzinę';
+      $('stState').textContent = 'aktualizacja co godzinę';
     } catch (e) {
       $('stErr').hidden = false;
       $('stState').textContent = 'brak połączenia';
     }
   }
   async function loadHist() {
-    if (!window.ST_HIST_URL) return;
     try {
-      const r = await fetch(window.ST_HIST_URL + '?t=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      historia = await r.json();
+      historia = await pobierz(window.ST_DANE && window.ST_DANE.hist, window.ST_HIST_URL);
       hist(); heat();
     } catch { /* historia opcjonalna */ }
   }
@@ -296,14 +304,11 @@
       </div>`;
   }
   async function loadPop() {
-    if (!window.ST_POP_URL) return;
     try {
-      const r = await fetch(window.ST_POP_URL + '?t=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      ludnosc(await r.json());
+      ludnosc(await pobierz(window.ST_DANE && window.ST_DANE.pop, window.ST_POP_URL));
     } catch { $('stPopBody').innerHTML = '<div class="st-empty">Zasięg jest właśnie przeliczany na serwerze mapy. Spróbujemy ponownie za kilka minut.</div>'; }
   }
 
   load(); loadHist(); loadPop();
-  setInterval(() => { load(); loadHist(); loadPop(); }, 3600000);
+  setInterval(() => { load(); loadHist(); loadPop(); }, 600000); // pliki zmieniają się co godzinę, sprawdzamy co 10 min
 })();
