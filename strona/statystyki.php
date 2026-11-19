@@ -59,8 +59,11 @@ require_once __DIR__ . '/includes/map-svg.php';
     <div class="st-two">
       <div class="card st-block">
         <h2>Najczęściej używane repeatery</h2>
-        <p class="st-note">Ile pakietów przeszło przez repeater w ciągu doby (po prefiksie w ścieżce pakietu). Gdy prefiks pasuje do kilku repeaterów, pokazujemy wszystkich możliwych.</p>
+        <p class="st-note">Ile pakietów przeszło przez repeater w ciągu doby (po prefiksie w ścieżce pakietu).</p>
         <ol class="st-rank" id="stRank"><li class="st-empty">Zbieramy dane…</li></ol>
+        <h2 class="st-h2-gap">Najwyżej położone repeatery</h2>
+        <p class="st-note">Wysokość terenu w miejscu repeatera (m n.p.m., z modelu terenu, bez wysokości masztu). Repeatery słyszane w ostatnich 7 dniach.</p>
+        <ol class="st-rank" id="stHigh"><li class="st-empty">Zbieramy dane…</li></ol>
       </div>
       <div class="card st-block">
         <h2>Rodzaje pakietów</h2>

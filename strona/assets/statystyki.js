@@ -103,6 +103,14 @@
     }).join('');
   }
 
+  // Najwyżej położone repeatery: wysokość terenu w miejscu repeatera (model terenu), bez masztu
+  function wysokie(d) {
+    const l = d.najwyzsze || [], ol = $('stHigh');
+    if (!l.length) { ol.innerHTML = `<li class="st-empty">${d.najwyzsze ? 'Brak repeaterów z pozycją w zasięgu modelu terenu.' : 'Model terenu jeszcze się wczytuje…'}</li>`; return; }
+    const max = Math.max(1, ...l.map((x) => x.m));
+    ol.innerHTML = l.map((x) => `<li title="${fmt(x.m)} m n.p.m."><div class="st-rank-row"><span class="st-rank-name">${esc(x.nazwa)}${naMapie(x.cle)}</span><b>${fmt(x.m)} m</b></div><div class="st-bar"><i style="width:${(x.m / max) * 100}%"></i></div></li>`).join('');
+  }
+
   function types(d) {
     const t = ((d.doba || {}).typy || []).filter((x) => x.nb > 0);
     paski($('stTypes'), t.map((x) => ({ etykieta: esc(TYPY[x.typ] || x.typ || 'Inne'), nb: x.nb })).slice(0, 8));
@@ -249,7 +257,7 @@
       const d = await r.json();
       ostatnie = d;
       $('stErr').hidden = true;
-      for (const f of [tiles, records, hours, rank, types, hops, nowe, kanaly, rejony, notice]) { try { f(d); } catch (e) { console.error(f.name, e); } }
+      for (const f of [tiles, records, hours, rank, wysokie, types, hops, nowe, kanaly, rejony, notice]) { try { f(d); } catch (e) { console.error(f.name, e); } }
       const t = d.heure ? new Date(d.heure) : new Date();
       $('stTime').textContent = t.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
       $('stState').textContent = 'na żywo · co godzinę';
@@ -268,7 +276,6 @@
     } catch { /* historia opcjonalna */ }
   }
   // ---- Zasięg sieci: ludność w zasięgu repeaterów (eksport mapy, liczony co 30 min) ----
-  const TYPY_MIEJSC = { city: 'Miasta', town: 'Miasteczka', village: 'Wsie', hamlet: 'Przysiółki' };
   function ludnosc(p) {
     const box = $('stPopBody');
     if (!p || p.vide || !p.ludnoscStrefy) { box.innerHTML = '<div class="st-empty">Brak repeaterów z pozycją albo model terenu jeszcze się wczytuje.</div>'; return; }
@@ -278,8 +285,6 @@
       { k: 'graniczny', nazwa: 'zasięg na granicy', v: p.granicznyZasieg, opis: 'zapas 0–10 dB, zależy od anteny i miejsca' },
       { k: 'poza', nazwa: 'poza zasięgiem', v: p.pozaZasiegiem, opis: 'za słaby sygnał' },
     ];
-    const typy = Object.entries(p.typy || {}).filter(([t]) => TYPY_MIEJSC[t]).sort((a, b) => Object.keys(TYPY_MIEJSC).indexOf(a[0]) - Object.keys(TYPY_MIEJSC).indexOf(b[0]));
-    const lista = (l) => (l && l.length ? `<ol class="st-pop-list">${l.slice(0, 8).map(([n, v]) => `<li><span>${esc(n)}</span><b>${fmt(v)}</b></li>`).join('')}</ol>` : '<div class="st-empty">Brak</div>');
     box.innerHTML = `
       <div class="st-pop-top">
         <div class="st-pop-big"><div class="st-num">${fmt(p.pct, 1)} %</div><div class="st-sub">mieszkańców strefy w zasięgu: <b>${fmt(p.wZasiegu)}</b> z ${fmt(L)} osób w ${fmt(p.miejscowosci)} ${odm(p.miejscowosci, 'miejscowości', 'miejscowościach', 'miejscowościach')}</div>
@@ -288,11 +293,6 @@
           <div class="st-pop-bar" role="img" aria-label="${czesci.map((c) => `${c.nazwa} ${fmt(pc(c.v), 1)} %`).join(', ')}">${czesci.map((c) => (c.v ? `<i class="st-pop-${c.k}" style="width:${pc(c.v)}%" title="${c.nazwa}: ${fmt(c.v)} osób (${fmt(pc(c.v), 1)} %)"></i>` : '')).join('')}</div>
           <ul class="st-pop-leg">${czesci.map((c) => `<li><i class="st-pop-${c.k}"></i><span><b>${c.nazwa}</b> · ${fmt(c.v)} os. (${fmt(pc(c.v), 1)} %)<small>${c.opis}</small></span></li>`).join('')}</ul>
         </div>
-      </div>
-      <div class="st-pop-types">${typy.map(([t, x]) => { const v = x.ludnosc ? (x.wZasiegu / x.ludnosc) * 100 : 0; return `<div class="st-row" title="${fmt(x.wZasiegu)} z ${fmt(x.ludnosc)} mieszkańców"><div class="st-row-top"><span class="st-rank-name">${TYPY_MIEJSC[t]} <small>(${fmt(x.miejsc)})</small></span><b>${fmt(v, 0)} %</b></div><div class="st-bar"><i style="width:${v}%"></i></div></div>`; }).join('')}</div>
-      <div class="st-two st-pop-lists">
-        <div><h3>Największe miejscowości w zasięgu</h3>${lista(p.najwiekszeWZasiegu)}</div>
-        <div><h3>Największe poza zasięgiem</h3>${lista(p.najwiekszePoza)}</div>
       </div>`;
   }
   async function loadPop() {
