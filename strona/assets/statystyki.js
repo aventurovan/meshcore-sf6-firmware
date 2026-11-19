@@ -1,5 +1,5 @@
 // Statystyki sieci z mapy na żywo (live.meshcoresouth.pl/api/export/statystyki.json + statystyki-historia.json).
-// Bieżące dane odświeżane co minutę, historia co 10 minut.
+// Wszystkie dane odświeżane co godzinę.
 (function () {
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -83,7 +83,7 @@
     for (let i = 23; i >= 0; i--) h.push({ t: teraz - i, nb: m.get(teraz - i) || 0 });
     const max = Math.max(1, ...h.map((x) => x.nb));
     const godz = (t) => new Date(t * 3600000).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-    box.innerHTML = h.map((x) => `<div class="st-col" tabindex="0" title="${godz(x.t)}–${godz(x.t + 1)}: ${fmt(x.nb)} pakietów"><i style="height:${x.nb ? Math.max(3, (x.nb / max) * 100) : 0}%"></i></div>`).join('');
+    box.innerHTML = h.map((x) => `<div class="st-col" tabindex="0" data-tip="<b>${fmt(x.nb)}</b> ${odm(x.nb, 'pakiet', 'pakiety', 'pakietów')}<small>${godz(x.t)}–${godz(x.t + 1)}</small>"><i style="height:${x.nb ? Math.max(3, (x.nb / max) * 100) : 0}%"></i></div>`).join('');
     box.setAttribute('aria-label', 'Pakiety w kolejnych godzinach: ' + h.map((x) => `${godz(x.t)} ${x.nb}`).join(', '));
     axis.innerHTML = h.map((x, i) => `<span>${i % 6 === 0 || i === 23 ? godz(x.t) : ''}</span>`).join('');
   }
@@ -136,12 +136,57 @@
     box.innerHTML = r.map((x, i) => `<div class="st-region"><span class="st-region-k">${i + 1}</span><div class="st-region-body"><div class="st-rank-row"><span>${esc(x.rejon)}</span><b>${fmt(x.wezly)}</b></div><div class="st-bar"><i style="width:${(x.wezly / max) * 100}%"></i></div><small>${fmt(x.repeatery)} ${odm(x.repeatery, 'repeater', 'repeatery', 'repeaterów')} · ${fmt(x.wezly - x.repeatery)} ${odm(x.wezly - x.repeatery, 'inny węzeł', 'inne węzły', 'innych węzłów')}</small></div></div>`).join('');
   }
 
-  function notice(d) {
-    if (d.od) {
-      $('stOd').textContent = new Date(d.od).toLocaleDateString('pl-PL');
-      $('stNew').hidden = Date.now() - d.od > 7 * 86400000; // po tygodniu uwaga o zbieraniu danych znika
+  // ---- Strefa: okno z mapą Polski, województwa strefy i repeatery ----
+  let strefa = null;
+  function notice(d) { if (d.strefa) strefa = d.strefa; }
+  function pokazStrefe() {
+    const dlg = $('stStrefa'), svg = document.getElementById('coverage-map');
+    const opis = (strefa && strefa.opis) || '';
+    const woj = (opis.match(/\(([^)]+)\)/) || [, ''])[1].split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
+    // bez polskich znaków: w mapie ze strony głównej jest np. „ślaskie”
+    const norm = (t) => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l');
+    const wojN = woj.map(norm);
+    svg.querySelectorAll('.voi').forEach((p) => {
+      const w = wojN.includes(norm(p.dataset.voi || ''));
+      p.classList.toggle('voi-active', w);
+      if (w) p.parentNode.appendChild(p);
+    });
+    $('stStrefaOpis').textContent = woj.length
+      ? `${(strefa && strefa.nazwa) || 'Strefa'}: ${woj.join(', ')}. Dla tego obszaru liczymy pokrycie i zasięg sieci.`
+      : 'Obszar, dla którego liczymy pokrycie i zasięg sieci.';
+    // repeatery: ten sam rzut co mapa na stronie głównej (assets/rpt-map.js)
+    const g = document.getElementById('rpt-markers'), NS = 'http://www.w3.org/2000/svg';
+    g.innerHTML = '';
+    const rpt = (strefa && strefa.repeatery) || [];
+    for (const [lat, lon] of rpt) {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', (Math.abs(lon - 14.07) * 1000 / 10.2).toFixed(1));
+      c.setAttribute('cy', (Math.abs(lat - 54.9) * 950 / 5.9).toFixed(1));
+      c.setAttribute('r', '5');
+      g.appendChild(c);
     }
+    $('stStrefaRpt').textContent = rpt.length ? `${fmt(rpt.length)} ${odm(rpt.length, 'repeater', 'repeatery', 'repeaterów')} z pozycją (ostatnie 24 h)` : 'repeatery z pozycją';
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
   }
+  $('stStrefaBtn').addEventListener('click', pokazStrefe);
+  $('stStrefaX').addEventListener('click', () => $('stStrefa').close());
+  $('stStrefa').addEventListener('click', (e) => { if (e.target === $('stStrefa')) $('stStrefa').close(); });
+
+  // ---- Dymek z liczbą nad słupkiem (ruch w ciągu doby, historia) ----
+  const tip = document.createElement('div');
+  tip.className = 'st-tip'; tip.hidden = true; document.body.appendChild(tip);
+  function pokazTip(e) {
+    const col = e.target.closest && e.target.closest('.st-col[data-tip]');
+    if (!col) { tip.hidden = true; return; }
+    tip.innerHTML = col.dataset.tip; tip.hidden = false;
+    const r = col.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    const x = Math.min(Math.max(8, r.left + r.width / 2 - t.width / 2), window.innerWidth - t.width - 8);
+    const bar = col.querySelector('i'), top = bar && bar.offsetHeight ? bar.getBoundingClientRect().top : r.bottom;
+    tip.style.left = x + window.scrollX + 'px';
+    tip.style.top = top + window.scrollY - t.height - 8 + 'px';
+  }
+  for (const ev of ['mouseover', 'focusin']) document.addEventListener(ev, pokazTip);
+  for (const ev of ['mouseout', 'focusout']) document.addEventListener(ev, (e) => { if (e.target.closest && e.target.closest('.st-col')) tip.hidden = true; });
 
   // ---- Historia: słupki dzienne dla wybranej miary ----
   function hist() {
@@ -164,7 +209,7 @@
     box.innerHTML = dni.map((x, i) => {
       const v = wart(x), kluczowa = i === iMax || i === dni.length - 1;
       const etyk = v != null && (wszystkie || kluczowa) ? `<b class="st-val${kluczowa ? ' st-val-k' : ''}${i === 0 ? ' st-val-l' : ''}${i === dni.length - 1 && dni.length > 2 ? ' st-val-p' : ''}">${krotko(v)}</b>` : '';
-      return `<div class="st-col" tabindex="0" title="${data(x.dzien)}: ${v == null ? 'brak danych' : fmt(v, 1) + ' ' + jedn}"><i style="height:${v ? Math.max(3, (v / max) * 100) : 0}%">${etyk}</i></div>`;
+      return `<div class="st-col" tabindex="0" data-tip="${v == null ? 'brak danych' : '<b>' + fmt(v, 1) + '</b> ' + jedn}<small>${data(x.dzien)}</small>"><i style="height:${v ? Math.max(3, (v / max) * 100) : 0}%">${etyk}</i></div>`;
     }).join('');
     const co = Math.max(1, Math.ceil(dni.length / 6));
     axis.innerHTML = dni.map((x, i) => `<span>${i % co === 0 || i === dni.length - 1 ? data(x.dzien) : ''}</span>`).join('');
@@ -207,7 +252,7 @@
       for (const f of [tiles, records, hours, rank, types, hops, nowe, kanaly, rejony, notice]) { try { f(d); } catch (e) { console.error(f.name, e); } }
       const t = d.heure ? new Date(d.heure) : new Date();
       $('stTime').textContent = t.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-      $('stState').textContent = 'na żywo · co minutę';
+      $('stState').textContent = 'na żywo · co godzinę';
     } catch (e) {
       $('stErr').hidden = false;
       $('stState').textContent = 'brak połączenia';
@@ -247,7 +292,7 @@
       <div class="st-pop-types">${typy.map(([t, x]) => { const v = x.ludnosc ? (x.wZasiegu / x.ludnosc) * 100 : 0; return `<div class="st-row" title="${fmt(x.wZasiegu)} z ${fmt(x.ludnosc)} mieszkańców"><div class="st-row-top"><span class="st-rank-name">${TYPY_MIEJSC[t]} <small>(${fmt(x.miejsc)})</small></span><b>${fmt(v, 0)} %</b></div><div class="st-bar"><i style="width:${v}%"></i></div></div>`; }).join('')}</div>
       <div class="st-two st-pop-lists">
         <div><h3>Największe miejscowości w zasięgu</h3>${lista(p.najwiekszeWZasiegu)}</div>
-        <div><h3>Największe poza zasięgiem</h3><p class="st-note">Tu nowy repeater dałby najwięcej.</p>${lista(p.najwiekszePoza)}</div>
+        <div><h3>Największe poza zasięgiem</h3>${lista(p.najwiekszePoza)}</div>
       </div>`;
   }
   async function loadPop() {
@@ -260,7 +305,5 @@
   }
 
   load(); loadHist(); loadPop();
-  setInterval(load, 60000);
-  setInterval(loadHist, 600000);
-  setInterval(loadPop, 600000);
+  setInterval(() => { load(); loadHist(); loadPop(); }, 3600000);
 })();

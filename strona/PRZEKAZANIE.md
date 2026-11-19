@@ -131,3 +131,9 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 ## Zasięg sieci – ludność (19.11.2026)
 - statystyki.php: sekcja „Zasięg sieci” (po kafelkach): % mieszkańców strefy w zasięgu, pasek dobry (≥10 dB) / na granicy (0–10 dB) / poza, miasta/miasteczka/wsie/przysiółki, największe miejscowości w zasięgu i poza nim.
 - Źródło: `URL_LIVE_POPULATION` = https://live.meshcoresouth.pl/api/export/ludnosc.json (w repo live-mesh-map-pl: to samo obliczenie co /api/ludnosc-zasieg, ale z CORS, bez diagnostyki, liczone najwyżej raz na 30 min). Strona odpytuje co 10 min.
+
+## Statystyki – poprawki (19.11.2026)
+- Usunięta żółta notka „Dane dopiero się zbierają…” i zdanie o odświeżaniu co minutę; „Wiadomości na kanałach”: „ostatnia doba”.
+- Odświeżanie wszystkich danych co godzinę (stan „na żywo · co godzinę”).
+- Dymek z liczbą po najechaniu na słupek (ruch w ciągu doby i historia) – `.st-tip`, atrybut `data-tip` na `.st-col`.
+- Kafelek „Pokrycie strefy”: liczba repeaterów była 0 (błąd w mapie: `r.sites` → `r.noeuds`, poprawione w live-mesh-map-pl) + przycisk „zobacz strefę ↗” → okno (`<dialog id="stStrefa">`) z mapą Polski ze strony głównej (`render_coverage_map()`), podświetlone województwa strefy (z `strefa.opis` w statystyki.json) i repeatery. Nazwy województw porównywane bez polskich znaków (w voivodeships.json jest „ślaskie”).

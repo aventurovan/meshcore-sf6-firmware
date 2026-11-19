@@ -2,6 +2,7 @@
 $page_title = 'Statystyki';
 $page_description = 'Statystyki sieci MeshCore Południe na żywo: węzły, repeatery, rekordy zasięgu, ruch w ciągu doby i historia sieci.';
 require __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/map-svg.php';
 ?>
 
 <section class="fl-page st-page">
@@ -10,12 +11,11 @@ require __DIR__ . '/includes/header.php';
       <div>
         <span class="pill">Dane na żywo</span>
         <h1>Statystyki <span>sieci</span></h1>
-        <p>Liczby z naszej mapy na żywo, z pakietów odebranych przez obserwatorów sieci na Południu Polski. Odświeżają się same co minutę.</p>
+        <p>Liczby z naszej mapy na żywo, z pakietów odebranych przez obserwatorów sieci na Południu Polski.</p>
       </div>
       <div class="fl-ver card st-upd" id="stUpd"><div class="lbl">Aktualizacja</div><div class="val mono" id="stTime">…</div><div class="sub" id="stState">wczytywanie</div></div>
     </div>
 
-    <div class="fl-notice" id="stNew">Dane dopiero się zbierają: mapa działa od <span id="stOd">15.11.2026</span> i na razie liczy ruch słyszany przez część obserwatorów. Z każdym dniem obraz sieci będzie pełniejszy.</div>
     <div class="fl-notice err" id="stErr" hidden>Mapa na żywo jest chwilowo niedostępna. Spróbujemy ponownie za minutę.</div>
 
     <div class="st-tiles" id="stTiles">
@@ -27,9 +27,9 @@ require __DIR__ . '/includes/header.php';
       <div class="card st-tile"><div class="st-lbl">Pakiety (1 h)</div><div class="st-num" data-k="pakietyGodzina">–</div><div class="st-sub">ostatnia godzina</div></div>
       <div class="card st-tile"><div class="st-lbl">Pakiety (24 h)</div><div class="st-num" data-k="pakiety24">–</div><div class="st-sub">ostatnia doba</div></div>
       <div class="card st-tile" id="stKanalTile"><div class="st-lbl">Zajęcie kanału</div><div class="st-num" data-k="kanal">–</div><div class="st-sub" data-k="kanal-sub">szacowany czas nadawania, 24 h</div></div>
-      <div class="card st-tile"><div class="st-lbl">Pokrycie strefy</div><div class="st-num" data-k="pokrycie">–</div><div class="st-sub" data-k="pokrycie-sub">obliczone z terenu</div></div>
+      <div class="card st-tile"><div class="st-lbl">Pokrycie strefy</div><div class="st-num" data-k="pokrycie">–</div><div class="st-sub" data-k="pokrycie-sub">obliczone z terenu</div><button type="button" class="st-map st-map-btn st-linkbtn" id="stStrefaBtn">zobacz strefę ↗</button></div>
       <div class="card st-tile"><div class="st-lbl">Nowe węzły (7 dni)</div><div class="st-num" data-k="nowe7">–</div><div class="st-sub" data-k="nowe-sub">&nbsp;</div></div>
-      <div class="card st-tile"><div class="st-lbl">Wiadomości na kanałach</div><div class="st-num" data-k="kanaly24">–</div><div class="st-sub">ostatnia doba, bez treści</div></div>
+      <div class="card st-tile"><div class="st-lbl">Wiadomości na kanałach</div><div class="st-num" data-k="kanaly24">–</div><div class="st-sub">ostatnia doba</div></div>
       <div class="card st-tile"><div class="st-lbl">Rekord zasięgu</div><div class="st-num" data-k="rekordKm">–</div><div class="st-sub" data-k="rekord-sub">najdłuższe łącze od początku</div><a class="st-map" id="stRekordLink" href="#" target="_blank" rel="noopener" hidden>pokaż na mapie ↗</a></div>
     </div>
 
@@ -119,6 +119,13 @@ require __DIR__ . '/includes/header.php';
     </div>
   </div>
 </section>
+
+<dialog class="st-dialog" id="stStrefa" aria-labelledby="stStrefaTitle">
+  <div class="st-dialog-head"><h2 id="stStrefaTitle">Strefa sieci</h2><button type="button" class="st-dialog-x" id="stStrefaX" aria-label="Zamknij">×</button></div>
+  <p class="st-note" id="stStrefaOpis">Obszar, dla którego liczymy pokrycie i zasięg.</p>
+  <div class="st-strefa-map"><?php render_coverage_map(); ?></div>
+  <ul class="st-pop-leg st-strefa-leg"><li><i class="st-pop-dobry"></i><span>województwa strefy</span></li><li><i class="st-strefa-dot"></i><span id="stStrefaRpt">repeatery z pozycją</span></li></ul>
+</dialog>
 
 <script>window.ST_URL = <?= json_encode(URL_LIVE_STATS) ?>; window.ST_HIST_URL = <?= json_encode(URL_LIVE_HISTORY) ?>; window.ST_MAP_URL = <?= json_encode(URL_OUR_LIVE_MAP) ?>; window.ST_POP_URL = <?= json_encode(URL_LIVE_POPULATION) ?>;</script>
 <script src="/assets/statystyki.js?v=<?= filemtime(__DIR__ . '/assets/statystyki.js') ?>"></script>
