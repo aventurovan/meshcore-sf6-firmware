@@ -33,6 +33,12 @@ require __DIR__ . '/includes/header.php';
       <div class="card st-tile"><div class="st-lbl">Rekord zasięgu</div><div class="st-num" data-k="rekordKm">–</div><div class="st-sub" data-k="rekord-sub">najdłuższe łącze od początku</div><a class="st-map" id="stRekordLink" href="#" target="_blank" rel="noopener" hidden>pokaż na mapie ↗</a></div>
     </div>
 
+    <div class="card st-block" id="stPop">
+      <h2>Zasięg sieci</h2>
+      <p class="st-note">Ilu mieszkańców strefy mieszka w zasięgu repeaterów: zasięg liczony z modelu terenu, liczba ludności miejscowości z OpenStreetMap. Przeliczane co 30 minut.</p>
+      <div class="st-pop" id="stPopBody"><div class="st-empty">Liczymy zasięg…</div></div>
+    </div>
+
     <div class="card st-block">
       <div class="st-head">
         <div><h2>Rekordy sieci</h2><p class="st-note">Najdłuższe bezpośrednie łącze, najlepszy sygnał na łączu dłuższym niż 30 km i najdłuższa trasa pakietu.</p></div>
@@ -114,6 +120,6 @@ require __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<script>window.ST_URL = <?= json_encode(URL_LIVE_STATS) ?>; window.ST_HIST_URL = <?= json_encode(URL_LIVE_HISTORY) ?>; window.ST_MAP_URL = <?= json_encode(URL_OUR_LIVE_MAP) ?>;</script>
+<script>window.ST_URL = <?= json_encode(URL_LIVE_STATS) ?>; window.ST_HIST_URL = <?= json_encode(URL_LIVE_HISTORY) ?>; window.ST_MAP_URL = <?= json_encode(URL_OUR_LIVE_MAP) ?>; window.ST_POP_URL = <?= json_encode(URL_LIVE_POPULATION) ?>;</script>
 <script src="/assets/statystyki.js?v=<?= filemtime(__DIR__ . '/assets/statystyki.js') ?>"></script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

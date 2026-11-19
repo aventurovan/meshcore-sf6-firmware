@@ -127,3 +127,7 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - Firmware: `sf6.conf` → `LOOP_DETECT=moderate`; `apply-sf6.py` zmienia domyślne `_prefs.loop_detect` w `examples/simple_repeater/MyMesh.cpp` (wszystkie płytki RPT; oficjalnie `minimal`). Działa przy czystej instalacji / z kasowaniem.
 - /rpt/: 7. kafelek „Wykrywanie pętli” (`get loop.detect`), w presecie i „Napraw wszystko” (`set loop.detect moderate`); na firmware bez tej komendy kafelek „brak w tym firmware” i preset ją pomija.
 - instrukcja.php: `set loop.detect moderate` w komendach repeatera. Mapa na żywo: szablon „Repeater podstawowy (Południe SF6)” ma loop.detect moderate.
+
+## Zasięg sieci – ludność (19.11.2026)
+- statystyki.php: sekcja „Zasięg sieci” (po kafelkach): % mieszkańców strefy w zasięgu, pasek dobry (≥10 dB) / na granicy (0–10 dB) / poza, miasta/miasteczka/wsie/przysiółki, największe miejscowości w zasięgu i poza nim.
+- Źródło: `URL_LIVE_POPULATION` = https://live.meshcoresouth.pl/api/export/ludnosc.json (w repo live-mesh-map-pl: to samo obliczenie co /api/ludnosc-zasieg, ale z CORS, bez diagnostyki, liczone najwyżej raz na 30 min). Strona odpytuje co 10 min.

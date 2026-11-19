@@ -222,7 +222,45 @@
       hist(); heat();
     } catch { /* historia opcjonalna */ }
   }
-  load(); loadHist();
+  // ---- Zasięg sieci: ludność w zasięgu repeaterów (eksport mapy, liczony co 30 min) ----
+  const TYPY_MIEJSC = { city: 'Miasta', town: 'Miasteczka', village: 'Wsie', hamlet: 'Przysiółki' };
+  function ludnosc(p) {
+    const box = $('stPopBody');
+    if (!p || p.vide || !p.ludnoscStrefy) { box.innerHTML = '<div class="st-empty">Brak repeaterów z pozycją albo model terenu jeszcze się wczytuje.</div>'; return; }
+    const L = p.ludnoscStrefy, pc = (v) => (L ? (v / L) * 100 : 0);
+    const czesci = [
+      { k: 'dobry', nazwa: 'dobry zasięg', v: p.dobryZasieg, opis: 'zapas sygnału co najmniej 10 dB' },
+      { k: 'graniczny', nazwa: 'zasięg na granicy', v: p.granicznyZasieg, opis: 'zapas 0–10 dB, zależy od anteny i miejsca' },
+      { k: 'poza', nazwa: 'poza zasięgiem', v: p.pozaZasiegiem, opis: 'za słaby sygnał' },
+    ];
+    const typy = Object.entries(p.typy || {}).filter(([t]) => TYPY_MIEJSC[t]).sort((a, b) => Object.keys(TYPY_MIEJSC).indexOf(a[0]) - Object.keys(TYPY_MIEJSC).indexOf(b[0]));
+    const lista = (l) => (l && l.length ? `<ol class="st-pop-list">${l.slice(0, 8).map(([n, v]) => `<li><span>${esc(n)}</span><b>${fmt(v)}</b></li>`).join('')}</ol>` : '<div class="st-empty">Brak</div>');
+    box.innerHTML = `
+      <div class="st-pop-top">
+        <div class="st-pop-big"><div class="st-num">${fmt(p.pct, 1)} %</div><div class="st-sub">mieszkańców strefy w zasięgu: <b>${fmt(p.wZasiegu)}</b> z ${fmt(L)} osób w ${fmt(p.miejscowosci)} ${odm(p.miejscowosci, 'miejscowości', 'miejscowościach', 'miejscowościach')}</div>
+          <div class="st-sub">${fmt(p.repeatery)} ${odm(p.repeatery, 'repeater', 'repeatery', 'repeaterów')} · pokrycie powierzchni ${fmt(p.pctPowierzchni, 1)} %</div></div>
+        <div class="st-pop-split">
+          <div class="st-pop-bar" role="img" aria-label="${czesci.map((c) => `${c.nazwa} ${fmt(pc(c.v), 1)} %`).join(', ')}">${czesci.map((c) => (c.v ? `<i class="st-pop-${c.k}" style="width:${pc(c.v)}%" title="${c.nazwa}: ${fmt(c.v)} osób (${fmt(pc(c.v), 1)} %)"></i>` : '')).join('')}</div>
+          <ul class="st-pop-leg">${czesci.map((c) => `<li><i class="st-pop-${c.k}"></i><span><b>${c.nazwa}</b> · ${fmt(c.v)} os. (${fmt(pc(c.v), 1)} %)<small>${c.opis}</small></span></li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="st-pop-types">${typy.map(([t, x]) => { const v = x.ludnosc ? (x.wZasiegu / x.ludnosc) * 100 : 0; return `<div class="st-row" title="${fmt(x.wZasiegu)} z ${fmt(x.ludnosc)} mieszkańców"><div class="st-row-top"><span class="st-rank-name">${TYPY_MIEJSC[t]} <small>(${fmt(x.miejsc)})</small></span><b>${fmt(v, 0)} %</b></div><div class="st-bar"><i style="width:${v}%"></i></div></div>`; }).join('')}</div>
+      <div class="st-two st-pop-lists">
+        <div><h3>Największe miejscowości w zasięgu</h3>${lista(p.najwiekszeWZasiegu)}</div>
+        <div><h3>Największe poza zasięgiem</h3><p class="st-note">Tu nowy repeater dałby najwięcej.</p>${lista(p.najwiekszePoza)}</div>
+      </div>`;
+  }
+  async function loadPop() {
+    if (!window.ST_POP_URL) return;
+    try {
+      const r = await fetch(window.ST_POP_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      ludnosc(await r.json());
+    } catch { $('stPopBody').innerHTML = '<div class="st-empty">Zasięg jest właśnie przeliczany na serwerze mapy. Spróbujemy ponownie za kilka minut.</div>'; }
+  }
+
+  load(); loadHist(); loadPop();
   setInterval(load, 60000);
   setInterval(loadHist, 600000);
+  setInterval(loadPop, 600000);
 })();

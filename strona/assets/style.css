@@ -1104,3 +1104,30 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 @media (max-width:900px){ .st-records{ grid-template-columns:1fr; } .st-regions{ grid-template-columns:1fr; } }
 @media (max-width:900px){ .st-tiles{ grid-template-columns:repeat(2,1fr); } .st-two{ grid-template-columns:1fr; } }
 @media (max-width:480px){ .st-num{ font-size:28px; } .st-tile{ padding:16px; } .st-hours{ height:140px; } }
+
+/* Zasięg sieci – ludność (statystyki.php) */
+.st-pop-top{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:28px; align-items:center; }
+.st-pop-big .st-num{ font-size:48px; color:var(--green); }
+.st-pop-big .st-sub{ margin-top:4px; font-size:14.5px; }
+.st-pop-bar{ display:flex; gap:2px; height:22px; border-radius:6px; overflow:hidden; background:var(--panel-2); }
+.st-pop-bar i{ display:block; height:100%; }
+.st-pop-dobry{ background:var(--green); }
+.st-pop-graniczny{ background:var(--green); opacity:.45; }
+.st-pop-poza{ background:var(--panel-2); box-shadow:inset 0 0 0 1px var(--line); }
+.st-pop-leg{ list-style:none; margin:14px 0 0; padding:0; display:grid; gap:8px; font-size:14.5px; }
+.st-pop-leg li{ display:flex; gap:10px; align-items:flex-start; }
+.st-pop-leg li > i{ flex:0 0 14px; height:14px; border-radius:4px; margin-top:3px; }
+.st-pop-leg small{ display:block; color:var(--muted); font-size:13px; }
+.st-pop-types{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px 22px; margin-top:24px; }
+.st-pop-types small{ color:var(--muted); }
+.st-pop-lists{ margin-top:24px; }
+.st-pop-lists h3{ font-size:17px; margin:0 0 6px; }
+.st-pop-lists .st-note{ margin:0 0 6px; }
+.st-pop-list{ margin:0; padding:0 0 0 22px; font-size:14.5px; }
+.st-pop-list li{ padding:4px 0; border-top:1px solid var(--line); }
+.st-pop-list li:first-child{ border-top:0; }
+.st-pop-list li span{ display:inline-block; max-width:70%; }
+.st-pop-list li b{ float:right; font-variant-numeric:tabular-nums; }
+@media (max-width:900px){ .st-pop-top{ grid-template-columns:1fr; gap:18px; } .st-pop-types{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.st-pop-types .st-row-top b, .st-pop-leg b{ white-space:nowrap; }
+@media (max-width:520px){ .st-pop-types{ grid-template-columns:1fr; } .st-pop-big .st-num{ font-size:40px; } }
