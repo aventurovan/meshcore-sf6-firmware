@@ -105,7 +105,7 @@ require_once __DIR__ . '/includes/map-svg.php';
       </div>
       <div class="card st-block">
         <h2>Kanały</h2>
-        <p class="st-note">Liczba wiadomości na kanałach w ciągu doby. Treści nie zapisujemy i nie pokazujemy.</p>
+        <p class="st-note">Liczba wiadomości na kanałach w ciągu doby.</p>
         <div class="st-bars" id="stChannels"><div class="st-empty">Zbieramy dane…</div></div>
       </div>
     </div>
