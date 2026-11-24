@@ -193,6 +193,7 @@
 .fl-steps .st-user{ color:#fbbf24; } .st-user .fl-sti{ background:#fbbf24; border-color:#fbbf24; } .st-user .fl-sti::after{ content:"!"; color:#111; }
 .fl-steps .st-skip{ opacity:.5; }
 @keyframes flspin{ to{ transform:rotate(360deg); } }
+.fl-wipe{ margin-top:16px; } .fl-wipe .fl-check{ margin-top:10px; }
 .fl-note.fl-next{ margin:14px 0 0; } .fl-next p{ margin:6px 0 12px; } .fl-next .btn{ display:inline-block; }
 .fl-blres{ border-left:4px solid var(--line); padding:8px 12px; border-radius:8px; background:var(--panel-2); }
 .fl-blres.ok{ border-left-color:var(--green); } .fl-blres.warn{ border-left-color:#fbbf24; } .fl-blres.err{ border-left-color:#f87171; }

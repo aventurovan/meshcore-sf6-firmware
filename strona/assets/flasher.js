@@ -287,10 +287,12 @@ function renderDevices() {
 $("flSearch").addEventListener("input", () => state.m && state.role && state.role !== "custom" && renderDevices());
 
 const eraseBox = disabled => `
-  <label class="fl-check"><input type="checkbox" id="flErase" ${disabled ? "disabled" : ""}>
-    <span><b>Najpierw wyczyść całą pamięć urządzenia</b><br>
-    Zalecane, gdy wcześniej było inne oprogramowanie (np. Meshtastic) albo urządzenie działa dziwnie.
-    Usuwa klucze, kontakty i ustawienia – urządzenie dostanie nową tożsamość i od razu ustawienia SF6.</span></label>`;
+  <details class="fl-log fl-wipe"><summary>W ostateczności: wyczyść całą pamięć urządzenia</summary>
+    <label class="fl-check"><input type="checkbox" id="flErase" ${disabled ? "disabled" : ""}>
+      <span><b>Wyczyść całą pamięć przed wgraniem</b><br>
+      Tylko gdy zwykłe wgranie nie pomaga: wcześniej było inne oprogramowanie (np. Meshtastic) albo urządzenie działa dziwnie.
+      Usuwa klucze, kontakty i ustawienia – urządzenie dostanie nową tożsamość i od razu ustawienia SF6.</span></label>
+  </details>`;
 const confirmErase = () => confirm("Cała pamięć urządzenia zostanie skasowana: klucz prywatny (tożsamość), kontakty i wszystkie ustawienia. Kontynuować?");
 const dl = (p, label) => p ? `<a class="btn btn-green-line" href="${esc(fileUrl(p))}" download>${label}</a>` : "";
 const na = cond => cond ? 'disabled data-na="1"' : "";
@@ -304,19 +306,19 @@ function renderFlash() {
   const note = state.role === "companion_mapper"
     ? `<p class="fl-note">Firmware MeshCore Południe: zwykły companion BLE (działa z aplikacją MeshCore) z wbudowanym Mapperem SF6 i polskim interfejsem na ekranie urządzenia. Dane z mapowania zrzucasz do aplikacji <a href="/mapper" target="_blank" rel="noopener">Mapper SF6</a>.</p>`
     : state.role === "companion_meshspeed"
-    ? `<p class="fl-note">Firmware MeshSpeed dla ThinkNode M9: companion MeshCore z polskim interfejsem na ekranie, obsługą klawiatury, mapą i presetem SF6. Działa z aplikacją <a href="/meshspeed.php">MeshSpeed</a> i oficjalną aplikacją MeshCore. Później aktualizuje się sam przez WiFi (Narzędzia › Aktualizacja). Przy pierwszym wgraniu na M9 z innym firmware zaznacz kasowanie pamięci.</p>`
+    ? `<p class="fl-note">Firmware MeshSpeed dla ThinkNode M9: companion MeshCore z polskim interfejsem na ekranie, obsługą klawiatury, mapą i presetem SF6. Działa z aplikacją <a href="/meshspeed.php">MeshSpeed</a> i oficjalną aplikacją MeshCore. Później aktualizuje się sam przez WiFi (Narzędzia › Aktualizacja). Przy pierwszym wgraniu na M9 z innym firmware zaznacz na dole „Wyczyść całą pamięć”.</p>`
     : "";
 
   if (d.platform === "esp32") {
     area.innerHTML = note + `
-      ${eraseBox(!fw.full)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flEsp" ${na(!hasSerial || !fw.update)}>Wgraj przez USB</button>
         ${dl(fw.update, "Pobierz .bin")}
       </div>
       <div class="fl-hint">Podłącz ${esc(d.name)} kablem USB z transmisją danych, kliknij przycisk i wybierz port z listy.
       Jeśli połączenie się nie uda: przytrzymaj BOOT, naciśnij i puść RESET, puść BOOT i spróbuj ponownie.
-      Bez kasowania ustawienia zapisane w urządzeniu zostają zachowane.</div>`;
+      Bez kasowania ustawienia zapisane w urządzeniu zostają zachowane.</div>
+      ${eraseBox(!fw.full)}`;
     $("flEsp").onclick = () => {
       const wipe = $("flErase").checked;
       if (wipe && !confirmErase()) return;
@@ -324,7 +326,6 @@ function renderFlash() {
     };
   } else if (d.platform === "nrf52" && fw.zip) {
     area.innerHTML = note + `
-      ${eraseBox(false)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
       </div>
@@ -334,6 +335,7 @@ function renderFlash() {
         <li>Poczekaj do końca (około minuty, z kasowaniem około dwóch) – nie odłączaj kabla. Bez kasowania ustawienia zapisane w urządzeniu zostają zachowane.</li>
       </ol>
       Urządzenie jest już w trybie DFU (np. po dwukrotnym kliknięciu RESET)? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</div>
+      ${eraseBox(false)}
       <details class="fl-log"><summary>Inny sposób: plik na dysk urządzenia</summary>
         <div class="fl-actions" style="margin-top:10px">
           <button class="btn btn-green-line" id="flDfu" ${na(!hasSerial)}>Włącz tryb DFU</button>
@@ -934,12 +936,12 @@ async function onCustomFile(e) {
     const fw = { zip: key };
     log("Paczka DFU nRF52: aplikacja " + (pkg.bin.length / 1024).toFixed(0) + " KB");
     box.innerHTML = `<p class="fl-hint"><b>nRF52</b> · paczka DFU, aplikacja ${(pkg.bin.length / 1024).toFixed(0)} KB</p>
-      ${eraseBox(false)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
       </div>
       <p class="fl-hint">Urządzenie zrestartuje się w tryb DFU; jeśli strona poprosi, kliknij „Kontynuuj” i wybierz nowy port.
-      Urządzenie jest już w trybie DFU? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</p>`;
+      Urządzenie jest już w trybie DFU? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</p>
+      ${eraseBox(false)}`;
     $("flNrf").onclick = () => {
       state.nrfErase = $("flErase").checked;
       if (state.nrfErase && !confirmErase()) return;
@@ -963,8 +965,8 @@ async function onCustomFile(e) {
       <input type="text" id="flCuAddr" class="mono" value="0x${det.addr.toString(16)}" spellcheck="false"></label>
     <label class="fl-check"><input type="checkbox" id="flCuOta" ${det.kind === "merged" ? "" : "checked"}>
       <span><b>Wyczyść otadata (0xe000)</b><br>Żeby urządzenie uruchomiło wgraną aplikację z app0, nawet jeśli wcześniej działało z app1 (np. po aktualizacji przez WiFi). Dane i ustawienia zostają.</span></label>
-    ${eraseBox(false)}
-    <div class="fl-actions"><button class="btn btn-green" id="flCuEsp" ${na(!hasSerial)}>Wgraj przez USB</button></div>`;
+    <div class="fl-actions"><button class="btn btn-green" id="flCuEsp" ${na(!hasSerial)}>Wgraj przez USB</button></div>
+    ${eraseBox(false)}`;
   const data = u8ToStr(u8);
   $("flCuEsp").onclick = () => {
     const addr = parseInt($("flCuAddr").value.trim(), 16);
