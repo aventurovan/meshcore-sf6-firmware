@@ -273,9 +273,11 @@ try:
 
         # ---------- Statystyki repeatera, WiFi radia, ustawienia węzłów ----------
         def dodatki():
-            tab('mapper'); W(1500); pg.click('#mpSeg [data-mv=stat]'); W(3000)
-            pg.evaluate("import('./js/ui-mapstat.js').then(m => { const b = document.querySelector('[data-st-rep]'); if (b) m.openRstat(b.dataset.stRep); })"); W(2500)
-            shot('statystyki-rpt'); back()
+            tab('mapper'); W(1500); pg.click('#mpSeg [data-mv=stat]')
+            try: pg.wait_for_selector('[data-st-rep]', timeout=30000)
+            except Exception: print('statystyki: brak listy repeaterów')
+            pg.evaluate("import('./js/ui-mapstat.js').then(m => { const b = document.querySelector('[data-st-rep]'); if (b) m.openRstat(b.dataset.stRep); })"); W(3000)
+            if pg.is_visible('#scr-rstat'): shot('statystyki-rpt'); back()
             pg.click('#mpSeg [data-mv=map]') if pg.locator('#mpSeg [data-mv=map]').count() else None
             tab('pulpit'); pg.click('#scr-pulpit [data-go=ustawienia]'); W(500)
             pg.click('#scr-ustawienia [data-go=ustwifi]'); W(700); shot('wifi-radia'); back()
