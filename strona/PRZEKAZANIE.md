@@ -144,3 +144,9 @@ Kolejność sekcji w `index.php`: hero („Sieć, której nikt nie wyłączy." +
 - `alerty.php` + `assets/alerty.js` (menu Sieć → Alerty sieci): krytyczne i pozostałe problemy, kafelki z liczbą (klik = filtr), filtr rodzaju, „od kiedy”, link „na mapie”.
 - Dane: `/dane/alerty.json` (workflow „Statystyki – zapis danych”, co godzinę), awaryjnie `URL_LIVE_ALERTS` = https://live.meshcoresouth.pl/api/export/alerty.json. Eksport w live-mesh-map-pl: alerty MeshCore bez stanu companiona mapy i usług serwera, komunikaty tłumaczone na polski po stronie serwera (`src/tlumacz-pl.js`, słownik i18n-pl.json).
 - 19.11.2026: alerty.php – wyszukiwanie repeatera (nazwa i treść, bez polskich znaków) i sortowanie: od najstarszych / od najnowszych / nazwa A–Z / Z–A.
+
+## Instrukcja MeshSpeed (24.11.2026)
+- `meshspeed-instrukcja.php`: instrukcja aplikacji z README repo aventurovan/meshspeed (13 rozdziałów, spis treści, ekrany w ramkach telefonu, powiększanie po kliknięciu, „Co nowego” z CHANGELOG.md). Link: chip „Wersja X · instrukcja ›” na meshspeed.php.
+- Ekrany i lista zmian: `strona/assets/msi/*.webp`, `zrzuty.json`, `zmiany.json` – robi je workflow **„MeshSpeed – zrzuty do instrukcji”** (ręcznie, po większych zmianach w aplikacji): `scripts/meshspeed_zrzuty.py` uruchamia www/ z repo meshspeed z atrapą radia (tests/mock-ble.js, podmienione nazwy węzłów), prawdziwe mapy/teren/pomiary Mappera tylko do odczytu (zapisy do bazy przechwytywane), zapisuje w repo i wgrywa przez FTP.
+- Gdy zmieni się wygląd/ID elementów w aplikacji, kroki w skrypcie mogą wymagać poprawki (nieudany krok = workflow czerwony, lista w logu). Tekst instrukcji jest w PHP – przy nowych funkcjach dopisać ręcznie na podstawie README.
+- meshspeed.php: w makiecie telefonu „Kasia” → „Sylwia”.

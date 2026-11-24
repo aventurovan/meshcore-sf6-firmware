@@ -28,7 +28,7 @@ $URL_MS_IOS = defined('URL_MESHSPEED_IOS') ? URL_MESHSPEED_IOS : '';
           </a>
           <a href="<?= $URL_MS_WEB ?>" class="ms-btn ms-btn-line">Otwórz w przeglądarce</a>
         </div>
-        <p class="ms-meta"><?php if ($ms_ver): ?><span class="ms-chip">Wersja <?= htmlspecialchars($ms_ver) ?></span><?php endif; ?><span class="ms-chip">Bluetooth</span><span class="ms-chip">Każda sieć MeshCore</span></p>
+        <p class="ms-meta"><?php if ($ms_ver): ?><a class="ms-chip ms-chip-link" href="/meshspeed-instrukcja.php" title="Instrukcja aplikacji">Wersja <?= htmlspecialchars($ms_ver) ?> · instrukcja ›</a><?php endif; ?><span class="ms-chip">Bluetooth</span><span class="ms-chip">Każda sieć MeshCore</span></p>
       </div>
 
       <!-- makieta telefonu: pulpit aplikacji -->
@@ -46,7 +46,7 @@ $URL_MS_IOS = defined('URL_MESHSPEED_IOS') ? URL_MESHSPEED_IOS : '';
           <div class="ms-card">
             <div class="ms-card-h">ROZMOWY</div>
             <div class="ms-chat"><span class="ms-av">#</span><div><b>Public</b><small>Ktoś słyszy mnie z Szyndzielni?</small></div><em>2</em></div>
-            <div class="ms-chat"><span class="ms-av o">K</span><div><b>Kasia</b><small>Dotarłam, dzięki!</small></div></div>
+            <div class="ms-chat"><span class="ms-av o">S</span><div><b>Sylwia</b><small>Dotarłam, dzięki!</small></div></div>
             <div class="ms-chat"><span class="ms-av">#</span><div><b>Mapper SF6</b><small>Nowa trasa na mapie</small></div></div>
           </div>
           <div class="ms-card">

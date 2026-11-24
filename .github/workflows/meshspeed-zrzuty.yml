@@ -1,0 +1,56 @@
+name: MeshSpeed – zrzuty do instrukcji
+
+# Robi zrzuty ekranów aplikacji MeshSpeed (aventurovan/meshspeed, atrapa radia z tests/mock-ble.js) z prawdziwymi
+# mapami, terenem i pomiarami Mappera SF6 (tylko odczyt) oraz listę zmian z CHANGELOG.md, zapisuje je
+# w strona/assets/msi/ i wgrywa na hosting. Uruchamiaj ręcznie po większych zmianach w aplikacji.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: meshspeed-zrzuty
+  cancel-in-progress: false
+
+jobs:
+  zrzuty:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+      - name: Pobierz aplikację MeshSpeed
+        run: git clone --depth 1 https://github.com/aventurovan/meshspeed ms
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Playwright i Pillow
+        run: |
+          pip install -q playwright pillow
+          python -m playwright install --with-deps chromium
+      - name: Zrzuty ekranów
+        run: python3 scripts/meshspeed_zrzuty.py --ms ms --out strona/assets/msi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: zrzuty-meshspeed
+          path: strona/assets/msi
+      - name: Zapisz w repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add strona/assets/msi
+          if git diff --cached --quiet; then echo "Bez zmian"; exit 0; fi
+          git commit -m "Instrukcja MeshSpeed: zrzuty ekranów z wersji $(python3 -c "import json;print(json.load(open('strona/assets/msi/zrzuty.json'))['wersja'])")"
+          git pull --rebase -q && git push
+      - name: Wgraj na hosting
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+        run: |
+          D="${FTP_DIR:-/}"; python3 scripts/ftp_sync.py upload strona/assets/msi "${D%/}/assets/msi"
