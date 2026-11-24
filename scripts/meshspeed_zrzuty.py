@@ -247,13 +247,12 @@ try:
         def zamknij():
             pg.keyboard.press('Escape'); pg.evaluate("document.getElementById('sheetBg') && document.getElementById('sheetBg').click()"); W(400)
 
-        # ---------- Więcej: przytrzymanie rozmowy, Znajdź trasę, połączenia, tracker ----------
+        # ---------- Więcej: przytrzymanie rozmowy, Znajdź trasę, połączenia ----------
         def wiecej():
             tab('czaty')
             pg.dispatch_event('#convList [data-conv] >> nth=1', 'contextmenu'); W(700); shot('rozmowa-menu'); zamknij()
             tab('wezly'); pg.click('#nodeList [data-cm] >> nth=2'); W(600)
             pg.click('[data-ct=route]'); W(3500); shot('znajdz-trase'); zamknij()
-            tab('narzedzia'); pg.click('[data-tool=zrzut]'); W(900); shot('zrzut-trackera'); back()
             tab('pulpit'); pg.click('#scr-pulpit [data-go=ustawienia]'); W(500)
             pg.click('#scr-ustawienia [data-go=polaczenia]'); W(800); shot('polaczenia'); back()
         step('wiecej', wiecej)

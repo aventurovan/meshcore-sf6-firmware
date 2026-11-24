@@ -241,11 +241,10 @@ $SPIS = [
         <ul class="msi-list">
           <li><b>Konsola radia</b> – polecenia tekstowe do połączonego radia (firmware 1.18+), np. <span class="mono">ver</span>, <span class="mono">get radio</span>, <span class="mono">clock</span>. Konsola repeatera jest w Moich repeaterach.</li>
           <li><b>Kopia konfiguracji</b> – zapis do pliku: kanały z kluczami, kontakty, parametry radia, region i ustawienia aplikacji. Przywracanie z pliku albo wklejonej treści, z ekranem potwierdzenia zmian.</li>
-          <li><b>Zrzut z trackera</b> – dane z firmware SF6 Mapper wysyłane do bazy pomiarów.</li>
         </ul>
         <p class="msi-tip">Kopia zawiera klucze kanałów prywatnych – traktuj plik jak hasło.</p>
       </div>
-      <?= msi_shots(['konsola' => 'Konsola radia', 'kopia' => 'Kopia konfiguracji', 'zrzut-trackera' => 'Zrzut z trackera']) ?>
+      <?= msi_shots(['konsola' => 'Konsola radia', 'kopia' => 'Kopia konfiguracji']) ?>
     </div>
   </section>
 
