@@ -1,0 +1,82 @@
+[
+ {
+  "wersja": "0.38.1",
+  "tytul": "aktualizacja firmware: suwak prędkości wysyłania",
+  "punkty": [
+   "Na ekranie aktualizacji firmware repeatera (funkcja testowa) suwak „Prędkość wysyłania” — 7 stopni, od „najwolniej” do „najszybciej”. Ustawia, po ilu pakietach telefon czeka na potwierdzenie bootloadera (PRN 1–30); domyślnie jak dotąd: iPhone 12, Android 8. Wolniej = pewniej, gdy wysyłanie się zrywa.",
+   "Po zerwanym wysyłaniu następna próba idzie automatycznie o stopień wolniej; suwak jest też przy „Wznów”."
+  ]
+ },
+ {
+  "wersja": "0.38.0",
+  "tytul": "aktualizacja firmware repeatera przez Bluetooth (funkcja testowa)",
+  "punkty": [
+   "Nowa wtyczka natywna MeshDfu (<code>plugins/meshspeed-dfu</code>): biblioteki Nordic DFU (iOS 4.17.0, Android 2.11.0), legacy DFU bootloadera Adafruit/OTAFIX.",
+   "Ekran „Aktualizacja firmware” z zarządzania repeaterem (przycisk widoczny po włączeniu Ustawienia → O aplikacji → „Funkcje testowe”, tylko dla admina): sprawdzenie <code>ver</code>, <code>board</code>, <code>get bootloader.ver</code>, baterii i pliku SF6 w manifeście flashera (z sumą SHA-256), kopia ustawień repeatera w telefonie, <code>start ota</code> przez sieć, szukanie repeatera przez Bluetooth (Android po adresie MAC, iPhone po nazwie <code>…_OTA</code>), wysyłanie z postępem i prędkością, restart, ponowne logowanie i sprawdzenie wersji. Bez bootloadera OTAFIX aktualizacja jest zablokowana.",
+   "Po nieudanej próbie: „Wznów” (OTAFIX czeka w trybie aktualizacji) albo „Restart repeatera”; „Znajdź urządzenie w trybie aktualizacji” z wyborem z listy."
+  ]
+ },
+ {
+  "wersja": "0.37.0",
+  "tytul": "Mapper, etap 5: narzędzia LOS w Narzędziach",
+  "punkty": [
+   "Co tu słychać? (nowe): dotknij mapę, wpisz współrzędne albo użyj swojej pozycji — repeatery słyszane w promieniu 1–3 km z liczbą pomiarów, najlepszym i średnim SNR oraz odległością; dotknięcie repeatera otwiera profil terenu. Miejsce bez pomiarów: szacunek z rzeźby terenu (do 25 km pełna ocena, do 150 km sam status LOS) i „Gdzie postawić repeater” — jedno miejsce albo para punktów łącząca to miejsce z siecią, z przejściem do „Nowy repeater”.",
+   "Nowy repeater (nowe): przesuwalny punkt, wysokość masztu i odbiornika, obszar widoczny z punktu, ocena łączy do istniejących repeaterów (LOS, strefa Fresnela, tłumienie, profil terenu), ile zmierzonych miejsc z odpowiedzią i bez widać z punktu. Punkty pośrednie: wysokie miejsca łączące nowy punkt z siecią, z dwoma profilami, „Ustaw tu nowy repeater” i otwarciem w OpenStreetMap; szukane automatycznie, gdy punkt nie widzi żadnego repeatera.",
+   "Zasięg LOS zastąpiony wersją dla 1–10 anten: repeatery (z mapy albo wyszukiwarki) i dowolne punkty (z mapy albo ze współrzędnych), wysokość anteny dla każdej (zapamiętana w telefonie, ⚠ przy domyślnej), łączny zasięg, obszar z zapasem i wkład każdej anteny („tylko on”). Wspólny LOS: część wspólna, repeatery wykluczone, tryb „min. N z M”, zawężenie ramką, płaty ze środkiem ciężkości, profile LOS do dotkniętego miejsca, zapis zestawów.",
+   "Obliczenia przeniesione z Mappera SF6 bez zmian reguł (sama rzeźba terenu, K = 4/3, bez zabudowy i lasu)."
+  ]
+ },
+ {
+  "wersja": "0.36.0",
+  "tytul": "Mapper, etap 4: Statystyki i Statystyki RPT",
+  "punkty": [
+   "Zakładka Statystyki: przełącznik okresu (ten sam co filtr mapy), baza pomiarów (pingi, odpowiedzi, zeskanowany obszar, mapujący, słyszane repeatery), „Twoje pomiary” na mapie, rankingi „Najczęściej słyszane (pingi)” i „Największy zasięg”, lista repeaterów z wyszukiwaniem i sortowaniem, zdrowie repeatera (SNR w czasie), top mapujący (nowe kratki / pokryte kratki / pingi / km), podsumowanie bieżącej sesji.",
+   "Twoje sesje mapowania: lista przejazdów wyliczona z Twoich pomiarów (przerwa ponad 10 min zaczyna nową sesję), podgląd sesji na mapie z trasą i wykres SNR w kolejnych pingach.",
+   "Statystyki RPT (z karty repeatera na mapie i z listy repeaterów): podsumowanie, maksymalny i praktyczny zasięg, SNR w obie strony, RSSI, pokrycie, bilans łącza z oceną, wykres SNR a odległość, aktywność z 30 dni, sąsiedzi, najlepsze miejsca, top mapujący; ostrzeżenie, gdy repeater przestał odpowiadać. Przyciski: najdalszy punkt, pokaż na mapie, Zasięg LOS.",
+   "Wszystko liczone w telefonie z pobranych pomiarów — działa też bez sieci na danych z pamięci."
+  ]
+ },
+ {
+  "wersja": "0.35.2",
+  "tytul": "Obserwator: mniejsze punkty przy oddaleniu, pasek pakietów",
+  "punkty": [
+   "Punkty repeaterów zmniejszają się przy oddalaniu mapy (pełny rozmiar od zbliżenia 11).",
+   "Zwinięty panel pokazuje trzy ostatnie pakiety jak pasek „NA ŻYWO” na mapie live: kolor typu, godzina, typ, nadawca advertu, liczba skoków, SNR, RSSI i trasa (kody repeaterów)."
+  ]
+ },
+ {
+  "wersja": "0.35.1",
+  "tytul": "Obserwator jak mapa live, obwódki kratek",
+  "punkty": [
+   "Obserwator: animacja pakietów przebudowana na wzór mapy live MeshCore Południe — kometa biegnie trasą skok po skoku (postój na każdym repeaterze), przebyty skok się rozświetla, repeater błyska, przy moim radiu rozchodzi się fala; skoki używane co najmniej 2 razy w 10 minut są podkreślone poświatą. Advert zaczyna się u nadawcy (gdy znana pozycja), animowane są też pakiety słyszane bezpośrednio. Nierozpoznany repeater = linia przerywana.",
+   "Obserwator: zwinięty panel nie zostawia już pustego pola pod mapą (mapa wypełnia ekran) i pokazuje ostatni pakiet zamiast tekstu z innego narzędzia. Repeatery są białe, żeby nie myliły się z kolorem pakietów prywatnych.",
+   "Mapper: obwódki kratek widać też przy suwaku ustawionym na gęstsze kratki (cieńsza linia dla małych kratek)."
+  ]
+ },
+ {
+  "wersja": "0.35.0",
+  "tytul": "Mapper, etap 3: mapa pomiarów jak w Mapperze SF6",
+  "punkty": [
+   "Kratki: nowa tabela rozmiarów (4 m – 34 km, zależnie od zbliżenia) i suwak „Wielkość kratek” (−3…+3) z podpowiedzią, ile metrów ma kratka przy bieżącym zbliżeniu. Kolor = najlepszy sygnał w kratce; szara = same pingi bez odpowiedzi.",
+   "Ustawienia mappera → Mapa: kolor kratek według SNR odbioru / SNR u repeatera / RSSI, pokazywanie miejsc bez odpowiedzi, filtry (repeater — z obrysem zasięgu, profil pomiaru, okres: cały / 24 h / 7 dni / 30 dni), podkład ciemny / jasny / standardowy, „Podążaj za moją pozycją”, legenda z liczbą pomiarów.",
+   "Na mapie jeden przycisk „Warstwy” zamiast dwóch: Repeatery, Nazwy repeaterów, Pomiary (kratki), Linie i obrysy zasięgu, Mapa cieplna zasięgu (domyślnie wyłączona) i Repeatery SF8 z MeshCore Polska (domyślnie wyłączone).",
+   "Legenda nad paskiem mapowania; aktywne filtry widać nad legendą i wyłącza się je jednym dotknięciem.",
+   "Karta kratki (dotknij kratkę): najlepszy sygnał, pingi, braki odpowiedzi, repeatery słyszane w kratce z liczbą pingów i odległością, kto i kiedy mierzył, „Linie do repeaterów”, „Profil terenu” (otwiera LOS z gotowym repeaterem i punktem).",
+   "Karta repeatera (dotknij repeater): pingi, maksymalny i praktyczny zasięg, „Pokaż tylko ten repeater”, „Profil LOS do repeatera” z mojej pozycji, „Pokaż najdalszy punkt”, „Zasięg LOS”, „Trace”; na mapie linie do miejsc, gdzie był słyszany. „Statystyki RPT” dojdą w kolejnym etapie.",
+   "CAR RPT nie są pokazywane na mapie ani w kratkach.",
+   "Pomiary zostają w pamięci telefonu: po ponownym otwarciu mapa ma je od razu, a z serwera dociąga tylko nowsze (odświeżanie co 30 s; po usunięciu danych przez moderatora pamięć odświeża się sama)."
+  ]
+ },
+ {
+  "wersja": "0.34.0",
+  "tytul": "Mapper, etap 2: okno LIVE, pasek mapowania, przełącznik widoków",
+  "punkty": [
+   "Ekran mappera: u góry przełącznik Mapa / Log / Statystyki i przycisk ustawień (nie zasłania okna LIVE).",
+   "Okno LIVE na mapie w trzech stanach: belka z dwoma najlepszymi repeaterami ostatniego pingu, rozwinięta lista do 10 ostatnich pingów z odpowiedzią (najnowszy podświetlony, starsze przygaszone) i wyłączone (zostaje przycisk LIVE). Dotknięcie okna zwija / rozwija, każdy start mapowania otwiera belkę; zmiana stanu ponownie centruje mapę w widocznej części.",
+   "Pasek mapowania na dole mapy: kropki stanu BT / GPS / Ekran / Serwer, tarcza odliczania do pingu, stan (odstęp, pauza, powód pominięcia), przycisk Połącz / Start / STOP z potwierdzeniem; przy wyłączonym LIVE — dwa ostatnie odczyty.",
+   "Przyciski na mapie: zoom, kratki, repeatery, moja pozycja, licznik sesji (z odpowiedzią / bez) i LIVE. Przy pingu pierścień rozchodzący się z pozycji i linie do repeaterów w kolorze sygnału.",
+   "Log: duża tarcza, liczniki, ostatni ping z RSSI i dziennik sesji z filtrami.",
+   "Ustawienia mappera jako osobny ekran z zakładkami: Mapowanie (odstęp, źródło GPS, pauza, próg ruchu, błąd GPS, profil, dźwięk, ekran, CAR RPT), Mapa (zapowiedź), Konto (nick, stan, ponowne logowanie, kopiowanie klucza), Instrukcja. Statystyki — na razie zapowiedź i podsumowanie sesji."
+  ]
+ }
+]
