@@ -310,6 +310,21 @@ try:
             pg.click('#fwStart'); W(16000); shot('aktualizacja-rpt-gotowe')
         step('testowe', testowe)
 
+        # ---------- Tryb prosty / zaawansowany (0.40+) ----------
+        def tryb():
+            if not pg.locator('#scr-tryb').count(): return
+            tab('pulpit'); pg.click('#scr-pulpit [data-go=ustawienia]'); W(500)
+            pg.click('#scr-ustawienia [data-go=tryb]'); W(700); shot('tryb')
+            pg.click('#tbSeg [data-mode=prosty]'); W(800); shot('tryb-prosty')
+            pg.click('#tabs [data-go=wezly]'); W(1500); shot('kontakty-prosty')
+            pg.click('#tabs [data-go=ustawienia]'); W(800); shot('ustawienia-prosty')
+            pg.evaluate("localStorage.setItem('ms.tabsOn', JSON.stringify({pulpit: true, narzedzia: true, mapper: true})); localStorage.removeItem('ms.modeAsked')")
+            pg.add_init_script("window.__MS_ASK_MODE = true")
+            pg.reload(); W(1500)
+            if pg.is_visible('#devList .dev'): pg.click('#devList .dev >> nth=0')
+            pg.wait_for_selector('#scr-tryb0:not([hidden])', timeout=15000); W(600); shot('tryb-wybor')
+        step('tryb', tryb)
+
         print('BŁĘDY JS:', err[:5])
         b.close()
 finally:

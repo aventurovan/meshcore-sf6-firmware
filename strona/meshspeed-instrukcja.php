@@ -34,7 +34,7 @@ function msi_shots(array $l) {
   return $h ? '<div class="msi-shots">' . $h . '</div>' : '';
 }
 $SPIS = [
-  'start' => 'Pierwsze kroki', 'pulpit' => 'Pulpit', 'czaty' => 'Czaty', 'wezly' => 'Węzły', 'qr' => 'Kody QR i linki', 'narzedzia' => 'Sieć na żywo',
+  'start' => 'Pierwsze kroki', 'tryb' => 'Tryb prosty i zaawansowany', 'pulpit' => 'Pulpit', 'czaty' => 'Czaty', 'wezly' => 'Węzły', 'qr' => 'Kody QR i linki', 'narzedzia' => 'Sieć na żywo',
   'repeatery' => 'Moje repeatery', 'urzadzenia' => 'Konsola i kopia', 'testowe' => 'Funkcje testowe', 'teren' => 'Zasięg i teren', 'mapper' => 'Mapper SF6',
   'radio' => 'Radio i ustawienia', 'telefon' => 'Widżety i powiadomienia', 'prywatnosc' => 'Prywatność', 'zmiany' => 'Co nowego',
 ];
@@ -74,6 +74,7 @@ $SPIS = [
           <li>Otwórz MeshSpeed i wybierz radio z listy „Znalezione przez Bluetooth”.</li>
           <li>Przy pierwszym połączeniu telefon może poprosić o PIN radia (domyślnie <span class="mono">123456</span>).</li>
           <li>Radio z WiFi (firmware 1.18+) możesz też połączyć przez WiFi – Ustawienia → WiFi radia.</li>
+          <li>Wybierz tryb: <b>Prosty</b> albo <b>Zaawansowany</b> (zobacz niżej). Zmienisz go w każdej chwili.</li>
         </ol>
         <p class="msi-tip">Nowa sieć SF6? W <b>Czaty → Kanały w radiu → Konfiguracja MeshCore Południe</b> jednym dotknięciem ustawisz preset SF6 i kanały sieci (Public, #test, #bot, #sf6). Działa też kod QR od znajomego.</p>
       </div>
@@ -82,12 +83,34 @@ $SPIS = [
   </section>
 
   <!-- 2 -->
+  <section class="ms-sec msi-sec" id="tryb">
+    <div class="wrap">
+      <div class="msi-text msi-wide">
+        <span class="ms-kicker">2 · Tryb aplikacji</span>
+        <h2>Prosty albo zaawansowany</h2>
+        <p>Po pierwszym połączeniu radia aplikacja pyta, ile ma być widać. Wybór zmienisz w <b>Ustawienia → Tryb aplikacji</b>.</p>
+        <div class="msi-cols">
+          <ul class="msi-list">
+            <li><b>Prosty</b> – tylko rozmowy i kontakty. Zakładki: <b>Kontakty</b>, <b>Czaty</b> i <b>Ustawienia</b>. Na górze Kontaktów karta radia: nazwa, stan, bateria i przycisk Advert.</li>
+            <li><b>Zaawansowany</b> – wszystko: Pulpit, Czaty, Węzły, Narzędzia i Mapper.</li>
+          </ul>
+          <ul class="msi-list">
+            <li><b>Własny zestaw</b> – pod wyborem trybu są osobne przełączniki zakładek Pulpit, Narzędzia i Mapper.</li>
+            <li>Wyłączona zakładka tylko znika z paska – dane zostają. Zarządzanie repeaterem jest dalej dostępne z karty węzła.</li>
+          </ul>
+        </div>
+      </div>
+      <?= msi_shots(['tryb-wybor' => 'Wybór przy pierwszym uruchomieniu', 'tryb' => 'Tryb aplikacji', 'tryb-prosty' => 'Tryb prosty', 'kontakty-prosty' => 'Kontakty w trybie prostym', 'ustawienia-prosty' => 'Ustawienia jako zakładka']) ?>
+    </div>
+  </section>
+
+  <!-- 3 -->
   <section class="ms-sec msi-sec" id="pulpit">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">2 · Pulpit</span>
+        <span class="ms-kicker">3 · Pulpit</span>
         <h2>Wszystko o radiu na jednym ekranie</h2>
-        <p>Pierwszy ekran po połączeniu. Na górze nazwa radia i jego parametry, niżej pierścienie: bateria, kontakty w radiu i węzły w zasięgu. Pod nimi skróty, ostatnie rozmowy i ostatnio usłyszany advert.</p>
+        <p>Pierwszy ekran po połączeniu w trybie zaawansowanym. Na górze nazwa radia i jego parametry, niżej pierścienie: bateria, kontakty w radiu i węzły w zasięgu. Pod nimi skróty, ostatnie rozmowy i ostatnio usłyszany advert.</p>
         <ul class="msi-list">
           <li><b>Dostosuj</b> (ikona ołówka) – zmieniasz kolejność widżetów, dodajesz nowe (np. status Twoich repeaterów) i usuwasz zbędne. „Przywróć pulpit startowy” cofa zmiany.</li>
           <li><b>Dotknięcie pierścieni</b> otwiera stronę <b>„O radiu”</b>: bateria, szum tła, pakiety na minutę, zajętość eteru, czas pracy, odebrane i wysłane pakiety, szybkie akcje (Advert, Restart, Wyłącz) oraz zegar radia porównany z telefonem.</li>
@@ -98,11 +121,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 3 -->
+  <!-- 4 -->
   <section class="ms-sec msi-sec" id="czaty">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">3 · Czaty</span>
+        <span class="ms-kicker">4 · Czaty</span>
         <h2>Kanały, wiadomości prywatne i roomy</h2>
         <p>Historia rozmów jest zapisana <b>tylko na telefonie</b>. Filtry u góry: wszystkie, nieprzeczytane, ulubione, kanały. Po dłuższej przerwie rozmowa otwiera się na najstarszej nieprzeczytanej wiadomości.</p>
         <div class="msi-cols">
@@ -124,11 +147,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 4 -->
+  <!-- 5 -->
   <section class="ms-sec msi-sec" id="wezly">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">4 · Węzły</span>
+        <span class="ms-kicker">5 · Węzły</span>
         <h2>Kontakty z radia i węzły z advertów</h2>
         <p><b>Zapisane</b> to kontakty w pamięci radia (z ulubionymi na górze), <b>Usłyszane</b> – węzły z advertów, których jeszcze nie ma w radiu. Każda karta pokazuje pełną nazwę, typ, kod, trasę, SNR i czas ostatniego advertu.</p>
         <ul class="msi-list">
@@ -142,11 +165,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 5 -->
+  <!-- 6 -->
   <section class="ms-sec msi-sec" id="qr">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">5 · Kody QR i linki</span>
+        <span class="ms-kicker">6 · Kody QR i linki</span>
         <h2>Udostępnij kanał, kontakt albo całą konfigurację</h2>
         <p>Kody QR i linki <span class="mono">meshcore://</span> działają w MeshSpeed i w oficjalnej aplikacji MeshCore. Zeskanuj kod aparatem telefonu – MeshSpeed otworzy się i pokaże, co doda.</p>
         <div class="msi-cols">
@@ -167,11 +190,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 6 -->
+  <!-- 7 -->
   <section class="ms-sec msi-sec" id="narzedzia">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">6 · Narzędzia · Sieć na żywo</span>
+        <span class="ms-kicker">7 · Narzędzia · Sieć na żywo</span>
         <h2>Kto Cię słyszy i co dzieje się w eterze</h2>
         <div class="msi-cols">
           <ul class="msi-list">
@@ -188,11 +211,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 7 -->
+  <!-- 8 -->
   <section class="ms-sec msi-sec" id="repeatery">
     <div class="wrap msi-grid">
       <div class="msi-text">
-        <span class="ms-kicker">7 · Moje repeatery</span>
+        <span class="ms-kicker">8 · Moje repeatery</span>
         <h2>Zarządzanie repeaterem z telefonu</h2>
         <ol class="msi-steps">
           <li>Narzędzia → <b>Moje repeatery</b> → wyszukaj repeater wśród kontaktów i dodaj go.</li>
@@ -209,11 +232,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 8 -->
+  <!-- 9 -->
   <section class="ms-sec msi-sec" id="urzadzenia">
     <div class="wrap msi-grid">
       <div class="msi-text">
-        <span class="ms-kicker">8 · Moje urządzenia</span>
+        <span class="ms-kicker">9 · Moje urządzenia</span>
         <h2>Konsola radia i kopia konfiguracji</h2>
         <ul class="msi-list">
           <li><b>Konsola radia</b> – polecenia tekstowe do połączonego radia (firmware 1.18+), np. <span class="mono">ver</span>, <span class="mono">get radio</span>, <span class="mono">clock</span>. Konsola repeatera jest w Moich repeaterach.</li>
@@ -226,11 +249,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 9 -->
+  <!-- 10 -->
   <section class="ms-sec msi-sec" id="testowe">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">9 · Funkcje testowe</span>
+        <span class="ms-kicker">10 · Funkcje testowe</span>
         <h2>Firmware i bootloader prosto z telefonu</h2>
         <p>Domyślnie wyłączone. Włączysz je w <b>Ustawienia → O aplikacji → „Funkcje testowe”</b>. Wtedy w Narzędziach (Moje urządzenia) pojawiają się dwie nowe pozycje, a w zarządzaniu repeaterem – „Aktualizuj firmware”. Firmware i bootloader pochodzą z <a href="/flasher.php">flashera meshcoresouth.pl</a>.</p>
         <div class="msi-cols">
@@ -249,11 +272,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 10 -->
+  <!-- 11 -->
   <section class="ms-sec msi-sec" id="teren">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">10 · Narzędzia · Zasięg i teren</span>
+        <span class="ms-kicker">11 · Narzędzia · Zasięg i teren</span>
         <h2>Gdzie jest zasięg i gdzie postawić repeater</h2>
         <p>Narzędzia liczą z modelu samej rzeźby terenu – bez zabudowy i lasu, więc w mieście i w lesie realny zasięg będzie mniejszy.</p>
         <div class="msi-cols">
@@ -271,11 +294,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 11 -->
+  <!-- 12 -->
   <section class="ms-sec msi-sec" id="mapper">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">11 · Mapper SF6</span>
+        <span class="ms-kicker">12 · Mapper SF6</span>
         <h2>Mapowanie zasięgu sieci</h2>
         <p>Wbudowany następca aplikacji <a href="/mapper-sf6.php">Mapper SF6</a> – ta sama baza pomiarów. Zakładka działa tylko przy presecie SF6.</p>
         <ol class="msi-steps">
@@ -299,11 +322,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 12 -->
+  <!-- 13 -->
   <section class="ms-sec msi-sec" id="radio">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">12 · Radio i ustawienia</span>
+        <span class="ms-kicker">13 · Radio i ustawienia</span>
         <h2>Radio, połączenie i wygląd</h2>
         <ul class="msi-list">
           <li><b>Nazwa i radio</b> – nazwa węzła, <b>preset SF6</b> albo własne parametry, moc, strojenie, hash ścieżki.</li>
@@ -318,11 +341,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 13 -->
+  <!-- 14 -->
   <section class="ms-sec msi-sec" id="telefon">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">13 · Telefon</span>
+        <span class="ms-kicker">14 · Telefon</span>
         <h2>Widżety, powiadomienia i Android Auto</h2>
         <div class="msi-cols">
           <div class="msi-card">
@@ -349,11 +372,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 14 -->
+  <!-- 15 -->
   <section class="ms-sec msi-sec" id="prywatnosc">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">14 · Prywatność</span>
+        <span class="ms-kicker">15 · Prywatność</span>
         <h2>Twoje dane zostają w telefonie</h2>
         <ul class="msi-list">
           <li>Historia wiadomości, kontakty i ustawienia są tylko na telefonie. Aplikacja nie ma konta ani analityki.</li>
@@ -364,11 +387,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 15 -->
+  <!-- 16 -->
   <section class="ms-sec msi-sec" id="zmiany">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">15 · Co nowego</span>
+        <span class="ms-kicker">16 · Co nowego</span>
         <h2>Ostatnie wersje</h2>
       </div>
       <?php if ($zmiany): ?>
