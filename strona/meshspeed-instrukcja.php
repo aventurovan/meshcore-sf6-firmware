@@ -138,7 +138,7 @@ $SPIS = [
           <li>Automatyczne dodawanie i porządkowanie kontaktów – ikona ustawień obok przełącznika.</li>
         </ul>
       </div>
-      <?= msi_shots(['wezly' => 'Lista węzłów', 'wezel-menu' => 'Menu „⋯” węzła', 'wezly-mapa' => 'Mapa węzłów', 'znajdz-trase' => 'Znajdź trasę']) ?>
+      <?= msi_shots(['wezly' => 'Lista węzłów', 'wezel-menu' => 'Menu „⋯” węzła', 'wezly-mapa' => 'Mapa węzłów', 'znajdz-trase' => 'Znajdź trasę', 'wezly-ustawienia' => 'Auto-dodawanie i usuwanie']) ?>
     </div>
   </section>
 
@@ -295,7 +295,7 @@ $SPIS = [
         </div>
         <p class="msi-tip">Pomiary zostają w pamięci telefonu – mapa i statystyki działają też bez sieci. Moderacja pomiarów i Planer zostają na stronie Mappera.</p>
       </div>
-      <?= msi_shots(['mapper' => 'Mapa pomiarów', 'mapper-live' => 'Mapowanie – okno LIVE', 'mapper-statystyki' => 'Statystyki', 'mapper-ustawienia' => 'Ustawienia mappera']) ?>
+      <?= msi_shots(['mapper' => 'Mapa pomiarów', 'mapper-live' => 'Mapowanie – okno LIVE', 'mapper-statystyki' => 'Statystyki', 'statystyki-rpt' => 'Statystyki repeatera', 'mapper-ustawienia' => 'Ustawienia mappera']) ?>
     </div>
   </section>
 
@@ -314,7 +314,7 @@ $SPIS = [
           <li>Ostrzeżenie, gdy z tym samym radiem rozmawia druga aplikacja.</li>
         </ul>
       </div>
-      <?= msi_shots(['ustawienia' => 'Ustawienia', 'radio' => 'Nazwa i radio', 'polaczenia' => 'Połączenia', 'wyglad' => 'Wygląd']) ?>
+      <?= msi_shots(['ustawienia' => 'Ustawienia', 'radio' => 'Nazwa i radio', 'polaczenia' => 'Połączenia', 'wifi-radia' => 'WiFi radia', 'wyglad' => 'Wygląd']) ?>
     </div>
   </section>
 
