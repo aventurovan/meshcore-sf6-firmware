@@ -41,6 +41,12 @@ mock = mock.replace("else if (c === 'ver') r = 'v1.18.0 (Build: test)';",
                     "else if (c === 'ver') r = 'v1.18.0-sf6 (Build: 20-Nov-2026)'; else if (c === 'get radio') r = '> 869.618,62.5,6,8'; else if (c === 'get name') r = '> Pawlo_Bielsko';")
 mock = mock.replace("'Cześć, tu Node 1'", "'Cześć! Jadę na Klimczok, będę na nasłuchu.'")
 mock = mock.replace("Wojtek: Test @[Pawlo_Bielsko] słyszysz?", "Wojtek: Test z Czupla @[Pawlo_Bielsko] słyszysz?")
+# atrapy wtyczki USB, DFU przez Bluetooth i esptool – z testu aplikacji (tests/test_fwusb.py)
+TESTMOCK = ''
+try:
+    TESTMOCK = re.search(r"MOCK = r'''(.*?)'''", open(os.path.join(MS, 'tests', 'test_fwusb.py'), encoding='utf-8').read(), re.S)[1]
+except Exception as e:
+    print('brak atrapy USB/DFU w testach:', e)
 tmp = tempfile.mkdtemp()
 MOCK = os.path.join(tmp, 'mock.js')
 open(MOCK, 'w', encoding='utf-8').write(mock)
@@ -90,6 +96,35 @@ try:
         ctx.add_init_script(path=MOCK)
         ctx.add_init_script("try { localStorage.setItem('ms.mapperOn', '1') } catch (e) {}")
         ctx.route('**/mapper/api.php*', mapper_api)
+        if TESTMOCK: ctx.add_init_script(TESTMOCK)
+        # flasher: lista płytek i pliki – atrapy (zrzuty nie pobierają prawdziwego firmware)
+        import hashlib, io, zipfile
+        def mkzip(files):
+            bb = io.BytesIO()
+            with zipfile.ZipFile(bb, 'w', zipfile.ZIP_DEFLATED) as z:
+                for n, d in files.items(): z.writestr(n, d)
+            return bb.getvalue()
+        DAT6 = bytes([0xff] * 8 + [1, 0, 0xB6, 0, 0x12, 0x34])
+        FZIP = mkzip({'manifest.json': '{"manifest":{"application":{"bin_file":"fw.bin","dat_file":"fw.dat"}}}', 'fw.bin': bytes(range(256)) * 200, 'fw.dat': DAT6})
+        BZIP = mkzip({'manifest.json': '{"manifest":{"softdevice_bootloader":{"bin_file":"sd_bl.bin","dat_file":"sd_bl.dat","sd_size":3000,"bl_size":1096}}}', 'sd_bl.bin': bytes(4096), 'sd_bl.dat': DAT6})
+        FSHA, BSHA = hashlib.sha256(FZIP).hexdigest(), hashlib.sha256(BZIP).hexdigest()
+        FMAN = {'version': 'v1.18.0-sf6', 'roles': {'repeater': {'version': 'v1.18.0-sf6'}}, 'devices': [
+            {'id': 'rak_4631', 'name': 'RAK 4631 (WisBlock)', 'platform': 'nrf52', 'firmware': {'repeater': {'zip': 'firmware/repeater/rak.zip', 'zip_sha256': FSHA}}},
+            {'id': 'xiao_nrf52', 'name': 'Seeed Xiao nRF52840', 'platform': 'nrf52', 'firmware': {'repeater': {'zip': 'firmware/repeater/xiao.zip', 'zip_sha256': FSHA}}},
+            {'id': 'heltec_t114', 'name': 'Heltec T114', 'platform': 'nrf52', 'firmware': {'repeater': {'zip': 'firmware/repeater/t114.zip', 'zip_sha256': FSHA}}},
+            {'id': 'heltec_v3', 'name': 'Heltec V3', 'platform': 'esp32', 'firmware': {'repeater': {'update': 'firmware/repeater/heltec.bin', 'full': 'firmware/repeater/heltec-merged.bin'}}},
+            {'id': 'heltec_v4', 'name': 'Heltec V4', 'platform': 'esp32', 'firmware': {'repeater': {'update': 'firmware/repeater/heltec4.bin', 'full': 'firmware/repeater/heltec4-merged.bin'}}},
+            {'id': 'pico_w', 'name': 'Raspberry Pi Pico W', 'platform': 'rp2040', 'firmware': {'repeater': {'uf2': 'firmware/repeater/pico.uf2'}}}]}
+        FOTX = {'version': '0.9.2-OTAFIX2.3-BP1.4', 'boards': {'wiscore_rak4631_board': {'zip': 'otafix/bl-rak.zip', 'zip_sha256': BSHA, 'sd': '6.1.1'},
+                                                             'xiao_board': {'zip': 'otafix/bl-xiao.zip', 'zip_sha256': BSHA, 'sd': '7.3.0'}},
+                'devices': {'rak_4631': 'wiscore_rak4631_board', 'xiao_nrf52': 'xiao_board'}}
+        HCORS = {'access-control-allow-origin': '*'}
+        ctx.route('https://meshcoresouth.pl/flasher/manifest.json', lambda r: r.fulfill(body=json.dumps(FMAN), content_type='application/json', headers=HCORS))
+        ctx.route('https://meshcoresouth.pl/flasher/otafix.json', lambda r: r.fulfill(body=json.dumps(FOTX), content_type='application/json', headers=HCORS))
+        def ffiles(r):
+            u = r.request.url
+            r.fulfill(body=BZIP if '/otafix/' in u else FZIP if u.endswith('.zip') else bytes(range(256)) * 40, content_type='application/octet-stream', headers=HCORS)
+        ctx.route('https://meshcoresouth.pl/flasher/firmware/**', ffiles); ctx.route('https://meshcoresouth.pl/flasher/otafix/**', ffiles)
         if a.offline:
             ctx.route('**/tile.openstreetmap.org/**', lambda r: r.abort())
             ctx.route('**/elevation-tiles-prod/**', lambda r: r.fulfill(status=200, content_type='image/png', body=TERR, headers={'Access-Control-Allow-Origin': '*'}))
@@ -208,6 +243,61 @@ try:
             pg.click('#scr-ustawienia [data-go=wyglad]'); W(600); shot('wyglad'); back()
             tab('czaty'); pg.click('#scr-czaty [data-go=kanaly]'); W(800); shot('kanaly'); back()
         step('ustawienia', ustawienia)
+
+        def zamknij():
+            pg.keyboard.press('Escape'); pg.evaluate("document.getElementById('sheetBg') && document.getElementById('sheetBg').click()"); W(400)
+
+        # ---------- Więcej: przytrzymanie rozmowy, Znajdź trasę, połączenia, tracker ----------
+        def wiecej():
+            tab('czaty')
+            pg.dispatch_event('#convList [data-conv] >> nth=1', 'contextmenu'); W(700); shot('rozmowa-menu'); zamknij()
+            tab('wezly'); pg.click('#nodeList [data-cm] >> nth=2'); W(600)
+            pg.click('[data-ct=route]'); W(3500); shot('znajdz-trase'); zamknij()
+            tab('narzedzia'); pg.click('[data-tool=zrzut]'); W(900); shot('zrzut-trackera'); back()
+            tab('pulpit'); pg.click('#scr-pulpit [data-go=ustawienia]'); W(500)
+            pg.click('#scr-ustawienia [data-go=polaczenia]'); W(800); shot('polaczenia'); back()
+        step('wiecej', wiecej)
+
+        # ---------- Kody QR i linki ----------
+        def qr():
+            tab('pulpit'); pg.click('#scr-pulpit [data-go=ustawienia]'); W(500)
+            pg.click('#scr-ustawienia [data-go=ustinfo]'); W(600); pg.click('#uiShareMe'); W(900); shot('qr-moj-kontakt'); zamknij()
+            tab('czaty'); pg.click('#scr-czaty [data-go=kanaly]'); W(800)
+            pg.click('#khList [data-khmore] >> nth=-1'); W(600); shot('kanal-opcje')
+            pg.click('[data-cha=share]'); W(900); shot('qr-kanal'); zamknij()
+            pg.click('#cfgShare'); W(600); shot('udostepnij-konfiguracje')
+            pg.click('#shGo'); W(900); shot('qr-konfiguracja'); zamknij(); back()
+            pg.evaluate("import('./js/ui-setup.js').then(m => m.handleLink('meshcore://channel/add?name=Ekipa+Beskidy&secret=0123456789abcdef0123456789abcdef'))"); W(1200)
+            shot('qr-dodaj-kanal'); zamknij()
+        step('qr', qr)
+
+        # ---------- Funkcje testowe ----------
+        def testowe():
+            tab('pulpit'); pg.click('#scr-pulpit [data-go=ustawienia]'); W(600)
+            st = pg.locator('#stTest')
+            if st.get_attribute('aria-checked') != 'true': st.click(); W(4500)
+            pg.evaluate("document.getElementById('stTest').scrollIntoView({block: 'center'})"); W(1500); shot('funkcje-testowe'); back()
+            tab('narzedzia'); pg.evaluate("document.querySelector('[data-tool=otafix]').scrollIntoView({block: 'center'})"); W(500); shot('narzedzia-testowe')
+            # Wgraj firmware (USB)
+            pg.click('[data-tool=fwusb]'); W(900); shot('fw-usb-plytki')
+            pg.click('[data-fu-dev=rak_4631]'); W(400); pg.click('#fuDl'); W(1200); shot('fw-usb-pobrane')
+            pg.click('#fuNext'); W(600); pg.click('#fuStart'); pg.wait_for_selector('#fuBody .banner.ok', timeout=60000); W(400)
+            pg.evaluate("document.querySelector('#fuBody .banner.ok').scrollIntoView({block: 'center'})"); W(300); shot('fw-usb-gotowe'); back()
+            # Bootloader OTAFIX
+            tab('narzedzia'); pg.click('[data-tool=otafix]'); W(900)
+            pg.select_option('#oxDev', 'rak_4631'); W(300)
+            for i in range(3): pg.check(f'[data-ox-ok="{i}"]')
+            W(300); shot('otafix')
+            pg.click('#oxScan'); W(900); shot('otafix-wybor')
+            pg.click('[data-ox-pick="0"]'); pg.wait_for_selector('#oxBody .banner.ok', timeout=20000); W(400); shot('otafix-gotowe'); back()
+            # Aktualizacja firmware repeatera przez Bluetooth
+            pg.evaluate("window.__mockCli = { board: '> RAK 4631', 'get bootloader.ver': '> 0.9.2-OTAFIX2.3-BP1.4', 'start ota': '> OK - mac: C0:FF:EE:00:11:22', ver: '> v1.17.1 (14 Aug 2026)' }")
+            tab('narzedzia'); pg.click('[data-tool=repeatery]'); W(500); pg.fill('#rlSearch', ''); W(300)
+            pg.click('#rlList [data-rp] >> nth=0'); W(4000)
+            pg.click('[data-ra=fw]'); W(6000); pg.check('#fwOk1'); pg.check('#fwOk2'); W(300); shot('aktualizacja-rpt')
+            pg.evaluate("window.__mockCli.ver = '> v1.18.0-sf6 (Build: 20 Nov 2026)'")
+            pg.click('#fwStart'); W(16000); shot('aktualizacja-rpt-gotowe')
+        step('testowe', testowe)
 
         print('BŁĘDY JS:', err[:5])
         b.close()

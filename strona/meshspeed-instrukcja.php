@@ -34,8 +34,8 @@ function msi_shots(array $l) {
   return $h ? '<div class="msi-shots">' . $h . '</div>' : '';
 }
 $SPIS = [
-  'start' => 'Pierwsze kroki', 'pulpit' => 'Pulpit', 'czaty' => 'Czaty', 'wezly' => 'Węzły', 'narzedzia' => 'Sieć na żywo',
-  'repeatery' => 'Moje repeatery', 'urzadzenia' => 'Konsola i kopia', 'teren' => 'Zasięg i teren', 'mapper' => 'Mapper SF6',
+  'start' => 'Pierwsze kroki', 'pulpit' => 'Pulpit', 'czaty' => 'Czaty', 'wezly' => 'Węzły', 'qr' => 'Kody QR i linki', 'narzedzia' => 'Sieć na żywo',
+  'repeatery' => 'Moje repeatery', 'urzadzenia' => 'Konsola i kopia', 'testowe' => 'Funkcje testowe', 'teren' => 'Zasięg i teren', 'mapper' => 'Mapper SF6',
   'radio' => 'Radio i ustawienia', 'telefon' => 'Widżety i powiadomienia', 'prywatnosc' => 'Prywatność', 'zmiany' => 'Co nowego',
 ];
 ?>
@@ -108,7 +108,7 @@ $SPIS = [
         <div class="msi-cols">
           <ul class="msi-list">
             <li><b>Pod wiadomością</b> (do włączenia w Ustawienia → Czaty): liczba hopów, trasa (kody repeaterów), ile razy odebrano i SNR. Trasę można pokazać na mapie.</li>
-            <li><b>Dotknij wiadomości</b>: odpowiedz, reakcja, przekaż dalej, „Napisz prywatnie” (doda kontakt z advertu albo poprosi o advert), zablokuj nadawcę.</li>
+            <li><b>Przytrzymaj wiadomość</b>: reakcja, szczegóły odbioru (hopy, SNR, czasy), trasa na mapie, wspomnij, kopiuj, przekaż dalej, kopiuj trasę odwrotną, „Napisz prywatnie” (doda kontakt z advertu albo poprosi o advert), zablokuj nadawcę.</li>
             <li><b>Wiadomości prywatne</b>: potwierdzenie doręczenia, 1–5 prób (domyślnie 3), ostatnia próba floodem, „Anuluj” i „Wyślij ponownie”.</li>
             <li><b>Kanały</b>: opcjonalnie jedno ponowienie, gdy żaden repeater nie powtórzył wiadomości.</li>
           </ul>
@@ -120,7 +120,7 @@ $SPIS = [
           </ul>
         </div>
       </div>
-      <?= msi_shots(['czaty' => 'Lista rozmów', 'rozmowa' => 'Rozmowa na kanale', 'wiadomosc-opcje' => 'Opcje wiadomości', 'ustawienia-czaty' => 'Ustawienia czatów', 'kanaly' => 'Kanały w radiu']) ?>
+      <?= msi_shots(['czaty' => 'Lista rozmów', 'rozmowa' => 'Rozmowa na kanale', 'wiadomosc-opcje' => 'Opcje wiadomości', 'rozmowa-menu' => 'Przytrzymana rozmowa', 'ustawienia-czaty' => 'Ustawienia czatów', 'kanaly' => 'Kanały w radiu']) ?>
     </div>
   </section>
 
@@ -138,15 +138,40 @@ $SPIS = [
           <li>Automatyczne dodawanie i porządkowanie kontaktów – ikona ustawień obok przełącznika.</li>
         </ul>
       </div>
-      <?= msi_shots(['wezly' => 'Lista węzłów', 'wezel-menu' => 'Menu „⋯” węzła', 'wezly-mapa' => 'Mapa węzłów']) ?>
+      <?= msi_shots(['wezly' => 'Lista węzłów', 'wezel-menu' => 'Menu „⋯” węzła', 'wezly-mapa' => 'Mapa węzłów', 'znajdz-trase' => 'Znajdź trasę']) ?>
     </div>
   </section>
 
   <!-- 5 -->
+  <section class="ms-sec msi-sec" id="qr">
+    <div class="wrap">
+      <div class="msi-text msi-wide">
+        <span class="ms-kicker">5 · Kody QR i linki</span>
+        <h2>Udostępnij kanał, kontakt albo całą konfigurację</h2>
+        <p>Kody QR i linki <span class="mono">meshcore://</span> działają w MeshSpeed i w oficjalnej aplikacji MeshCore. Zeskanuj kod aparatem telefonu – MeshSpeed otworzy się i pokaże, co doda.</p>
+        <div class="msi-cols">
+          <ul class="msi-list">
+            <li><b>Mój kontakt</b> – Ustawienia → Informacje i firmware → „Udostępnij mój kontakt (kod QR)”. Druga osoba doda Cię bez czekania na advert.</li>
+            <li><b>Kontakt z listy</b> – Węzły → „⋯” → Udostępnij.</li>
+            <li><b>Kanał</b> – Czaty → przycisk <b>#</b> → „⋯” przy kanale → „Udostępnij kanał (kod QR)”. Tu też ustawisz, jak długo trzymać wiadomości.</li>
+          </ul>
+          <ul class="msi-list">
+            <li><b>Udostępnij moją konfigurację</b> – zaznacz kanały i (opcjonalnie) parametry radia, a aplikacja zrobi jeden kod QR. Nowa osoba w sieci ustawia wszystko jednym skanem.</li>
+            <li><b>Po zeskanowaniu</b> aplikacja pokazuje listę zmian do potwierdzenia. Tylko <b>dodaje</b> brakujące kanały – nie usuwa Twoich i nie zmienia nazwy ani PIN-u.</li>
+            <li><b>Konfiguracja MeshCore Południe</b> – kanały sieci i preset SF6 jednym dotknięciem (Czaty → #).</li>
+          </ul>
+        </div>
+        <p class="msi-tip">Kod kanału prywatnego zawiera jego klucz – kto zobaczy kod, może czytać i pisać na tym kanale. Kanały prywatne są domyślnie odznaczone przy udostępnianiu konfiguracji.</p>
+      </div>
+      <?= msi_shots(['qr-moj-kontakt' => 'Mój kontakt (QR)', 'kanal-opcje' => 'Opcje kanału', 'qr-kanal' => 'Kod QR kanału', 'udostepnij-konfiguracje' => 'Udostępnij konfigurację', 'qr-konfiguracja' => 'Kod QR konfiguracji', 'qr-dodaj-kanal' => 'Po zeskanowaniu']) ?>
+    </div>
+  </section>
+
+  <!-- 6 -->
   <section class="ms-sec msi-sec" id="narzedzia">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">5 · Narzędzia · Sieć na żywo</span>
+        <span class="ms-kicker">6 · Narzędzia · Sieć na żywo</span>
         <h2>Kto Cię słyszy i co dzieje się w eterze</h2>
         <div class="msi-cols">
           <ul class="msi-list">
@@ -163,11 +188,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 6 -->
+  <!-- 7 -->
   <section class="ms-sec msi-sec" id="repeatery">
     <div class="wrap msi-grid">
       <div class="msi-text">
-        <span class="ms-kicker">6 · Moje repeatery</span>
+        <span class="ms-kicker">7 · Moje repeatery</span>
         <h2>Zarządzanie repeaterem z telefonu</h2>
         <ol class="msi-steps">
           <li>Narzędzia → <b>Moje repeatery</b> → wyszukaj repeater wśród kontaktów i dodaj go.</li>
@@ -178,17 +203,17 @@ $SPIS = [
           <li>Jako administrator: <b>zmiana nazwy</b>, <b>synchronizacja zegara</b> (ręczna albo automatyczna po zalogowaniu) i ostrzeżenie, gdy zegar repeatera różni się o ponad 3 minuty.</li>
           <li>Status Twoich repeaterów odczytuje się raz na dobę albo na żądanie – można go dodać jako widżet na Pulpit.</li>
         </ul>
-        <p class="msi-tip"><b>Funkcja testowa:</b> aktualizacja firmware repeatera <b>przez Bluetooth</b> (Ustawienia → O aplikacji → „Funkcje testowe”) – dla płytek nRF52 z bootloaderem <b>OTAFIX</b>. Aplikacja robi kopię ustawień, pobiera firmware SF6 z flashera, wysyła go z postępem, a po przerwaniu pozwala wznowić. Bez OTAFIX aktualizacja jest zablokowana.</p>
+        <p class="msi-tip"><b>Funkcja testowa:</b> aktualizacja firmware repeatera przez Bluetooth – zobacz <a href="#testowe">Funkcje testowe</a>.</p>
       </div>
       <?= msi_shots(['moje-repeatery' => 'Moje repeatery', 'repeater' => 'Repeater po zalogowaniu']) ?>
     </div>
   </section>
 
-  <!-- 7 -->
+  <!-- 8 -->
   <section class="ms-sec msi-sec" id="urzadzenia">
     <div class="wrap msi-grid">
       <div class="msi-text">
-        <span class="ms-kicker">7 · Moje urządzenia</span>
+        <span class="ms-kicker">8 · Moje urządzenia</span>
         <h2>Konsola radia i kopia konfiguracji</h2>
         <ul class="msi-list">
           <li><b>Konsola radia</b> – polecenia tekstowe do połączonego radia (firmware 1.18+), np. <span class="mono">ver</span>, <span class="mono">get radio</span>, <span class="mono">clock</span>. Konsola repeatera jest w Moich repeaterach.</li>
@@ -197,15 +222,38 @@ $SPIS = [
         </ul>
         <p class="msi-tip">Kopia zawiera klucze kanałów prywatnych – traktuj plik jak hasło.</p>
       </div>
-      <?= msi_shots(['konsola' => 'Konsola radia', 'kopia' => 'Kopia konfiguracji']) ?>
+      <?= msi_shots(['konsola' => 'Konsola radia', 'kopia' => 'Kopia konfiguracji', 'zrzut-trackera' => 'Zrzut z trackera']) ?>
     </div>
   </section>
 
-  <!-- 8 -->
+  <!-- 9 -->
+  <section class="ms-sec msi-sec" id="testowe">
+    <div class="wrap">
+      <div class="msi-text msi-wide">
+        <span class="ms-kicker">9 · Funkcje testowe</span>
+        <h2>Firmware i bootloader prosto z telefonu</h2>
+        <p>Domyślnie wyłączone. Włączysz je w <b>Ustawienia → O aplikacji → „Funkcje testowe”</b>. Wtedy w Narzędziach (Moje urządzenia) pojawiają się dwie nowe pozycje, a w zarządzaniu repeaterem – „Aktualizuj firmware”. Firmware i bootloader pochodzą z <a href="/flasher.php">flashera meshcoresouth.pl</a>.</p>
+        <div class="msi-cols">
+          <ul class="msi-list">
+            <li><b>Aktualizacja repeatera przez Bluetooth</b> – Moje repeatery → repeater → „Aktualizuj firmware”. Dla płytek nRF52 z bootloaderem <b>OTAFIX</b>. Aplikacja sprawdza wszystko przed startem (administrator, płytka, bootloader, bateria), robi kopię ustawień, pobiera firmware SF6, wysyła z postępem i po restarcie sprawdza wersję. Przerwane wysyłanie można wznowić – wolniej. Bez OTAFIX aktualizacja jest zablokowana.</li>
+            <li><b>Prędkość wysyłania</b> – suwak od „wolno, pewnie” do „szybko”. Gdy wysyłanie się zrywa, aplikacja sama zwalnia.</li>
+          </ul>
+          <ul class="msi-list">
+            <li><b>Wgraj firmware (USB)</b> – tylko Android, kabel OTG. Wybierz płytkę, pobierz firmware repeatera SF6 na telefon (potem działa bez internetu) i wgraj: nRF52 i ESP32, z opcją kasowania całej pamięci. Dla RP2040 i STM32 – zapis pliku z instrukcją.</li>
+            <li><b>Bootloader OTAFIX (Bluetooth)</b> – wgranie OTAFIX do płytki nRF52 w trybie aktualizacji. Ręczny wybór płytki, trzy potwierdzenia i wskazanie urządzenia z listy. Potem od razu firmware SF6 przez Bluetooth albo USB.</li>
+          </ul>
+        </div>
+        <p class="msi-tip"><b>Uwaga:</b> bootloader od innej płytki może ją trwale unieruchomić (pomoże tylko programator SWD). Wgrywaj OTAFIX tylko wtedy, gdy wiesz, jaka to płytka – najpewniej skrótem z ekranu aktualizacji repeatera, który odczytuje płytkę zdalnie.</p>
+      </div>
+      <?= msi_shots(['funkcje-testowe' => 'Włączenie funkcji testowych', 'narzedzia-testowe' => 'Nowe pozycje w Narzędziach', 'aktualizacja-rpt' => 'Aktualizacja repeatera – sprawdzenie', 'aktualizacja-rpt-gotowe' => 'Aktualizacja repeatera – gotowe', 'fw-usb-plytki' => 'USB – wybór płytki', 'fw-usb-pobrane' => 'USB – firmware pobrane', 'fw-usb-gotowe' => 'USB – firmware wgrane', 'otafix' => 'OTAFIX – płytka i potwierdzenia', 'otafix-wybor' => 'OTAFIX – wybór urządzenia', 'otafix-gotowe' => 'OTAFIX – gotowe']) ?>
+    </div>
+  </section>
+
+  <!-- 10 -->
   <section class="ms-sec msi-sec" id="teren">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">8 · Narzędzia · Zasięg i teren</span>
+        <span class="ms-kicker">10 · Narzędzia · Zasięg i teren</span>
         <h2>Gdzie jest zasięg i gdzie postawić repeater</h2>
         <p>Narzędzia liczą z modelu samej rzeźby terenu – bez zabudowy i lasu, więc w mieście i w lesie realny zasięg będzie mniejszy.</p>
         <div class="msi-cols">
@@ -223,11 +271,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 9 -->
+  <!-- 11 -->
   <section class="ms-sec msi-sec" id="mapper">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">9 · Mapper SF6</span>
+        <span class="ms-kicker">11 · Mapper SF6</span>
         <h2>Mapowanie zasięgu sieci</h2>
         <p>Wbudowany następca aplikacji <a href="/mapper-sf6.php">Mapper SF6</a> – ta sama baza pomiarów. Zakładka działa tylko przy presecie SF6.</p>
         <ol class="msi-steps">
@@ -251,29 +299,30 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 10 -->
+  <!-- 12 -->
   <section class="ms-sec msi-sec" id="radio">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">10 · Radio i ustawienia</span>
+        <span class="ms-kicker">12 · Radio i ustawienia</span>
         <h2>Radio, połączenie i wygląd</h2>
         <ul class="msi-list">
           <li><b>Nazwa i radio</b> – nazwa węzła, <b>preset SF6</b> albo własne parametry, moc, strojenie, hash ścieżki.</li>
           <li><b>Lokalizacja i telemetria</b>, <b>PIN Bluetooth</b>, strefa czasowa, <b>region</b> (zasięg floodu), restart i reset radia.</li>
           <li><b>WiFi radia</b> – połączenie przez WiFi (firmware 1.18+, płytki z WiFi) i ustawienia sieci radia z aplikacji.</li>
           <li><b>Wygląd</b> – szkło na tle Grafit, Morski albo z telefonu (zdjęcie, na Androidzie także tapeta), z przyciemnieniem.</li>
+          <li><b>Połączenia</b> – zapamiętane radia, „Łącz przy uruchomieniu”, parowanie kolejnego radia (+), „Zapomnij radio”.</li>
           <li>Ostrzeżenie, gdy z tym samym radiem rozmawia druga aplikacja.</li>
         </ul>
       </div>
-      <?= msi_shots(['ustawienia' => 'Ustawienia', 'radio' => 'Nazwa i radio', 'wyglad' => 'Wygląd']) ?>
+      <?= msi_shots(['ustawienia' => 'Ustawienia', 'radio' => 'Nazwa i radio', 'polaczenia' => 'Połączenia', 'wyglad' => 'Wygląd']) ?>
     </div>
   </section>
 
-  <!-- 11 -->
+  <!-- 13 -->
   <section class="ms-sec msi-sec" id="telefon">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">11 · Telefon</span>
+        <span class="ms-kicker">13 · Telefon</span>
         <h2>Widżety, powiadomienia i Android Auto</h2>
         <div class="msi-cols">
           <div class="msi-card">
@@ -300,11 +349,11 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 12 -->
+  <!-- 14 -->
   <section class="ms-sec msi-sec" id="prywatnosc">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">12 · Prywatność</span>
+        <span class="ms-kicker">14 · Prywatność</span>
         <h2>Twoje dane zostają w telefonie</h2>
         <ul class="msi-list">
           <li>Historia wiadomości, kontakty i ustawienia są tylko na telefonie. Aplikacja nie ma konta ani analityki.</li>
@@ -315,12 +364,12 @@ $SPIS = [
     </div>
   </section>
 
-  <!-- 13 -->
+  <!-- 15 -->
   <section class="ms-sec msi-sec" id="zmiany">
     <div class="wrap">
       <div class="msi-text msi-wide">
-        <span class="ms-kicker">13 · Co nowego</span>
-        <h2>Ostatnie duże wersje</h2>
+        <span class="ms-kicker">15 · Co nowego</span>
+        <h2>Ostatnie wersje</h2>
       </div>
       <?php if ($zmiany): ?>
       <div class="msi-changes">
@@ -332,7 +381,6 @@ $SPIS = [
         <?php endforeach; ?>
       </div>
       <?php endif; ?>
-      <p class="msi-tip">Pełna historia zmian: <a href="https://github.com/aventurovan/meshspeed/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG na GitHubie</a>.</p>
     </div>
   </section>
 </div>
