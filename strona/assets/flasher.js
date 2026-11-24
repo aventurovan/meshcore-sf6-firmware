@@ -4,6 +4,15 @@ import { ESPLoader, Transport } from "https://cdn.jsdelivr.net/npm/esptool-js@0.
 import { serial as usbSerial } from "./web-serial-polyfill.js";
 
 const MANIFEST_URL = "/flasher/manifest.json";
+const OTAFIX_URL = "/flasher/otafix.json";   // kopia bootloadera OTAFIX (scripts/otafix_sync.py)
+// Sekcja OTAFIX jest na razie tylko do testów: widoczna po wejściu z ?otafix (zapamiętane w przeglądarce).
+const OTAFIX_TEST = (() => {
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.has("otafix")) localStorage.setItem("fl.otafix", q.get("otafix") === "0" ? "0" : "1");
+    return localStorage.getItem("fl.otafix") === "1";
+  } catch { return new URLSearchParams(location.search).has("otafix"); }
+})();
 const ROLES = {
   repeater:      { name: "Repeater",            desc: "Przekaźnik sieci (RPT)" },
   repeater_filter: { name: "Repeater + filtr",  desc: "RPT z blokowaniem nadawców (boty, companiony)" },
@@ -57,6 +66,16 @@ async function loadManifest() {
   }
   showVersion();
   renderRoles();
+  if (OTAFIX_TEST) loadOtafix();
+}
+
+async function loadOtafix() {
+  try {
+    const r = await fetch(OTAFIX_URL, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    state.otx = await r.json();
+  } catch (e) { state.otx = { error: e.message }; }
+  if (state.device && state.device.platform === "nrf52") renderFlash();
 }
 
 function showVersion() {
@@ -180,6 +199,7 @@ function renderFlash() {
       nrfPickAndFlash(fw);
     };
     $("flDfu").onclick = () => enterDfu(d);
+    otafixMount(d, fw);
   } else if (d.platform === "nrf52" || d.platform === "rp2040") {
     const drive = d.platform === "rp2040" ? "RPI-RP2" : "dysk bootloadera, np. RAK4631, T114BOOT, T1000-E";
     area.innerHTML = `
@@ -193,6 +213,7 @@ function renderFlash() {
         <li>Pobierz plik .uf2 i przeciągnij go na ten dysk. Urządzenie samo się zrestartuje z nowym firmware.</li>
       </ol>Ustawienia zapisane w urządzeniu zostają zachowane.</div>`;
     $("flDfu").onclick = () => enterDfu(d);
+    if (d.platform === "nrf52") otafixMount(d, fw);
   } else {
     area.innerHTML = `<div class="fl-actions">${dl(fw.bin, "Pobierz .bin")}${dl(fw.hex, "Pobierz .hex")}</div>
       <p class="fl-hint">Tej platformy nie da się wgrać z przeglądarki. Pobierz plik i wgraj go narzędziem producenta (np. STM32CubeProgrammer).</p>`;
@@ -201,7 +222,8 @@ function renderFlash() {
 
 function lockUi(b) {
   state.busy = b;
-  document.querySelectorAll("#flArea button").forEach(x => x.disabled = b || x.dataset.na === "1");
+  const otxOk = !!($("flOtxOk") && $("flOtxOk").checked);
+  document.querySelectorAll("#flArea button").forEach(x => x.disabled = b || x.dataset.na === "1" || (x.dataset.otx === "1" && !otxOk));
 }
 
 // ---------- nRF52: wgrywanie przez bootloader (serial DFU) ----------
@@ -407,6 +429,163 @@ async function enterDfu(d) {
     try { await port.close(); } catch {}
     log("BŁĄD: " + (e.message || e));
     setStatus("Nie udało się włączyć DFU: " + (e.message || e) + ". Kliknij szybko dwa razy RESET na urządzeniu.", "err");
+  } finally { lockUi(false); }
+}
+
+// ---------- bootloader OTAFIX (nRF52) ----------
+// OTAFIX (github.com/oltaco/Adafruit_nRF52_Bootloader_OTAFIX): bootloader z niezawodną aktualizacją przez Bluetooth –
+// po nieudanej próbie sam wraca do trybu aktualizacji, więc repeatera na maszcie nie trzeba zdejmować.
+// Dwa sposoby: plik update-….uf2 na dysk bootloadera (zalecany, zostawia SoftDevice) albo z przeglądarki
+// paczka SoftDevice + bootloader przez serial DFU (jak adafruit-nrfutil). Oba usuwają firmware – potem wgrywa się SF6.
+const sdFamily = v => String(v || "").startsWith("7") ? "v7" : "v6";
+
+function otafixMount(d, fw) {
+  if (!OTAFIX_TEST) return;
+  const area = $("flArea"), otx = state.otx;
+  const box = document.createElement("div");
+  box.className = "fl-otx";
+  area.appendChild(box);
+  if (!otx) { box.innerHTML = `<p class="fl-hint">Bootloader OTAFIX: wczytywanie…</p>`; return; }
+  if (otx.error) { box.innerHTML = `<p class="fl-hint">Bootloader OTAFIX: lista niedostępna (${esc(otx.error)}).</p>`; return; }
+  const bk = otx.devices && otx.devices[d.id], b = bk && otx.boards[bk];
+  if (!b) { box.innerHTML = `<p class="fl-hint">Bootloader OTAFIX nie ma wersji dla ${esc(d.name)}.</p>`; return; }
+  const viaBrowser = !!(fw.zip && b.zip);
+  box.innerHTML = `
+    <details class="fl-otx-box"${/repeater/.test(state.role) ? " open" : ""}>
+      <summary><b>Bootloader OTAFIX ${esc(otx.version)}</b><span>aktualizacja przez Bluetooth bez zdejmowania repeatera</span></summary>
+      <p class="fl-hint" style="margin-top:10px">OTAFIX to poprawiony bootloader dla nRF52: szybsza aktualizacja przez Bluetooth, a po nieudanej próbie
+        urządzenie samo wraca do trybu aktualizacji zamiast się zawiesić. Wgrywa się <b>raz, przez kabel</b>.</p>
+      <p class="fl-hint"><b>Sprawdź, co masz:</b> w trybie DFU otwórz plik <span class="mono">INFO_UF2.TXT</span> na dysku urządzenia
+        (linia <span class="mono">UF2 Bootloader …</span>) albo wpisz w konsoli repeatera <span class="mono">get bootloader.ver</span>.
+        Masz <span class="mono">OTAFIX2.2</span> lub nowszy? Nic nie rób.</p>
+      <div class="fl-danger">
+        <b>Ostrzeżenie – zmiana bootloadera</b>
+        <ul>
+          <li>Tylko <b>na stole, przez kabel USB</b>, z naładowaną baterią albo zasilaczem. Nie na maszcie.</li>
+          <li>Przerwanie w trakcie (odłączenie kabla, brak zasilania) może <b>trwale zablokować płytkę</b> – ratunek tylko programatorem SWD.</li>
+          <li>Firmware zostanie <b>usunięte</b>. Zaraz potem wgraj repeater SF6 (przycisk poniżej).</li>
+          <li>Zapisz ustawienia repeatera (nazwa, hasło admina, pozycja, region, filtr) – mogą wymagać ponownego ustawienia.</li>
+        </ul>
+        <label class="fl-check fl-check-danger"><input type="checkbox" id="flOtxOk">
+          <span><b>Rozumiem ryzyko i wgrywam na stole</b></span></label>
+      </div>
+      <h3 class="fl-otx-h">Sposób 1 – plik na dysk (zalecany)</h3>
+      <div class="fl-hint"><ol>
+        <li>Kliknij „Włącz tryb DFU” i wybierz port (albo kliknij szybko dwa razy RESET). Pojawi się dysk, np. RAK4631, XIAO-SENSE.</li>
+        <li>Pobierz plik i przeciągnij go na ten dysk. Po kilku sekundach dysk zniknie i pojawi się ponownie – to już OTAFIX.</li>
+        <li>Wgraj firmware SF6: przycisk „Wgraj teraz firmware SF6” poniżej albo plik .uf2 firmware na ten sam dysk.</li>
+      </ol></div>
+      <div class="fl-actions">
+        <button class="btn btn-green-line" id="flOtxDfu" disabled data-otx="1">Włącz tryb DFU</button>
+        <a class="btn btn-green-line fl-otx-dl" id="flOtxUf2" href="${esc(fileUrl(b.uf2))}" download aria-disabled="true">Pobierz bootloader .uf2</a>
+      </div>
+      ${viaBrowser ? `
+      <h3 class="fl-otx-h">Sposób 2 – przez przeglądarkę</h3>
+      <p class="fl-hint">Wgrywa SoftDevice ${esc(b.sd)} + bootloader OTAFIX przez port szeregowy, tak jak <span class="mono">adafruit-nrfutil</span>.
+        Trwa około minuty. Nie odłączaj kabla, dopóki strona nie napisze „gotowe”.</p>
+      <div class="fl-actions">
+        <button class="btn btn-warn" id="flOtxWeb" disabled data-otx="1" ${hasSerial ? "" : 'data-na="1"'}>Wgraj bootloader przez USB</button>
+        <button class="btn btn-green-line" id="flOtxCont" hidden>Kontynuuj – wybierz port DFU</button>
+      </div>` : ""}
+      <div class="fl-actions" style="margin-top:14px">
+        <button class="btn btn-green" id="flOtxApp" ${na(!hasSerial || !fw.zip)}>Wgraj teraz firmware SF6</button>
+      </div>
+      <p class="fl-hint">Po bootloaderze urządzenie nie ma firmware i czeka w trybie DFU – wybierz jego port. Jeśli portu nie ma, kliknij szybko dwa razy RESET.
+        Źródło: <a href="${esc(otx.source)}" target="_blank" rel="noopener">OTAFIX ${esc(otx.tag)}</a>.</p>
+    </details>`;
+  const ok = $("flOtxOk");
+  ok.onchange = () => {
+    box.querySelectorAll("[data-otx]").forEach(x => x.disabled = !ok.checked || state.busy || x.dataset.na === "1");
+    $("flOtxUf2").setAttribute("aria-disabled", String(!ok.checked));
+  };
+  $("flOtxUf2").onclick = e => { if (!ok.checked) { e.preventDefault(); setStatus("Najpierw zaznacz „Rozumiem ryzyko…”.", "err"); } else log("Pobrano " + baseName(b.uf2)); };
+  $("flOtxDfu").onclick = () => enterDfu(d);
+  if (viaBrowser) {
+    $("flOtxWeb").onclick = () => otafixStart(d, fw, b);
+    $("flOtxCont").onclick = () => otafixPickAndFlash(fw, b);
+  }
+  $("flOtxApp").onclick = () => { state.nrfErase = false; nrfPickAndFlash(fw); };
+}
+
+async function otafixPackage(b) {
+  if (state.blPkg && state.blPkg.url === b.zip) return state.blPkg.pkg;
+  const lib = await nrfLib();
+  log("Pobieram " + baseName(b.zip));
+  const r = await fetch(fileUrl(b.zip));
+  if (!r.ok) throw new Error("nie udało się pobrać bootloadera (HTTP " + r.status + ")");
+  const buf = await r.arrayBuffer();
+  if (b.zip_sha256 && crypto.subtle) {
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map(x => x.toString(16).padStart(2, "0")).join("");
+    if (h !== b.zip_sha256) throw new Error("plik bootloadera jest uszkodzony (zła suma SHA-256)");
+    log("Suma SHA-256 bootloadera OK");
+  }
+  const pkg = await lib.readDfuZip(buf, { bootloader: true });
+  log(`Bootloader: SoftDevice ${b.sd} (${pkg.sdSize} B) + OTAFIX (${pkg.blSize} B)`);
+  state.blPkg = { url: b.zip, pkg };
+  return pkg;
+}
+
+// firmware SF6 tej płytki musi być zbudowany pod ten sam SoftDevice (v6: aplikacja od 0x26000, v7: od 0x27000)
+async function otafixCheckSd(fw, b) {
+  const app = await nrfPackage(fw);
+  const n = app.dat[8] | (app.dat[9] << 8), sds = [];
+  for (let i = 0; i < n; i++) sds.push(app.dat[10 + 2 * i] | (app.dat[11 + 2 * i] << 8));
+  const fam = sds.some(x => x >= 0xca && x !== 0xfffe) ? "v7" : "v6";
+  if (fam !== sdFamily(b.sd))
+    throw new Error(`firmware SF6 tej płytki jest pod SoftDevice ${fam}, a OTAFIX ma ${b.sd} – przerwano, nic nie zostało wgrane`);
+}
+
+async function otafixStart(d, fw, b) {
+  if (!$("flOtxOk").checked) return;
+  if (!confirm("Wgrać bootloader OTAFIX na " + d.name + "?\n\nFirmware zostanie usunięte. Nie odłączaj kabla do końca – przerwanie może trwale zablokować płytkę.")) return;
+  let port;
+  try { port = await SERIAL.requestPort(); }
+  catch { setStatus("Nie wybrano portu.", "err"); return; }
+  lockUi(true); setProgress(0); $("flOtxCont").hidden = true;
+  try {
+    setStatus("Pobieranie i sprawdzanie bootloadera…");
+    await otafixPackage(b);
+    await otafixCheckSd(fw, b);
+    const lib = await nrfLib();
+    const vid = port.getInfo().usbVendorId;
+    setStatus("Przełączanie w tryb DFU…");
+    log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
+    await lib.touch1200(port);
+    await sleep(2500);
+    const known = (await SERIAL.getPorts()).filter(p => p !== port && !p.readable && p.getInfo().usbVendorId === vid);
+    if (known.length === 1) { lockUi(false); return otafixFlash(known[0], fw, b); }
+    setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
+    $("flOtxCont").hidden = false;
+  } catch (e) {
+    log("BŁĄD: " + (e.message || e));
+    setStatus("Nie udało się: " + (e.message || e), "err");
+  } finally { lockUi(false); }
+}
+
+async function otafixPickAndFlash(fw, b) {
+  if (state.busy) return;
+  let port;
+  try { port = await SERIAL.requestPort(); }
+  catch { setStatus("Nie wybrano portu.", "err"); return; }
+  return otafixFlash(port, fw, b);
+}
+
+async function otafixFlash(port, fw, b) {
+  lockUi(true); setProgress(0);
+  try {
+    const pkg = await otafixPackage(b);
+    await otafixCheckSd(fw, b);
+    const lib = await nrfLib();
+    setStatus("Wgrywanie bootloadera… NIE odłączaj urządzenia");
+    await lib.flashNrfDfu(port, pkg, { onProgress: f => setProgress(f * 100), log });
+    setProgress(100);
+    $("flOtxCont").hidden = true;
+    setStatus("Bootloader OTAFIX wgrany. Urządzenie czeka teraz w trybie DFU bez firmware – kliknij „Wgraj teraz firmware SF6” i wybierz jego port.", "ok");
+    log("Bootloader zakończony. Następny krok: firmware SF6.");
+  } catch (e) {
+    console.error(e);
+    log("BŁĄD: " + (e.message || e));
+    setStatus("Nie udało się: " + (e.message || e) + ". Nie odłączaj zasilania. Kliknij dwa razy RESET – jeśli pojawi się dysk, płytka działa: spróbuj ponownie albo użyj sposobu 1 (plik .uf2).", "err");
   } finally { lockUi(false); }
 }
 

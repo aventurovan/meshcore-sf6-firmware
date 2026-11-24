@@ -2,7 +2,7 @@
 // tak samo jak robi to `adafruit-nrfutil dfu serial`. Używa paczki .zip z buildu MeshCore.
 
 const DFU_INIT_PACKET = 1, DFU_START_PACKET = 3, DFU_DATA_PACKET = 4, DFU_STOP_DATA_PACKET = 5;
-const MODE_APPLICATION = 4;
+const MODE_SOFTDEVICE = 1, MODE_BOOTLOADER = 2, MODE_APPLICATION = 4; // SoftDevice + bootloader = 3
 const PACKET_MAX = 512;
 const PAGE_SIZE = 4096, PAGE_ERASE_TIME = 89.7, PAGE_WRITE_TIME = (PAGE_SIZE / 4) * 0.1; // ms
 const ACK_TIMEOUT = 2000;
@@ -133,25 +133,35 @@ class Link {
 }
 
 // ---------- przebieg DFU ----------
-export async function readDfuZip(buf) {
+// Paczka .zip z adafruit-nrfutil: aplikacja (firmware) albo – z opcją { bootloader: true } – SoftDevice + bootloader
+// (np. bootloader OTAFIX). Zwraca { bin, dat, mode, sdSize, blSize, appSize }.
+export async function readDfuZip(buf, { bootloader = false } = {}) {
   const files = await unzip(buf);
   if (!files["manifest.json"]) throw new Error("w paczce .zip brak manifest.json");
   const man = JSON.parse(new TextDecoder().decode(files["manifest.json"])).manifest || {};
-  const app = man.application;
-  if (!app) throw new Error("paczka nie zawiera aplikacji (tylko application jest obsługiwane)");
-  const bin = files[app.bin_file], dat = files[app.dat_file];
-  if (!bin || !dat) throw new Error("w paczce .zip brak plików firmware");
-  return { bin, dat };
+  const parts = Object.keys(man).filter(k => k !== "dfu_version");
+  const want = bootloader ? "softdevice_bootloader" : "application";
+  if (parts.length !== 1 || parts[0] !== want)
+    throw new Error(bootloader ? "to nie jest paczka bootloadera (SoftDevice + bootloader)" : "paczka nie zawiera aplikacji (tylko application jest obsługiwane)");
+  const p = man[want];
+  const bin = files[p.bin_file], dat = files[p.dat_file];
+  if (!bin || !dat) throw new Error("w paczce .zip brak plików " + (bootloader ? "bootloadera" : "firmware"));
+  if (!bootloader) return { bin, dat, mode: MODE_APPLICATION, sdSize: 0, blSize: 0, appSize: bin.length };
+  const sdSize = p.sd_size | 0, blSize = p.bl_size | 0;
+  if (!sdSize || !blSize || sdSize + blSize !== bin.length) throw new Error("rozmiary w paczce bootloadera się nie zgadzają");
+  return { bin, dat, mode: MODE_SOFTDEVICE | MODE_BOOTLOADER, sdSize, blSize, appSize: 0 };
 }
 
-export async function flashNrfDfu(port, { bin, dat }, { onProgress = () => {}, log = () => {} } = {}) {
+export async function flashNrfDfu(port, { bin, dat, mode = MODE_APPLICATION, sdSize = 0, blSize = 0, appSize }, { onProgress = () => {}, log = () => {} } = {}) {
+  if (mode === MODE_APPLICATION) appSize = bin.length;
   const link = new Link(port);
   let seq = 0;
   const next = () => (seq = (seq + 1) % 8);
   await link.open();
   try {
-    log(`Start DFU: aplikacja ${bin.length} B`);
-    await link.send(next(), [...int32(DFU_START_PACKET), ...int32(MODE_APPLICATION), ...int32(0), ...int32(0), ...int32(bin.length)]);
+    log(mode === MODE_APPLICATION ? `Start DFU: aplikacja ${bin.length} B`
+                                  : `Start DFU: SoftDevice ${sdSize} B + bootloader ${blSize} B`);
+    await link.send(next(), [...int32(DFU_START_PACKET), ...int32(mode), ...int32(sdSize), ...int32(blSize), ...int32(appSize)]);
     const erase = Math.max(500, (Math.floor(bin.length / PAGE_SIZE) + 1) * PAGE_ERASE_TIME);
     log(`Kasowanie pamięci (${(erase / 1000).toFixed(1)} s)`);
     await sleep(erase);
@@ -165,7 +175,7 @@ export async function flashNrfDfu(port, { bin, dat }, { onProgress = () => {}, l
       onProgress((n + 1) / total);
     }
     await sleep(PAGE_WRITE_TIME);
-    log("Zatwierdzanie firmware");
+    log(mode === MODE_APPLICATION ? "Zatwierdzanie firmware" : "Zatwierdzanie – bootloader przepisuje SoftDevice i siebie");
     await link.send(next(), int32(DFU_STOP_DATA_PACKET), 5000).catch(e => log("Brak potwierdzenia końca (" + e.message + ") – zwykle oznacza restart urządzenia."));
   } finally {
     await link.close();
