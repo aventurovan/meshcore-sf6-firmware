@@ -33,6 +33,8 @@ require __DIR__ . '/includes/header.php';
     <div class="card fl-step off" id="flS3">
       <h2><span class="fl-num">3</span>Wgrywanie</h2>
       <div id="flArea"><p class="fl-hint">Wybierz rolę i urządzenie.</p></div>
+      <ol class="fl-steps" id="flSteps" hidden aria-label="Przebieg wgrywania"></ol>
+      <div class="fl-barlbl" id="flBarLbl"></div>
       <div class="fl-progress" aria-hidden="true"><div id="flBar"></div></div>
       <div class="fl-status" id="flStatus" role="status" aria-live="polite"></div>
       <details class="fl-log"><summary>Dziennik</summary><pre id="flLog"></pre></details>

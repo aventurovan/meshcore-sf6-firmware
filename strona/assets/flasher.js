@@ -52,6 +52,120 @@ function setVersion(val, sub, base) {
     (base ? `<div class="base">na bazie oficjalnego MeshCore <b>${esc(base)}</b></div>` : "") + `<div class="sub">${esc(sub)}</div>`;
 }
 
+// ---------- przebieg wgrywania na stronie (nie tylko w dzienniku) ----------
+// Lista kroków z ikoną stanu, opisem „co teraz” i czasem; pasek pokazuje postęp bieżącego kroku.
+const UI = {
+  steps: [], timerId: null, t0: 0,
+  begin(list) {
+    this.stop();
+    this.steps = list.filter(Boolean).map(([id, label]) => ({ id, label, st: "wait", det: "" }));
+    this.render(); setProgress(0); this.bar("");
+  },
+  has(id) { return this.steps.some(s => s.id === id); },
+  get(id) { return this.steps.find(s => s.id === id); },
+  set(id, st, det) {
+    const s = this.get(id); if (!s) return;
+    if (st !== "run" || s.st !== "run") this.stop();
+    s.st = st; if (det !== undefined) s.det = det; else if (st === "ok") s.det = "";
+    if (st === "run") { s.t = s.t || Date.now(); this.bar(s.label); }
+    if (st === "ok" && s.t) s.took = Date.now() - s.t;
+    this.render();
+  },
+  run(id, det) { this.set(id, "run", det); },
+  ok(id, det) { this.set(id, "ok", det); },
+  skip(id, det) { this.set(id, "skip", det); },
+  user(id, det) { this.set(id, "user", det); this.bar(""); },
+  fail(det) {
+    this.stop();
+    const s = this.steps.find(x => x.st === "run" || x.st === "user") || this.steps.find(x => x.st === "wait");
+    if (s) { s.st = "err"; s.det = det; }
+    this.render();
+  },
+  // czas znany z góry (np. bootloader kasuje pamięć): odliczanie i pasek
+  timer(id, ms, text) {
+    this.run(id); this.stop();
+    const t0 = Date.now(), tick = () => {
+      const left = Math.max(0, ms - (Date.now() - t0));
+      setProgress(Math.min(99, (Date.now() - t0) / ms * 100));
+      this.get(id).det = `${text} · jeszcze ok. ${Math.ceil(left / 1000)} s`; this.render();
+    };
+    tick(); this.timerId = setInterval(tick, 250);
+  },
+  // czas nieznany: ile już trwa i ile zwykle trwa
+  elapsed(id, text, typicalS) {
+    this.run(id); this.stop();
+    const t0 = Date.now(), tick = () => {
+      const s = Math.floor((Date.now() - t0) / 1000);
+      setProgress(Math.min(95, s / typicalS * 100));
+      this.get(id).det = `${text} · trwa ${s} s (zwykle ok. ${typicalS} s)`; this.render();
+    };
+    tick(); this.timerId = setInterval(tick, 500);
+  },
+  progress(id, f, det) {
+    const s = this.get(id); if (!s) return;
+    if (s.st !== "run") this.run(id);
+    setProgress(f * 100); s.det = det; this.render();
+  },
+  stop() { if (this.timerId) clearInterval(this.timerId); this.timerId = null; },
+  bar(label) { const l = $("flBarLbl"); if (l) l.textContent = label; },
+  render() {
+    const el = $("flSteps"); if (!el) return;
+    el.hidden = !this.steps.length;
+    const took = s => s.st === "ok" && s.took > 1500 ? `${Math.round(s.took / 1000)} s` : "";
+    el.innerHTML = this.steps.map(s => {
+      const d = [s.det, took(s)].filter(Boolean).join(" · ");
+      return `<li class="st-${s.st}"><span class="fl-sti" aria-hidden="true"></span><span class="fl-stt"><b>${esc(s.label)}</b>${d ? `<small>${esc(d)}</small>` : ""}</span></li>`;
+    }).join("");
+  },
+  clear() { this.stop(); this.steps = []; this.render(); this.bar(""); }
+};
+
+// fazy flashNrfDfu → kroki na stronie
+function dfuPhases({ prep = "prep", send = "send", commit = "commit", what = "firmware", prepText = "bootloader kasuje miejsce na " + what }) {
+  let t0 = 0, total = 0;
+  return {
+    onPhase(ph, info = {}) {
+      if (ph === "open") UI.run(prep, "łączenie z bootloaderem");
+      else if (ph === "erase") UI.timer(prep, info.ms, prepText);
+      else if (ph === "send") { UI.ok(prep, ""); total = info.bytes; t0 = Date.now(); UI.run(send, "0%"); }
+      else if (ph === "commit") { const s = (Date.now() - t0) / 1000; UI.ok(send, `${(total / 1024).toFixed(0)} KB · średnio ${(total / 1024 / Math.max(s, 0.1)).toFixed(1)} KB/s`); UI.run(commit, "potwierdzenie końca"); }
+      else if (ph === "activate") UI.timer(commit, info.ms, "urządzenie zapisuje " + what + " i uruchamia się – nie odłączaj kabla");
+    },
+    onProgress(f) {
+      const kb = f * total / 1024, s = (Date.now() - t0) / 1000, v = s > 0.5 ? kb / s : 0;
+      const left = v > 0 ? Math.ceil((total / 1024 - kb) / v) : 0;
+      UI.progress(send, f, `${Math.round(f * 100)}% · ${kb.toFixed(0)} z ${(total / 1024).toFixed(0)} KB` + (v ? ` · ${v.toFixed(1)} KB/s · jeszcze ok. ${left} s` : ""));
+    }
+  };
+}
+
+// zrozumiałe wyjaśnienie typowych błędów portu
+function explain(e) {
+  const m = (e && e.message) || String(e);
+  if (/already open/i.test(m)) return "port był jeszcze zajęty przez poprzednią próbę – strona go zwolniła, spróbuj ponownie";
+  if (/Failed to open serial port/i.test(m)) return "nie da się otworzyć portu – zamknij inne karty i programy, które go używają (drugi flasher, Arduino, aplikacja MeshCore), odłącz i podłącz kabel";
+  if (/brak odpowiedzi bootloadera/i.test(m)) return "urządzenie nie odpowiada jak bootloader – nie jest w trybie DFU";
+  if (/rozłączyło się|device has been lost|disconnected/i.test(m)) return "urządzenie rozłączyło się w trakcie (kabel, zasilanie albo restart)";
+  return m;
+}
+function busyGuard() {
+  if (!state.busy) return false;
+  setStatus("Trwa już wgrywanie – poczekaj, aż się skończy.", "err");
+  return true;
+}
+
+// po touch1200: port bootloadera (inny PID) – znany przeglądarce albo zgłoszony po podłączeniu
+async function findDfuPort(oldPort, vid, ms = 6000) {
+  const pick = async () => (await SERIAL.getPorts()).filter(p => p !== oldPort && !p.readable && p.getInfo().usbVendorId === vid);
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    const k = await pick();
+    if (k.length === 1) return k[0];
+    await sleep(500);
+  }
+  return null;
+}
+
 async function loadManifest() {
   try {
     const r = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -140,7 +254,7 @@ const na = cond => cond ? 'disabled data-na="1"' : "";
 
 function renderFlash() {
   const d = state.device, area = $("flArea");
-  setProgress(0); setStatus("");
+  setProgress(0); setStatus(""); UI.clear();
   if (!d || !state.role) { $("flS3").classList.add("off"); area.innerHTML = `<p class="fl-hint">Wybierz rolę i urządzenie.</p>`; return; }
   $("flS3").classList.remove("off");
   const fw = d.firmware[state.role];
@@ -243,38 +357,50 @@ async function nrfPackage(fw) {
 }
 
 async function nrfStart(d, fw) {
+  if (busyGuard()) return;
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0); $("flNrfCont").hidden = true;
+  UI.begin([["fetch", "Pobranie firmware"], ["dfu", "Przełączenie w tryb DFU"], ["port", "Port urządzenia w trybie DFU"],
+    state.nrfErase && ["wipe", "Kasowanie całej pamięci"], ["prep", "Przygotowanie pamięci"], ["send", "Wysyłanie firmware"], ["commit", "Zatwierdzenie i restart"]]);
   try {
     setStatus("Pobieranie firmware…");
-    await nrfPackage(fw);
+    UI.run("fetch", baseName(fw.zip));
+    const pkg = await nrfPackage(fw);
+    UI.ok("fetch", (pkg.bin.length / 1024).toFixed(0) + " KB");
     const lib = await nrfLib();
     const vid = port.getInfo().usbVendorId;
     setStatus("Przełączanie w tryb DFU…");
+    UI.run("dfu", "restart urządzenia do bootloadera (1200 bps)");
     log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
     await lib.touch1200(port);
+    UI.elapsed("dfu", "czekam, aż urządzenie zgłosi się w trybie DFU", 3);
     await sleep(2500);
+    UI.ok("dfu");
     // jeśli przeglądarka zna już port bootloadera (np. z poprzedniego wgrywania), wgrywamy od razu
-    const known = (await SERIAL.getPorts()).filter(p => p !== port && !p.readable && p.getInfo().usbVendorId === vid);
-    if (known.length === 1) { lockUi(false); return nrfFlash(known[0], fw); }
+    const known = await findDfuPort(port, vid, 2500);
+    if (known) { UI.ok("port", "wybrany automatycznie"); lockUi(false); return await nrfFlash(known, fw, { cont: true }); }
+    UI.user("port", "kliknij „Kontynuuj” i wybierz NOWY port, który właśnie się pojawił");
     setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
     state.nrfFw = fw;
     $("flNrfCont").hidden = false;
   } catch (e) {
     log("BŁĄD: " + (e.message || e));
-    setStatus("Nie udało się: " + (e.message || e), "err");
+    UI.fail(explain(e));
+    setStatus("Nie udało się: " + explain(e), "err");
   } finally { lockUi(false); }
 }
 
 async function nrfPickAndFlash(fw) {
-  if (state.busy) return;
+  if (busyGuard()) return;
+  const cont = !fw && UI.steps.length > 0;
   fw = fw || state.nrfFw;
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
-  return nrfFlash(port, fw);
+  if (cont && UI.get("port") && UI.get("port").st === "user") UI.ok("port", "wybrany");
+  return nrfFlash(port, fw, { cont });
 }
 
 // obraz kasujący (tools/nrf52-erase): kasuje aplikację i dane, potem wraca do trybu DFU
@@ -302,6 +428,7 @@ function waitForPort(vid, pid, timeout) {
 
 async function nrfErase(port, pkg, lib) {
   const e = erasePackage(lib, pkg);
+  UI.run("wipe", "pobieranie programu kasującego");
   log("Pobieram program kasujący (" + baseName(e.url) + ")");
   const r = await fetch(e.url);
   if (!r.ok) throw new Error("nie udało się pobrać programu kasującego (HTTP " + r.status + ")");
@@ -309,22 +436,33 @@ async function nrfErase(port, pkg, lib) {
   const crc = lib.crc16(bin);
   const dat = new Uint8Array([...e.head, crc & 0xff, crc >> 8]);
   const { usbVendorId: vid, usbProductId: pid } = port.getInfo();
-  setStatus("Kasowanie pamięci: wgrywanie programu kasującego…");
+  setStatus("Kasowanie pamięci: krok 1 z 2 – wgrywanie programu kasującego…");
   const back = waitForPort(vid, pid, 120000);
-  await lib.flashNrfDfu(port, { bin, dat }, { log });
-  setStatus("Kasowanie całej pamięci… (około 30 s, nie odłączaj urządzenia)");
+  await lib.flashNrfDfu(port, { bin, dat }, {
+    log,
+    onPhase: ph => UI.run("wipe", { open: "łączenie z bootloaderem", erase: "krok 1 z 2: przygotowanie", send: "krok 1 z 2: wysyłanie programu kasującego", commit: "krok 1 z 2: uruchamianie programu kasującego", activate: "krok 1 z 2: uruchamianie programu kasującego" }[ph]),
+    onProgress: f => UI.progress("wipe", f, `krok 1 z 2: wysyłanie programu kasującego ${Math.round(f * 100)}%`)
+  });
+  setStatus("Kasowanie pamięci: krok 2 z 2 – kasowanie wszystkiego (około 30 s). Nie odłączaj urządzenia.");
+  UI.elapsed("wipe", "krok 2 z 2: kasowanie całej pamięci, potem urządzenie wróci w trybie DFU", 30);
   log("Program kasujący działa, czekam na powrót urządzenia w trybie DFU");
   const again = await back;
-  if (!again) return null;
+  if (!again) { UI.ok("wipe", "skasowane – urządzenie nie zgłosiło się samo"); return null; }
   await sleep(1500);
+  UI.ok("wipe", "pamięć skasowana, urządzenie wróciło w trybie DFU");
   log("Pamięć skasowana, urządzenie w trybie DFU");
   return again;
 }
 
-async function nrfFlash(port, fw) {
+async function nrfFlash(port, fw, { cont = false, touched = false } = {}) {
+  if (!cont && !touched)
+    UI.begin([["fetch", "Pobranie firmware"], state.nrfErase && ["wipe", "Kasowanie całej pamięci"],
+      ["prep", "Przygotowanie pamięci"], ["send", "Wysyłanie firmware"], ["commit", "Zatwierdzenie i restart"]]);
   lockUi(true); setProgress(0);
   try {
+    if (UI.get("fetch") && UI.get("fetch").st !== "ok") UI.run("fetch", baseName(fw.zip));
     const pkg = await nrfPackage(fw);
+    if (UI.get("fetch") && UI.get("fetch").st !== "ok") UI.ok("fetch", (pkg.bin.length / 1024).toFixed(0) + " KB");
     const lib = await nrfLib();
     if (state.nrfErase) {
       const again = await nrfErase(port, pkg, lib);
@@ -332,21 +470,46 @@ async function nrfFlash(port, fw) {
       if (!again) {
         state.nrfFw = fw;
         $("flNrfCont").hidden = false;
+        UI.user("prep", "kliknij „Kontynuuj” i wybierz port urządzenia w trybie DFU");
         setStatus("Pamięć skasowana. Kliknij „Kontynuuj” i wybierz port urządzenia w trybie DFU, żeby wgrać firmware.", "ok");
         return;
       }
       port = again;
     }
     setStatus("Wgrywanie… nie odłączaj urządzenia (około minuty)");
-    await lib.flashNrfDfu(port, pkg, { onProgress: f => setProgress(f * 100), log });
+    const ph = dfuPhases({});
+    try {
+      await lib.flashNrfDfu(port, pkg, { onProgress: ph.onProgress, onPhase: ph.onPhase, log });
+    } catch (e) {
+      // „Wgraj od razu” na urządzeniu, które nie jest w trybie DFU: przełączamy je i próbujemy jeszcze raz
+      if (touched || !/brak odpowiedzi bootloadera/i.test(e.message || "")) throw e;
+      log("Urządzenie nie jest w trybie DFU – przełączam (1200 bps)");
+      UI.run("prep", "urządzenie nie było w trybie DFU – przełączam je");
+      setStatus("Urządzenie nie było w trybie DFU – przełączam…");
+      const vid = port.getInfo().usbVendorId;
+      await lib.touch1200(port);
+      await sleep(2500);
+      const dfu = await findDfuPort(port, vid, 4000);
+      if (!dfu) {
+        state.nrfFw = fw;
+        $("flNrfCont").hidden = false;
+        UI.user("prep", "urządzenie przełączone – kliknij „Kontynuuj” i wybierz NOWY port");
+        setStatus("Urządzenie jest teraz w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który się pojawił.", "ok");
+        return;
+      }
+      lockUi(false);
+      return await nrfFlash(dfu, fw, { cont: true, touched: true });
+    }
     setProgress(100);
+    UI.ok("commit", "urządzenie uruchomione");
     $("flNrfCont").hidden = true;
     setStatus(doneMsg(), "ok");
     log("Zakończono.");
   } catch (e) {
     console.error(e);
     log("BŁĄD: " + (e.message || e));
-    setStatus("Nie udało się: " + (e.message || e) + ". Kliknij dwa razy RESET (tryb DFU) i użyj „Wgraj od razu”.", "err");
+    UI.fail(explain(e));
+    setStatus("Nie udało się: " + explain(e) + ". Kliknij dwa razy RESET (tryb DFU) i użyj „Wgraj od razu”.", "err");
   } finally { lockUi(false); }
 }
 
@@ -376,59 +539,82 @@ async function flashEsp(fw, full) {
 }
 
 async function flashEspFiles(getFiles, full) {
+  if (busyGuard()) return;
   let port, transport;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0);
+  UI.begin([["fetch", "Pobranie firmware"], ["conn", "Połączenie z układem ESP32"],
+    full && ["wipe", "Kasowanie całej pamięci"], ["write", "Wgrywanie firmware"], ["restart", "Restart urządzenia"]]);
   const terminal = { clean() {}, writeLine: l => log(l), write: l => log(l) };
   try {
     setStatus("Pobieranie firmware…");
+    UI.run("fetch");
     const files = await getFiles();
+    UI.ok("fetch", (files.reduce((a, f) => a + f.data.length, 0) / 1024).toFixed(0) + " KB");
     setStatus("Łączenie z urządzeniem…");
+    UI.elapsed("conn", "łączenie z bootloaderem ESP32 (jeśli długo nic: przytrzymaj BOOT i naciśnij RESET)", 5);
+    try { await (await nrfLib()).releaseAll(); } catch {}
+    if (port.readable) { try { await port.close(); } catch {} }
     transport = new Transport(port, true);
     const loader = new ESPLoader({ transport, baudrate: 460800, romBaudrate: 115200, terminal });
-    log("Wykryto: " + await loader.main());
+    const chip = await loader.main();
+    log("Wykryto: " + chip);
+    UI.ok("conn", chip);
     setStatus(full ? "Kasowanie i wgrywanie… nie odłączaj urządzenia" : "Wgrywanie… nie odłączaj urządzenia");
+    if (full) UI.elapsed("wipe", "kasowanie całej pamięci – bez paska postępu, to normalne", 25);
+    else UI.run("write", "start");
+    const total = files.reduce((a, f) => a + f.data.length, 0), done = files.map(() => 0), t0 = Date.now();
     await loader.writeFlash({
       fileArray: files,
       flashSize: "keep", flashMode: "keep", flashFreq: "keep",
       eraseAll: full, compress: true,
-      reportProgress: (_i, written, total) => setProgress(written / total * 100)
+      reportProgress: (i, written, size) => {
+        if (full && UI.get("wipe").st === "run") UI.ok("wipe");
+        done[i] = written / size * files[i].data.length;
+        const f = done.reduce((a, b) => a + b, 0) / total, s = (Date.now() - t0) / 1000;
+        UI.progress("write", f, `${Math.round(f * 100)}% · ${(f * total / 1024).toFixed(0)} z ${(total / 1024).toFixed(0)} KB` + (files.length > 1 ? ` · plik ${i + 1} z ${files.length}` : ""));
+      }
     });
+    UI.ok("write");
+    UI.run("restart");
     await loader.after();
     setProgress(100);
+    UI.ok("restart", "urządzenie uruchamia się z nowym firmware");
     setStatus(doneMsg(), "ok");
     log("Zakończono.");
   } catch (e) {
     console.error(e);
     log("BŁĄD: " + (e.message || e));
-    setStatus("Nie udało się: " + (e.message || e) + ". Sprawdź kabel albo uruchom urządzenie w trybie BOOT i spróbuj ponownie.", "err");
+    UI.fail(explain(e));
+    setStatus("Nie udało się: " + explain(e) + ". Sprawdź kabel albo uruchom urządzenie w trybie BOOT i spróbuj ponownie.", "err");
   } finally {
     try { if (transport) await transport.disconnect(); else if (port) await port.close(); } catch {}
     lockUi(false);
   }
 }
 
+
 async function enterDfu(d) {
+  if (busyGuard()) return;
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true);
+  UI.begin([["dfu", "Przełączenie w tryb DFU"], ["disk", "Dysk bootloadera"]]);
   try {
+    UI.run("dfu", "restart urządzenia do bootloadera (1200 bps)");
     log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
-    await port.open({ baudRate: 1200 });
-    try {
-      await port.setSignals({ dataTerminalReady: true });
-      await sleep(100);
-      await port.setSignals({ dataTerminalReady: false });
-    } catch {}
-    await sleep(100);
-    await port.close();
+    await (await nrfLib()).touch1200(port);
+    UI.ok("dfu");
+    UI.timer("disk", 4000, "za chwilę w systemie pojawi się nowy dysk");
+    await sleep(4000);
+    UI.user("disk", "przeciągnij na nowy dysk plik .uf2 – urządzenie samo się zrestartuje");
     setStatus("Tryb DFU włączony. Za chwilę pojawi się dysk – przeciągnij na niego plik .uf2.", "ok");
   } catch (e) {
-    try { await port.close(); } catch {}
     log("BŁĄD: " + (e.message || e));
-    setStatus("Nie udało się włączyć DFU: " + (e.message || e) + ". Kliknij szybko dwa razy RESET na urządzeniu.", "err");
+    UI.fail(explain(e));
+    setStatus("Nie udało się włączyć DFU: " + explain(e) + ". Możesz też kliknąć szybko dwa razy RESET na urządzeniu.", "err");
   } finally { lockUi(false); }
 }
 
@@ -537,57 +723,88 @@ async function otafixCheckSd(fw, b) {
     throw new Error(`firmware SF6 tej płytki jest pod SoftDevice ${fam}, a OTAFIX ma ${b.sd} – przerwano, nic nie zostało wgrane`);
 }
 
+const OTX_STEPS = [["fetch", "Pobranie i sprawdzenie bootloadera"], ["sd", "Zgodność z firmware SF6 (SoftDevice)"],
+  ["dfu", "Przełączenie w tryb DFU"], ["port", "Port urządzenia w trybie DFU"], ["prep", "Kasowanie miejsca na bootloader"],
+  ["send", "Wysyłanie SoftDevice + OTAFIX"], ["commit", "Bootloader zapisuje się – NIE odłączaj"], ["next", "Następny krok: firmware SF6"]];
+
+async function otafixPrepare(fw, b) {
+  UI.run("fetch", baseName(b.zip));
+  const pkg = await otafixPackage(b);
+  UI.ok("fetch", `SoftDevice ${b.sd} + OTAFIX · suma SHA-256 zgodna`);
+  UI.run("sd");
+  await otafixCheckSd(fw, b);
+  UI.ok("sd", "SoftDevice " + b.sd + " pasuje");
+  return pkg;
+}
+
 async function otafixStart(d, fw, b) {
-  if (!$("flOtxOk").checked) return;
+  if (!$("flOtxOk").checked || busyGuard()) return;
   if (!confirm("Wgrać bootloader OTAFIX na " + d.name + "?\n\nFirmware zostanie usunięte. Nie odłączaj kabla do końca – przerwanie może trwale zablokować płytkę.")) return;
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0); $("flOtxCont").hidden = true;
+  UI.begin(OTX_STEPS);
   try {
     setStatus("Pobieranie i sprawdzanie bootloadera…");
-    await otafixPackage(b);
-    await otafixCheckSd(fw, b);
+    await otafixPrepare(fw, b);
     const lib = await nrfLib();
     const vid = port.getInfo().usbVendorId;
     setStatus("Przełączanie w tryb DFU…");
+    UI.run("dfu", "restart urządzenia do bootloadera (1200 bps)");
     log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
     await lib.touch1200(port);
+    UI.elapsed("dfu", "czekam, aż urządzenie zgłosi się w trybie DFU", 3);
     await sleep(2500);
-    const known = (await SERIAL.getPorts()).filter(p => p !== port && !p.readable && p.getInfo().usbVendorId === vid);
-    if (known.length === 1) { lockUi(false); return otafixFlash(known[0], fw, b); }
+    UI.ok("dfu");
+    const known = await findDfuPort(port, vid, 2500);
+    if (known) { UI.ok("port", "wybrany automatycznie"); lockUi(false); return await otafixFlash(known, fw, b, true); }
+    UI.user("port", "kliknij „Kontynuuj” i wybierz NOWY port, który właśnie się pojawił");
     setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
     $("flOtxCont").hidden = false;
   } catch (e) {
     log("BŁĄD: " + (e.message || e));
-    setStatus("Nie udało się: " + (e.message || e), "err");
+    UI.fail(explain(e));
+    setStatus("Nie udało się: " + explain(e) + ". Bootloader nie był jeszcze wgrywany – płytka jest bezpieczna.", "err");
   } finally { lockUi(false); }
 }
 
 async function otafixPickAndFlash(fw, b) {
-  if (state.busy) return;
+  if (busyGuard()) return;
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
-  return otafixFlash(port, fw, b);
+  const cont = UI.has("next");
+  if (cont) UI.ok("port", "wybrany");
+  return otafixFlash(port, fw, b, cont);
 }
 
-async function otafixFlash(port, fw, b) {
+async function otafixFlash(port, fw, b, cont = false) {
+  if (!cont) UI.begin(OTX_STEPS.filter(([id]) => id !== "dfu" && id !== "port"));
   lockUi(true); setProgress(0);
+  let sent = false;
   try {
-    const pkg = await otafixPackage(b);
-    await otafixCheckSd(fw, b);
+    const pkg = UI.get("sd").st === "ok" ? await otafixPackage(b) : await otafixPrepare(fw, b);
     const lib = await nrfLib();
     setStatus("Wgrywanie bootloadera… NIE odłączaj urządzenia");
-    await lib.flashNrfDfu(port, pkg, { onProgress: f => setProgress(f * 100), log });
+    const ph = dfuPhases({ what: "bootloader", prepText: "bootloader przygotowuje pamięć" });
+    await lib.flashNrfDfu(port, pkg, {
+      onProgress: f => { sent = true; ph.onProgress(f); },
+      onPhase: ph.onPhase, log
+    });
     setProgress(100);
+    UI.ok("commit", "OTAFIX wgrany");
+    UI.user("next", "kliknij „Wgraj teraz firmware SF6” i wybierz port urządzenia (czeka w trybie DFU bez firmware)");
     $("flOtxCont").hidden = true;
     setStatus("Bootloader OTAFIX wgrany. Urządzenie czeka teraz w trybie DFU bez firmware – kliknij „Wgraj teraz firmware SF6” i wybierz jego port.", "ok");
     log("Bootloader zakończony. Następny krok: firmware SF6.");
   } catch (e) {
     console.error(e);
     log("BŁĄD: " + (e.message || e));
-    setStatus("Nie udało się: " + (e.message || e) + ". Nie odłączaj zasilania. Kliknij dwa razy RESET – jeśli pojawi się dysk, płytka działa: spróbuj ponownie albo użyj sposobu 1 (plik .uf2).", "err");
+    UI.fail(explain(e));
+    setStatus("Nie udało się: " + explain(e) + ". " + (sent
+      ? "Nie odłączaj zasilania. Kliknij dwa razy RESET – jeśli pojawi się dysk, płytka działa: spróbuj ponownie albo użyj sposobu 1 (plik .uf2)."
+      : "Bootloader nie był jeszcze wysyłany – płytka jest bezpieczna. Kliknij dwa razy RESET (tryb DFU) i spróbuj ponownie."), "err");
   } finally { lockUi(false); }
 }
 
@@ -601,7 +818,7 @@ function detectEsp(u8) {
 
 function renderCustom() {
   $("flS3").classList.remove("off");
-  setProgress(0); setStatus("");
+  setProgress(0); setStatus(""); UI.clear();
   $("flArea").innerHTML = `
     <div class="fl-notice">Tylko dla zaawansowanych – do testów własnych buildów. Strona nie sprawdza, czy plik pasuje do urządzenia:
       zły plik może sprawić, że urządzenie przestanie się uruchamiać (zwykle da się je odzyskać, wgrywając właściwy firmware w trybie BOOT/DFU).</div>

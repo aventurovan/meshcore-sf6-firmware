@@ -72,11 +72,35 @@ export function hciPacket(seq, data) {
   return new Uint8Array(out);
 }
 
+// ---------- port ----------
+// Otwarte połączenia tej strony: przed każdym otwarciem portu zamykamy to, co zostało po poprzedniej próbie
+// (zerwane wgrywanie zostawiało port otwarty → „The port is already open” / „Failed to open serial port”).
+const active = new Set();
+export async function releaseAll() {
+  for (const l of [...active]) await l.close();
+}
+export async function openPort(port, opts) {
+  if (port.readable || port.writable) {
+    await releaseAll();
+    try { await port.close(); } catch {}
+    await sleep(200);
+  }
+  try { await port.open(opts); }
+  catch (e) {
+    if (!/already open/i.test(e.message || "")) throw e;
+    await releaseAll();
+    try { await port.close(); } catch {}
+    await sleep(300);
+    await port.open(opts);
+  }
+}
+
 // ---------- połączenie ----------
 class Link {
   constructor(port) { this.port = port; this.buf = []; this.waiters = []; this.closed = false; }
   async open() {
-    await this.port.open({ baudRate: 115200 });
+    await openPort(this.port, { baudRate: 115200 });
+    active.add(this);
     await sleep(100);
     try { // jak nrfutil: krótki impuls DTR, bootloader zaczyna nasłuchiwać
       await this.port.setSignals({ dataTerminalReady: false });
@@ -125,10 +149,17 @@ class Link {
     return this.waitAck(timeout);
   }
   async close() {
+    if (this.done) return;
+    this.done = true;
+    active.delete(this);
     try { await this.reader.cancel(); } catch {}
+    try { await Promise.race([this.loop, sleep(500)]); } catch {}
     try { this.reader.releaseLock(); } catch {}
+    try { await this.writer.abort(); } catch {}   // zawieszony zapis blokowałby zamknięcie portu
     try { this.writer.releaseLock(); } catch {}
-    try { await this.port.close(); } catch {}
+    for (let i = 0; i < 3; i++) {
+      try { await this.port.close(); break; } catch { await sleep(200); }
+    }
   }
 }
 
@@ -152,11 +183,13 @@ export async function readDfuZip(buf, { bootloader = false } = {}) {
   return { bin, dat, mode: MODE_SOFTDEVICE | MODE_BOOTLOADER, sdSize, blSize, appSize: 0 };
 }
 
-export async function flashNrfDfu(port, { bin, dat, mode = MODE_APPLICATION, sdSize = 0, blSize = 0, appSize }, { onProgress = () => {}, log = () => {} } = {}) {
+// onPhase(nazwa, dane): open, erase {ms}, send, commit, activate {ms} – do pokazania przebiegu na stronie
+export async function flashNrfDfu(port, { bin, dat, mode = MODE_APPLICATION, sdSize = 0, blSize = 0, appSize }, { onProgress = () => {}, log = () => {}, onPhase = () => {} } = {}) {
   if (mode === MODE_APPLICATION) appSize = bin.length;
   const link = new Link(port);
   let seq = 0;
   const next = () => (seq = (seq + 1) % 8);
+  onPhase("open");
   await link.open();
   try {
     log(mode === MODE_APPLICATION ? `Start DFU: aplikacja ${bin.length} B`
@@ -164,17 +197,20 @@ export async function flashNrfDfu(port, { bin, dat, mode = MODE_APPLICATION, sdS
     await link.send(next(), [...int32(DFU_START_PACKET), ...int32(mode), ...int32(sdSize), ...int32(blSize), ...int32(appSize)]);
     const erase = Math.max(500, (Math.floor(bin.length / PAGE_SIZE) + 1) * PAGE_ERASE_TIME);
     log(`Kasowanie pamięci (${(erase / 1000).toFixed(1)} s)`);
+    onPhase("erase", { ms: erase });
     await sleep(erase);
 
     await link.send(next(), [...int32(DFU_INIT_PACKET), ...dat, 0, 0]);
 
     const total = Math.ceil(bin.length / PACKET_MAX);
+    onPhase("send", { bytes: bin.length });
     for (let i = 0, n = 0; i < bin.length; i += PACKET_MAX, n++) {
       await link.send(next(), [...int32(DFU_DATA_PACKET), ...bin.subarray(i, i + PACKET_MAX)]);
       if (n % 8 === 0) await sleep(PAGE_WRITE_TIME);
       onProgress((n + 1) / total);
     }
     await sleep(PAGE_WRITE_TIME);
+    onPhase("commit");
     log(mode === MODE_APPLICATION ? "Zatwierdzanie firmware" : "Zatwierdzanie – bootloader przepisuje SoftDevice i siebie");
     await link.send(next(), int32(DFU_STOP_DATA_PACKET), 5000).catch(e => log("Brak potwierdzenia końca (" + e.message + ") – zwykle oznacza restart urządzenia."));
   } finally {
@@ -183,12 +219,13 @@ export async function flashNrfDfu(port, { bin, dat, mode = MODE_APPLICATION, sdS
   // bootloader przepisuje obraz i restartuje urządzenie
   const activate = Math.max(500, (Math.floor(bin.length / PAGE_SIZE) + 1) * PAGE_ERASE_TIME) +
                    (Math.floor(bin.length / PAGE_SIZE) + 1) * PAGE_WRITE_TIME;
+  onPhase("activate", { ms: activate });
   await sleep(activate);
 }
 
 // 1200 bps "touch": aplikacja MeshCore restartuje się do bootloadera
 export async function touch1200(port) {
-  await port.open({ baudRate: 1200 });
+  await openPort(port, { baudRate: 1200 });
   try {
     await port.setSignals({ dataTerminalReady: true });
     await sleep(100);
