@@ -138,7 +138,8 @@ try:
             pg.fill('#msgInput', 'Słyszę Cię dobrze, SNR 6 dB 👍') if pg.is_visible('#msgInput') else None
             pg.press('#msgInput', 'Enter') if pg.is_visible('#msgInput') else None
             W(2500); shot('rozmowa')
-            pg.click('#msgList .msg >> nth=0'); W(600); shot('wiadomosc-opcje')
+            m = '#msgList .msg:not(.mine)[data-mid] >> nth=-1' if pg.locator('#msgList .msg:not(.mine)[data-mid]').count() else '#msgList .msg[data-mid] >> nth=-1'
+            pg.click(m, delay=800); W(900); shot('wiadomosc-opcje')
             pg.keyboard.press('Escape'); pg.evaluate("document.getElementById('sheetBg') && document.getElementById('sheetBg').click()"); W(300)
             back()
         step('czaty', czaty)
