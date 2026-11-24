@@ -464,7 +464,9 @@ function otafixMount(d, fw) {
           <li>Tylko <b>na stole, przez kabel USB</b>, z naładowaną baterią albo zasilaczem. Nie na maszcie.</li>
           <li>Przerwanie w trakcie (odłączenie kabla, brak zasilania) może <b>trwale zablokować płytkę</b> – ratunek tylko programatorem SWD.</li>
           <li>Firmware zostanie <b>usunięte</b>. Zaraz potem wgraj repeater SF6 (przycisk poniżej).</li>
-          <li>Zapisz ustawienia repeatera (nazwa, hasło admina, pozycja, region, filtr) – mogą wymagać ponownego ustawienia.</li>
+          <li>Klucz (tożsamość) i ustawienia repeatera zostają – są w osobnej części pamięci, której bootloader nie rusza.
+            Na wszelki wypadek zapisz klucz: w konsoli USB <span class="mono">get prv.key</span> (przywrócenie: <span class="mono">set prv.key …</span>).
+            Companion z kontaktami w dodatkowej pamięci (ExtraFS) może je stracić.</li>
         </ul>
         <label class="fl-check fl-check-danger"><input type="checkbox" id="flOtxOk">
           <span><b>Rozumiem ryzyko i wgrywam na stole</b></span></label>
