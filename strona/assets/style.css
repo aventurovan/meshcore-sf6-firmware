@@ -1209,7 +1209,7 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 .msi-toc a b{ width:24px; height:24px; border-radius:12px; background:var(--ms-accent); color:var(--ms-on-accent); font-size:12px; display:flex; align-items:center; justify-content:center; font-family:var(--ms-mono); }
 .msi-toc a:hover{ border-color:var(--ms-accent); }
 .msi-sec{ padding:60px 0; scroll-margin-top:80px; }
-.msi-grid{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:40px; align-items:start; }
+.msi-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:40px; align-items:start; }
 .msi-text{ max-width:62ch; }
 .msi-wide{ max-width:none; margin-bottom:28px; }
 .msi-text h2{ margin-bottom:14px !important; }
@@ -1225,13 +1225,12 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 .msi-tip{ background:var(--ms-card); border:1px solid var(--ms-line); border-left:4px solid var(--ms-accent); border-radius:14px; padding:14px 16px; font-size:15px !important; }
 .msi-card{ background:var(--ms-card); border:1px solid var(--ms-line); border-radius:20px; padding:18px 22px; }
 .msi-card h3{ margin:0; font-size:18px; }
-.msi-shots{ display:flex; gap:22px; overflow-x:auto; padding:6px 24px 30px; margin:0 -24px; scroll-snap-type:x mandatory; scroll-padding:0 24px; }
-.msi-shot{ margin:0; flex:0 0 auto; width:230px; scroll-snap-align:start; text-align:center; }
+.msi-shots{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px 22px; padding:6px 0 30px; }
+.msi-shot{ margin:0; flex:0 0 210px; min-width:0; text-align:center; }
 .msi-shot a{ display:block; border-radius:30px; padding:7px; background:#0B110E; box-shadow:0 10px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.08); }
 .msi-shot img{ display:block; width:100%; height:auto; border-radius:24px; }
 .msi-shot a:hover{ transform:translateY(-2px); transition:transform .15s; }
 .msi-shot figcaption{ margin-top:10px; font-size:14px; font-weight:600; color:var(--ms-muted); }
-.msi-grid .msi-shots{ justify-content:flex-end; }
 .msi-changes{ display:grid; gap:10px; margin-bottom:18px; }
 .msi-change{ background:var(--ms-card); border:1px solid var(--ms-line); border-radius:16px; padding:12px 18px; }
 .msi-change summary{ cursor:pointer; display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:16px; }
@@ -1243,7 +1242,7 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 .msi-lb button{ position:fixed; top:16px; right:16px; width:44px; height:44px; border-radius:22px; border:0; background:#fff; font-size:26px; cursor:pointer; }
 .theme-light .msi-toc a{ background:#FFFFFF; border:2px solid var(--ms-line); }
 .theme-light .msi-tip, .theme-light .msi-card, .theme-light .msi-change{ background:var(--hl-cream, #FFF6EC); border-color:var(--ms-line); }
-@media (max-width:900px){ .msi-grid{ grid-template-columns:1fr; } .msi-grid .msi-shots{ justify-content:flex-start; } .msi-cols{ grid-template-columns:1fr; } }
-@media (max-width:520px){ .msi-shot{ width:200px; } .msi-sec{ padding:44px 0; } }
+@media (max-width:900px){ .msi-grid{ grid-template-columns:1fr; } .msi-cols{ grid-template-columns:1fr; } }
+@media (max-width:520px){ .msi-shots{ gap:18px 12px; } .msi-shot{ flex-basis:calc(50% - 6px); } .msi-shot a{ border-radius:22px; padding:5px; } .msi-shot img{ border-radius:18px; } .msi-shot figcaption{ font-size:12.5px; } .msi-sec{ padding:44px 0; } }
 .ms-chip-link{ text-decoration:none; color:var(--ms-text) !important; border:1px solid var(--ms-accent) !important; cursor:pointer; }
 .ms-chip-link:hover{ background:var(--ms-accent) !important; color:var(--ms-on-accent) !important; }
