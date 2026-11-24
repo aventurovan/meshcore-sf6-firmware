@@ -59,7 +59,9 @@ const UI = {
   begin(list) {
     this.stop();
     this.steps = list.filter(Boolean).map(([id, label]) => ({ id, label, st: "wait", det: "" }));
-    this.render(); setProgress(0); this.bar(""); showNext(false);
+    this.render(); setProgress(0); this.bar(""); showNext(false); setCont(null);
+    const run = $("flRun"), r = run.getBoundingClientRect();
+    if (r.top > innerHeight - 120 || r.bottom < 80) run.scrollIntoView({ behavior: "smooth", block: "start" });
   },
   has(id) { return this.steps.some(s => s.id === id); },
   get(id) { return this.steps.find(s => s.id === id); },
@@ -111,6 +113,7 @@ const UI = {
   render() {
     const el = $("flSteps"); if (!el) return;
     el.hidden = !this.steps.length;
+    $("flRunIdle").hidden = !!this.steps.length;
     const took = s => s.st === "ok" && s.took > 1500 ? `${Math.round(s.took / 1000)} s` : "";
     el.innerHTML = this.steps.map(s => {
       const d = [s.det, took(s)].filter(Boolean).join(" · ");
@@ -144,6 +147,10 @@ async function readDevice(port, stepId) {
   const lib = await nrfLib();
   if (stepId) UI.run(stepId, "pytam firmware przez USB (ver, board, get bootloader.ver)");
   let r = {};
+  if (inDfu(port)) {
+    if (stepId) UI.skip(stepId, "urządzenie jest w trybie DFU – bootloader odczytasz z pliku INFO_UF2.TXT na jego dysku");
+    state.lastBl = null; return { dfu: true, bl: null };
+  }
   try { r = await lib.readCli(port, ["ver", "board", "get bootloader.ver"], { timeout: 1200, needFirst: true }); }
   catch (e) { log("Odczyt CLI: " + (e.message || e)); }
   const bl = lib.describeBootloader(r["get bootloader.ver"]);
@@ -167,6 +174,9 @@ function showNext(on) {
     <p>Po restarcie połącz repeater przez USB w konfiguratorze RPT. Odczyta ustawienia, porówna je z siecią SF6 i jednym kliknięciem ustawi nazwę, lokalizację, hasło administratora, region i resztę.</p>
     <a class="btn btn-green" href="/rpt/">Ustaw repeater przez USB →</a>`;
 }
+
+// Adafruit/Seeed: PID z bitem 0x8000 = działający firmware, bez niego = bootloader (tryb DFU)
+const inDfu = port => { const i = port.getInfo(); return [0x239a, 0x2886].includes(i.usbVendorId) && i.usbProductId != null && !(i.usbProductId & 0x8000); };
 
 // zrozumiałe wyjaśnienie typowych błędów portu
 function explain(e) {
@@ -194,6 +204,10 @@ async function findDfuPort(oldPort, vid, ms = 6000) {
   }
   return null;
 }
+
+// jeden przycisk „Kontynuuj” w panelu przebiegu (firmware, kasowanie, OTAFIX)
+function setCont(fn) { state.cont = fn; $("flCont").hidden = !fn; }
+$("flCont").onclick = () => { const f = state.cont; if (f && !state.busy) f(); };
 
 async function loadManifest() {
   try {
@@ -283,7 +297,7 @@ const na = cond => cond ? 'disabled data-na="1"' : "";
 
 function renderFlash() {
   const d = state.device, area = $("flArea");
-  setProgress(0); setStatus(""); UI.clear(); showNext(false);
+  setProgress(0); setStatus(""); UI.clear(); showNext(false); setCont(null);
   if (!d || !state.role) { $("flS3").classList.add("off"); area.innerHTML = `<p class="fl-hint">Wybierz rolę i urządzenie.</p>`; return; }
   $("flS3").classList.remove("off");
   const fw = d.firmware[state.role];
@@ -313,7 +327,6 @@ function renderFlash() {
       ${eraseBox(false)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
-        <button class="btn btn-green-line" id="flNrfCont" hidden>Kontynuuj – wybierz port DFU</button>
       </div>
       <div class="fl-hint"><ol>
         <li>Podłącz ${esc(d.name)} kablem USB i kliknij „Wgraj przez USB”. Wybierz port urządzenia.</li>
@@ -333,7 +346,6 @@ function renderFlash() {
       if (state.nrfErase && !confirmErase()) return;
       nrfStart(d, fw);
     };
-    $("flNrfCont").onclick = () => nrfPickAndFlash();
     $("flNrfDirect").onclick = e => {
       e.preventDefault();
       if (state.busy || !hasSerial) return;
@@ -365,6 +377,7 @@ function renderFlash() {
 
 function lockUi(b) {
   state.busy = b;
+  if ($("flCont")) $("flCont").disabled = b;
   const otxOk = !!($("flOtxOk") && $("flOtxOk").checked);
   document.querySelectorAll("#flArea button").forEach(x => x.disabled = b || x.dataset.na === "1" || (x.dataset.otx === "1" && !otxOk));
 }
@@ -390,7 +403,7 @@ async function nrfStart(d, fw) {
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
-  lockUi(true); setProgress(0); $("flNrfCont").hidden = true;
+  lockUi(true); setProgress(0); setCont(null);
   UI.begin([["fetch", "Pobranie firmware"], ["info", "Odczyt urządzenia (firmware, bootloader)"], ["dfu", "Przełączenie w tryb DFU"], ["port", "Port urządzenia w trybie DFU"],
     state.nrfErase && ["wipe", "Kasowanie całej pamięci"], ["prep", "Przygotowanie pamięci"], ["send", "Wysyłanie firmware"], ["commit", "Zatwierdzenie i restart"]]);
   try {
@@ -400,6 +413,10 @@ async function nrfStart(d, fw) {
     UI.ok("fetch", (pkg.bin.length / 1024).toFixed(0) + " KB");
     const lib = await nrfLib();
     const vid = port.getInfo().usbVendorId;
+    if (inDfu(port)) {
+      UI.skip("info", "urządzenie jest już w trybie DFU"); UI.ok("dfu", "już w trybie DFU"); UI.ok("port", "ten sam port");
+      lockUi(false); return await nrfFlash(port, fw, { cont: true, touched: true });
+    }
     await readDevice(port, "info");
     setStatus("Przełączanie w tryb DFU…");
     UI.run("dfu", "restart urządzenia do bootloadera (1200 bps)");
@@ -414,7 +431,7 @@ async function nrfStart(d, fw) {
     UI.user("port", "kliknij „Kontynuuj” i wybierz NOWY port, który właśnie się pojawił");
     setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
     state.nrfFw = fw;
-    $("flNrfCont").hidden = false;
+    setCont(() => nrfPickAndFlash());
   } catch (e) {
     log("BŁĄD: " + (e.message || e));
     UI.fail(explain(e));
@@ -499,7 +516,7 @@ async function nrfFlash(port, fw, { cont = false, touched = false } = {}) {
       state.nrfErase = false; // pamięć już czysta – ewentualne ponowienie tylko wgrywa
       if (!again) {
         state.nrfFw = fw;
-        $("flNrfCont").hidden = false;
+        setCont(() => nrfPickAndFlash());
         UI.user("prep", "kliknij „Kontynuuj” i wybierz port urządzenia w trybie DFU");
         setStatus("Pamięć skasowana. Kliknij „Kontynuuj” i wybierz port urządzenia w trybie DFU, żeby wgrać firmware.", "ok");
         return;
@@ -522,7 +539,7 @@ async function nrfFlash(port, fw, { cont = false, touched = false } = {}) {
       const dfu = await findDfuPort(port, vid, 4000);
       if (!dfu) {
         state.nrfFw = fw;
-        $("flNrfCont").hidden = false;
+        setCont(() => nrfPickAndFlash());
         UI.user("prep", "urządzenie przełączone – kliknij „Kontynuuj” i wybierz NOWY port");
         setStatus("Urządzenie jest teraz w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który się pojawił.", "ok");
         return;
@@ -532,7 +549,7 @@ async function nrfFlash(port, fw, { cont = false, touched = false } = {}) {
     }
     setProgress(100);
     UI.ok("commit", "urządzenie uruchomione");
-    $("flNrfCont").hidden = true;
+    setCont(null);
     setStatus(doneMsg(), "ok");
     showNext(true);
     log("Zakończono.");
@@ -709,7 +726,6 @@ function otafixMount(d, fw) {
         Trwa około minuty. Nie odłączaj kabla, dopóki strona nie napisze „gotowe”.</p>
       <div class="fl-actions">
         <button class="btn btn-warn" id="flOtxWeb" disabled data-otx="1" ${hasSerial ? "" : 'data-na="1"'}>Wgraj bootloader przez USB</button>
-        <button class="btn btn-green-line" id="flOtxCont" hidden>Kontynuuj – wybierz port DFU</button>
       </div>` : ""}
       <div class="fl-actions" style="margin-top:14px">
         <button class="btn btn-green" id="flOtxApp" ${na(!hasSerial || !fw.zip)}>Wgraj teraz firmware SF6</button>
@@ -727,7 +743,6 @@ function otafixMount(d, fw) {
   $("flOtxCheck").onclick = () => otafixCheck(otx);
   if (viaBrowser) {
     $("flOtxWeb").onclick = () => otafixStart(d, fw, b);
-    $("flOtxCont").onclick = () => otafixPickAndFlash(fw, b);
   }
   $("flOtxApp").onclick = () => { state.nrfErase = false; nrfPickAndFlash(fw); };
 }
@@ -745,7 +760,8 @@ async function otafixCheck(otx) {
     const r = await readDevice(port, "info");
     const bl = r.bl, latest = (String(otx.version).match(/OTAFIX\s*\d+\.\d+/i) || [""])[0].replace(/\s/g, "").toUpperCase();
     let msg, kind;
-    if (!r.ver) { msg = "Brak odpowiedzi. Odczyt działa z firmware repeatera MeshCore uruchomionym normalnie (nie w trybie DFU, nie companion). W trybie DFU otwórz plik INFO_UF2.TXT na dysku urządzenia."; kind = "err"; }
+    if (r.dfu) { msg = "Urządzenie jest w trybie DFU – wtedy firmware nie odpowiada. Wersję bootloadera zobaczysz w pliku INFO_UF2.TXT na dysku urządzenia (linia „UF2 Bootloader …”) albo po restarcie (RESET) sprawdź ponownie."; kind = "warn"; }
+    else if (!r.ver) { msg = "Brak odpowiedzi. Odczyt działa z firmware repeatera MeshCore uruchomionym normalnie (nie w trybie DFU, nie companion). W trybie DFU otwórz plik INFO_UF2.TXT na dysku urządzenia."; kind = "err"; }
     else if (!bl) { msg = `Ten firmware (${r.ver.replace(/\s*\(Build:.*$/, "")}) nie podaje wersji bootloadera. Sprawdź plik INFO_UF2.TXT w trybie DFU albo najpierw wgraj aktualny firmware SF6.`; kind = ""; }
     else if (bl.ok && latest && bl.text.toUpperCase().replace(/\s/g, "").includes(latest)) { msg = `Masz najnowszy OTAFIX (${bl.text}). Nic nie rób – aktualizacja przez Bluetooth jest bezpieczna.`; kind = "ok"; }
     else if (bl.ok) { msg = `Masz OTAFIX (${bl.text}) – wystarczy, nic nie musisz robić. Najnowszy: ${otx.version}.`; kind = "ok"; }
@@ -806,13 +822,14 @@ async function otafixStart(d, fw, b) {
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
-  lockUi(true); setProgress(0); $("flOtxCont").hidden = true;
+  lockUi(true); setProgress(0); setCont(null);
   UI.begin(OTX_STEPS);
   try {
     setStatus("Pobieranie i sprawdzanie bootloadera…");
     await otafixPrepare(fw, b);
     const lib = await nrfLib();
     const vid = port.getInfo().usbVendorId;
+    if (inDfu(port)) { UI.ok("dfu", "już w trybie DFU"); UI.ok("port", "ten sam port"); lockUi(false); return await otafixFlash(port, fw, b, true); }
     setStatus("Przełączanie w tryb DFU…");
     UI.run("dfu", "restart urządzenia do bootloadera (1200 bps)");
     log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
@@ -824,7 +841,7 @@ async function otafixStart(d, fw, b) {
     if (known) { UI.ok("port", "wybrany automatycznie"); lockUi(false); return await otafixFlash(known, fw, b, true); }
     UI.user("port", "kliknij „Kontynuuj” i wybierz NOWY port, który właśnie się pojawił");
     setStatus("Urządzenie jest w trybie DFU. Kliknij „Kontynuuj” i wybierz nowy port, który właśnie się pojawił.", "ok");
-    $("flOtxCont").hidden = false;
+    setCont(() => otafixPickAndFlash(fw, b));
   } catch (e) {
     log("BŁĄD: " + (e.message || e));
     UI.fail(explain(e));
@@ -858,7 +875,7 @@ async function otafixFlash(port, fw, b, cont = false) {
     setProgress(100);
     UI.ok("commit", "OTAFIX wgrany");
     UI.user("next", "kliknij „Wgraj teraz firmware SF6” i wybierz port urządzenia (czeka w trybie DFU bez firmware)");
-    $("flOtxCont").hidden = true;
+    setCont(null);
     setStatus("Bootloader OTAFIX wgrany. Urządzenie czeka teraz w trybie DFU bez firmware – kliknij „Wgraj teraz firmware SF6” i wybierz jego port.", "ok");
     log("Bootloader zakończony. Następny krok: firmware SF6.");
   } catch (e) {
@@ -881,7 +898,7 @@ function detectEsp(u8) {
 
 function renderCustom() {
   $("flS3").classList.remove("off");
-  setProgress(0); setStatus(""); UI.clear(); showNext(false);
+  setProgress(0); setStatus(""); UI.clear(); showNext(false); setCont(null);
   $("flArea").innerHTML = `
     <div class="fl-notice">Tylko dla zaawansowanych – do testów własnych buildów. Strona nie sprawdza, czy plik pasuje do urządzenia:
       zły plik może sprawić, że urządzenie przestanie się uruchamiać (zwykle da się je odzyskać, wgrywając właściwy firmware w trybie BOOT/DFU).</div>
@@ -920,7 +937,6 @@ async function onCustomFile(e) {
       ${eraseBox(false)}
       <div class="fl-actions">
         <button class="btn btn-green" id="flNrf" ${na(!hasSerial)}>Wgraj przez USB</button>
-        <button class="btn btn-green-line" id="flNrfCont" hidden>Kontynuuj – wybierz port DFU</button>
       </div>
       <p class="fl-hint">Urządzenie zrestartuje się w tryb DFU; jeśli strona poprosi, kliknij „Kontynuuj” i wybierz nowy port.
       Urządzenie jest już w trybie DFU? <a href="#" id="flNrfDirect">Wgraj od razu</a>.</p>`;
@@ -929,7 +945,6 @@ async function onCustomFile(e) {
       if (state.nrfErase && !confirmErase()) return;
       nrfStart({ name: "urządzenie" }, fw);
     };
-    $("flNrfCont").onclick = () => nrfPickAndFlash();
     $("flNrfDirect").onclick = ev => {
       ev.preventDefault();
       if (state.busy || !hasSerial) return;

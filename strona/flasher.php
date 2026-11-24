@@ -32,14 +32,24 @@ require __DIR__ . '/includes/header.php';
 
     <div class="card fl-step off" id="flS3">
       <h2><span class="fl-num">3</span>Wgrywanie</h2>
-      <div id="flArea"><p class="fl-hint">Wybierz rolę i urządzenie.</p></div>
-      <ol class="fl-steps" id="flSteps" hidden aria-label="Przebieg wgrywania"></ol>
-      <div class="fl-barlbl" id="flBarLbl"></div>
-      <div class="fl-progress" aria-hidden="true"><div id="flBar"></div></div>
-      <div class="fl-status" id="flStatus" role="status" aria-live="polite"></div>
-      <div class="fl-note fl-next" id="flNext" hidden></div>
-      <details class="fl-log"><summary>Dziennik</summary><pre id="flLog"></pre></details>
-      <p class="fl-hint"><b>Po aktualizacji companiona:</b> usuń urządzenie z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj je od nowa. Po wgraniu firmware radio nie ma już starych kluczy parowania, a telefon dalej ich używa — połączenie działa wtedy tylko częściowo, np. kontakty się wczytują, a wiadomości nie przychodzą.</p>
+      <div class="fl-s3grid">
+        <div class="fl-s3main">
+          <div id="flArea"><p class="fl-hint">Wybierz rolę i urządzenie.</p></div>
+          <p class="fl-hint"><b>Po aktualizacji companiona:</b> usuń urządzenie z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj je od nowa. Po wgraniu firmware radio nie ma już starych kluczy parowania, a telefon dalej ich używa — połączenie działa wtedy tylko częściowo, np. kontakty się wczytują, a wiadomości nie przychodzą.</p>
+        </div>
+        <aside class="fl-run" id="flRun" aria-label="Przebieg wgrywania">
+          <div class="fl-run-h">Przebieg</div>
+          <p class="fl-run-idle" id="flRunIdle">Tu zobaczysz każdy etap – kasowanie pamięci, tryb DFU, bootloader OTAFIX i firmware SF6 – z postępem i czasem.</p>
+          <ol class="fl-steps" id="flSteps" hidden aria-label="Kroki"></ol>
+          <div class="fl-barlbl" id="flBarLbl"></div>
+          <div class="fl-progress" aria-hidden="true"><div id="flBar"></div></div>
+          <div class="fl-status" id="flStatus" role="status" aria-live="polite"></div>
+          <div class="fl-actions fl-cont"><button class="btn btn-green" id="flCont" hidden>Kontynuuj – wybierz port DFU</button></div>
+          <div class="fl-note fl-next" id="flNext" hidden></div>
+          <div class="fl-run-logh">Dziennik</div>
+          <pre id="flLog" class="fl-runlog"></pre>
+        </aside>
+      </div>
     </div>
 
     <p class="fl-foot">Firmware budowany automatycznie z oficjalnych wydań <a href="https://github.com/meshcore-dev/MeshCore/releases" target="_blank" rel="noopener">meshcore-dev/MeshCore</a>. Źródła i wszystkie pliki: <a href="<?= URL_SF6_FIRMWARE_REPO ?>" target="_blank" rel="noopener">GitHub</a>. Ustawienia SF6 obowiązują przy czystej instalacji; aktualizacja zachowuje to, co już jest zapisane w urządzeniu.</p>

@@ -127,7 +127,21 @@
 
 /* ===== Flasher SF6 (flasher.php) ===== */
 .fl-page{ padding:56px 0 80px; }
-.fl-wrap{ max-width:980px; }
+.fl-wrap{ max-width:1280px; }
+.fl-s3grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(340px,420px); gap:28px; align-items:start; }
+.fl-run{ position:sticky; top:104px; max-height:calc(100vh - 124px); overflow:auto; border:1px solid var(--line); border-radius:14px; padding:14px 16px 16px; background:var(--panel-2); }
+.fl-run-h, .fl-run-logh{ font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.fl-run-logh{ margin-top:16px; }
+.fl-run-idle{ color:var(--muted); font-size:14px; margin:8px 0 0; }
+.fl-run .fl-steps{ margin-top:10px; background:var(--panel); }
+.fl-run .fl-progress{ margin-top:6px; }
+.fl-cont{ margin-top:10px; } .fl-cont .btn{ width:100%; } .fl-cont:has(#flCont[hidden]){ display:none; }
+.fl-runlog{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; height:220px; overflow:auto; font:11.5px/1.45 'JetBrains Mono',monospace; color:#b9c7df; white-space:pre-wrap; margin:6px 0 0; }
+.fl-runlog:empty::before{ content:"—"; color:var(--muted); }
+@media (max-width:980px){ .fl-s3grid{ grid-template-columns:1fr; } .fl-run{ position:static; max-height:none; } }
+.theme-light .fl-run{ background:var(--hl-sand, #F4EEE4); border-color:var(--line); border-radius:20px; }
+.theme-light .fl-run .fl-steps, .theme-light .fl-runlog{ background:#FFFFFF; }
+.theme-light .fl-runlog{ background:var(--hl-ink); color:#D7E3DD; border-color:var(--hl-ink); }
 .fl-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:28px; }
 .fl-head > div:first-child{ flex:1 1 auto; min-width:0; }
 .fl-head h1{ font-size:clamp(30px,4.4vw,44px); margin:16px 0 10px; }
