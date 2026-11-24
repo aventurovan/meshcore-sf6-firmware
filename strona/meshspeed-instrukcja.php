@@ -15,6 +15,8 @@ else { define('MSI_DIR', __DIR__ . '/assets/msi'); define('MSI_URL', '/assets/ms
 $MSI = MSI_DIR;
 $info = @json_decode(@file_get_contents("$MSI/zrzuty.json"), true) ?: [];
 $zmiany = @json_decode(@file_get_contents("$MSI/zmiany.json"), true) ?: [];
+// „Ostatnie wersje”: tylko duże wydania (X.Y.0), bez poprawek X.Y.1, X.Y.2…; najwyżej 5
+$zmiany = array_slice(array_values(array_filter($zmiany, fn($z) => preg_match('/^\d+\.\d+\.0$/', $z['wersja'] ?? ''))), 0, 5);
 
 /** telefon ze zrzutem ekranu; $p = podpis pod telefonem */
 function msi_shot($name, $p = '') {
@@ -318,7 +320,7 @@ $SPIS = [
     <div class="wrap">
       <div class="msi-text msi-wide">
         <span class="ms-kicker">13 · Co nowego</span>
-        <h2>Ostatnie wersje</h2>
+        <h2>Ostatnie duże wersje</h2>
       </div>
       <?php if ($zmiany): ?>
       <div class="msi-changes">

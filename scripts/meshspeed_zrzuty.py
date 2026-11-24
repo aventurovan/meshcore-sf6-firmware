@@ -222,7 +222,7 @@ zm, cur = [], None
 for line in open(os.path.join(MS, 'CHANGELOG.md'), encoding='utf-8'):
     m = re.match(r'#{2,3}\s+([\d.]+)\s*[—–-]\s*(.+)', line)
     if m:
-        if len(zm) >= 8: break
+        if len(zm) >= 25: break   # strona pokazuje z tego tylko duże wydania (X.Y.0)
         cur = {'wersja': m[1], 'tytul': m[2].strip(), 'punkty': []}; zm.append(cur); continue
     if cur is None: continue
     if line.startswith('- '): cur['punkty'].append(line[2:].rstrip())
