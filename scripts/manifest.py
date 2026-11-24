@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """index <type> <version> <tag> <katalog z plikami>  -> index/<type>.json
    build <katalog wyjściowy>                        -> manifest.json z index/*.json"""
-import datetime, glob, json, os, re, sys
+import datetime, glob, hashlib, json, os, re, sys
 
 ROLE_SUFFIX = [  # (sufiks env, klucz roli w manifeście, typ wydania)
     ("_companion_radio_ble", "companion_ble", "companion"),
@@ -42,6 +42,8 @@ def cmd_index(t, version, tag, src):
         e = files.setdefault(m["env"], {"device": dev, "role": role, "files": {}})
         key = "merged" if m["merged"] else m["ext"]
         e["files"][key] = f"firmware/{t}/{version}/{p}"
+        if key == "zip":   # paczka DFU nRF52: suma do sprawdzenia w aplikacji (aktualizacja repeatera przez Bluetooth)
+            e["files"]["zip_sha256"] = hashlib.sha256(open(os.path.join(src, p), "rb").read()).hexdigest()
     os.makedirs("index", exist_ok=True)
     data = {"type": t, "version": version, "upstream": tag,
             "built": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -58,7 +60,7 @@ def platform_of(f):
 
 def entry(platform, f):
     if platform == "esp32": return {"update": f.get("bin"), "full": f.get("merged")}
-    if platform == "nrf52": return {"uf2": f.get("uf2"), "zip": f.get("zip")}
+    if platform == "nrf52": return {"uf2": f.get("uf2"), "zip": f.get("zip"), "zip_sha256": f.get("zip_sha256")}
     if platform == "rp2040": return {"uf2": f.get("uf2"), "bin": f.get("bin")}
     return {"bin": f.get("bin"), "hex": f.get("hex")}
 

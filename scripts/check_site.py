@@ -44,8 +44,8 @@ if man:
         for role, fw in d["firmware"].items():
             roles[role] = roles.get(role, 0) + 1
             for k, p in fw.items():
-                if not isinstance(p, str):
-                    continue  # np. reset_ota
+                if not isinstance(p, str) or k.endswith("_sha256"):
+                    continue  # np. reset_ota, sumy kontrolne
                 files.append((d["id"], role, k, p))
         if d["platform"] == "esp32" and any(not fw.get("update") or not fw.get("full") for fw in d["firmware"].values()):
             warnings.append(f"{d['id']}: ESP32 bez pliku .bin lub merged")

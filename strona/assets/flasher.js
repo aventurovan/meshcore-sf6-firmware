@@ -447,7 +447,7 @@ function otafixMount(d, fw) {
   area.appendChild(box);
   if (!otx) { box.innerHTML = `<p class="fl-hint">Bootloader OTAFIX: wczytywanie…</p>`; return; }
   if (otx.error) { box.innerHTML = `<p class="fl-hint">Bootloader OTAFIX: lista niedostępna (${esc(otx.error)}).</p>`; return; }
-  const bk = otx.devices && otx.devices[d.id], b = bk && otx.boards[bk];
+  const bk = otx.devices && otx.devices[String(d.id).toLowerCase()], b = bk && otx.boards[bk];
   if (!b) { box.innerHTML = `<p class="fl-hint">Bootloader OTAFIX nie ma wersji dla ${esc(d.name)}.</p>`; return; }
   const viaBrowser = !!(fw.zip && b.zip);
   box.innerHTML = `

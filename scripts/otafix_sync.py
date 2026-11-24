@@ -112,7 +112,8 @@ def main():
             continue
         data["boards"][board] = entry
         print(f"OK {board}: SoftDevice {entry['sd']}")
-    data["devices"] = {d: b for d, b in DEVICES.items() if b in data["boards"]}
+    # id urządzenia w manifeście flashera jest małymi literami (manifest.py: device.lower())
+    data["devices"] = {d.lower(): b for d, b in DEVICES.items() if b in data["boards"]}
     if not data["devices"]:
         sys.exit("żadna płytka nie przeszła sprawdzenia – nic nie wgrywam")
     json.dump(data, open(os.path.join(out, "otafix.json"), "w"), indent=1, ensure_ascii=False)
