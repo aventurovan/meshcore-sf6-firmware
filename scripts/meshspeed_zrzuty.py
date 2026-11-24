@@ -7,7 +7,7 @@ i robi zrzuty kolejnych ekranów w rozmiarze telefonu. Nazwy węzłów w atrapie
   python3 scripts/meshspeed_zrzuty.py --ms ../meshspeed --out strona/assets/msi [--offline]
 
 Bez --offline mapy (OpenStreetMap), teren (Terrarium) i pomiary Mappera SF6 (tylko odczyt) są prawdziwe – tak działa
-workflow „MeshSpeed – zrzuty do instrukcji”. Wysyłka do bazy Mappera jest zawsze przechwytywana (nic nie trafia do bazy).
+workflow „Zrzuty do instrukcji” w (prywatnym) repo aventurovan/meshspeed: pobiera ten skrypt i wgrywa wynik do meshspeed/instrukcja/. Wysyłka do bazy Mappera jest zawsze przechwytywana (nic nie trafia do bazy).
 """
 import argparse, json, os, re, subprocess, sys, tempfile, time, traceback
 from playwright.sync_api import sync_playwright

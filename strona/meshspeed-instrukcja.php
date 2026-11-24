@@ -8,16 +8,19 @@ $ms_ver = null;
 foreach (glob(__DIR__ . '/meshspeed/apk/meshspeed-*.apk') ?: [] as $f) {
   if (preg_match('/meshspeed-(\d+\.\d+\.\d+)\.apk$/', $f, $m) && (!$ms_ver || version_compare($m[1], $ms_ver, '>'))) $ms_ver = $m[1];
 }
-// zrzuty ekranów i lista zmian robi workflow „MeshSpeed – zrzuty do instrukcji” (scripts/meshspeed_zrzuty.py)
-$MSI = __DIR__ . '/assets/msi';
+// zrzuty ekranów i lista zmian: workflow „Zrzuty do instrukcji” w repo meshspeed wgrywa je do meshspeed/instrukcja/
+// (skrypt scripts/meshspeed_zrzuty.py); assets/msi/ to zapas z prób bez map, gdy tamtych jeszcze nie ma
+if (is_file(__DIR__ . '/meshspeed/instrukcja/zrzuty.json')) { define('MSI_DIR', __DIR__ . '/meshspeed/instrukcja'); define('MSI_URL', '/meshspeed/instrukcja'); }
+else { define('MSI_DIR', __DIR__ . '/assets/msi'); define('MSI_URL', '/assets/msi'); }
+$MSI = MSI_DIR;
 $info = @json_decode(@file_get_contents("$MSI/zrzuty.json"), true) ?: [];
 $zmiany = @json_decode(@file_get_contents("$MSI/zmiany.json"), true) ?: [];
 
 /** telefon ze zrzutem ekranu; $p = podpis pod telefonem */
 function msi_shot($name, $p = '') {
-  $f = __DIR__ . "/assets/msi/$name.webp";
+  $f = MSI_DIR . "/$name.webp";
   if (!is_file($f)) return '';
-  $src = "/assets/msi/$name.webp?v=" . filemtime($f);
+  $src = MSI_URL . "/$name.webp?v=" . filemtime($f);
   $alt = htmlspecialchars($p ?: $name);
   return '<figure class="msi-shot"><a href="' . $src . '" class="msi-zoom" aria-label="Powiększ: ' . $alt . '"><img src="' . $src
     . '" alt="Ekran MeshSpeed: ' . $alt . '" width="390" height="844" loading="lazy" decoding="async"></a>'
