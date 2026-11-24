@@ -39,7 +39,7 @@ $asset = fn($f) => '/assets/' . $f . '?v=' . filemtime(__DIR__ . '/../assets/' .
           <div class="rp-device-info">
             <div class="rp-status"><span id="statusDot" class="rp-dot"></span><span id="statusText">Rozłączono</span></div>
             <h1 id="devName">Repeater</h1>
-            <p class="rp-device-meta"><span id="devId">ID ----</span> · <span id="info_board">-</span> · <span id="info_fw">-</span></p>
+            <p class="rp-device-meta"><span id="devId">ID ----</span> · <span id="info_board">-</span> · <span id="info_fw">-</span><span id="info_bl"></span></p>
             <div class="rp-device-actions">
               <button type="button" id="btnFixAll" class="btn rp-btn-mint">Napraw wszystko</button>
               <button type="button" id="btnWizard" class="btn rp-btn-ghost">Ustaw krok po kroku</button>

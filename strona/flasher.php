@@ -37,6 +37,7 @@ require __DIR__ . '/includes/header.php';
       <div class="fl-barlbl" id="flBarLbl"></div>
       <div class="fl-progress" aria-hidden="true"><div id="flBar"></div></div>
       <div class="fl-status" id="flStatus" role="status" aria-live="polite"></div>
+      <div class="fl-note fl-next" id="flNext" hidden></div>
       <details class="fl-log"><summary>Dziennik</summary><pre id="flLog"></pre></details>
       <p class="fl-hint"><b>Po aktualizacji companiona:</b> usuń urządzenie z listy Bluetooth w telefonie („Zapomnij urządzenie”) i sparuj je od nowa. Po wgraniu firmware radio nie ma już starych kluczy parowania, a telefon dalej ich używa — połączenie działa wtedy tylko częściowo, np. kontakty się wczytują, a wiadomości nie przychodzą.</p>
     </div>

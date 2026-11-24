@@ -234,3 +234,52 @@ export async function touch1200(port) {
   await sleep(100);
   await port.close();
 }
+
+// Odczyt kilku poleceń CLI z działającego firmware (repeater MeshCore przez USB): { "ver": "v1.17.1 …", … }.
+// Bez odpowiedzi (companion, tryb DFU, stary firmware) → null. Port jest potem zamykany.
+export async function readCli(port, cmds, { timeout = 1500, needFirst = false } = {}) {
+  await openPort(port, { baudRate: 115200 });
+  const out = {}, dec = new TextDecoder(), enc = new TextEncoder();
+  let buf = "", waiter = null;
+  const reader = port.readable.getReader(), writer = port.writable.getWriter();
+  const loop = (async () => {
+    try {
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) {
+          const m = buf.slice(0, i).replace(/\r/g, "").match(/^\s*->\s?(.*)$/);
+          buf = buf.slice(i + 1);
+          if (m && waiter) { const w = waiter; waiter = null; w(m[1].trim()); }
+        }
+      }
+    } catch {}
+  })();
+  try {
+    await sleep(300);
+    for (const c of cmds) {
+      const p = new Promise(r => { waiter = r; setTimeout(() => { if (waiter === r) { waiter = null; r(null); } }, timeout); });
+      await writer.write(enc.encode(c + "\r\n"));
+      const r = await p;
+      out[c] = r == null || /^(\(?err|error|unknown|invalid)/i.test(r) ? null : r.replace(/^>\s?/, "").trim();
+      if (needFirst && c === cmds[0] && out[c] == null) break;   // pierwsze bez odpowiedzi – to nie CLI repeatera
+    }
+  } finally {
+    try { await reader.cancel(); } catch {}
+    try { await Promise.race([loop, sleep(300)]); } catch {}
+    try { reader.releaseLock(); } catch {}
+    try { writer.releaseLock(); } catch {}
+    try { await port.close(); } catch {}
+  }
+  return out;
+}
+
+// „0.9.2-OTAFIX2.3-BP1.4” → { otafix: true, ok: true, text }; OTAFIX od 2.2 uznajemy za aktualny
+export function describeBootloader(v) {
+  if (!v) return null;
+  const m = v.match(/OTAFIX\s*(\d+)\.(\d+)/i);
+  const otafix = !!m, ok = otafix && (+m[1] > 2 || (+m[1] === 2 && +m[2] >= 2));
+  return { otafix, ok, text: v.replace(/^bootloader[:\s]*/i, "").trim() };
+}

@@ -59,7 +59,7 @@ const UI = {
   begin(list) {
     this.stop();
     this.steps = list.filter(Boolean).map(([id, label]) => ({ id, label, st: "wait", det: "" }));
-    this.render(); setProgress(0); this.bar("");
+    this.render(); setProgress(0); this.bar(""); showNext(false);
   },
   has(id) { return this.steps.some(s => s.id === id); },
   get(id) { return this.steps.find(s => s.id === id); },
@@ -137,6 +137,35 @@ function dfuPhases({ prep = "prep", send = "send", commit = "commit", what = "fi
       UI.progress(send, f, `${Math.round(f * 100)}% · ${kb.toFixed(0)} z ${(total / 1024).toFixed(0)} KB` + (v ? ` · ${v.toFixed(1)} KB/s · jeszcze ok. ${left} s` : ""));
     }
   };
+}
+
+// odczyt przez CLI działającego firmware (repeater): wersja, płytka, bootloader – przed przełączeniem w DFU
+async function readDevice(port, stepId) {
+  const lib = await nrfLib();
+  if (stepId) UI.run(stepId, "pytam firmware przez USB (ver, board, get bootloader.ver)");
+  let r = {};
+  try { r = await lib.readCli(port, ["ver", "board", "get bootloader.ver"], { timeout: 1200, needFirst: true }); }
+  catch (e) { log("Odczyt CLI: " + (e.message || e)); }
+  const bl = lib.describeBootloader(r["get bootloader.ver"]);
+  const parts = [r.board, r.ver && "firmware " + r.ver.replace(/\s*\(Build:.*$/, ""),
+    bl ? "bootloader " + bl.text + (bl.otafix ? "" : " (bez OTAFIX)") : r.ver ? "bootloader: nie odczytano (starszy firmware)" : ""].filter(Boolean);
+  if (r.ver) log("Urządzenie: " + parts.join(" · "));
+  if (stepId) {
+    if (r.ver) UI.ok(stepId, parts.join(" · "));
+    else UI.skip(stepId, "brak odpowiedzi CLI (companion albo tryb DFU) – to nie przeszkadza");
+  }
+  state.lastBl = bl;
+  return { ...r, bl };
+}
+
+// po wgraniu repeatera: od razu do konfiguratora RPT przez USB
+function showNext(on) {
+  const el = $("flNext"); if (!el) return;
+  el.hidden = !(on && /repeater/.test(state.role || ""));
+  if (el.hidden) return;
+  el.innerHTML = `<b>Następny krok: ustaw repeater</b>
+    <p>Po restarcie połącz repeater przez USB w konfiguratorze RPT. Odczyta ustawienia, porówna je z siecią SF6 i jednym kliknięciem ustawi nazwę, lokalizację, hasło administratora, region i resztę.</p>
+    <a class="btn btn-green" href="/rpt/">Ustaw repeater przez USB →</a>`;
 }
 
 // zrozumiałe wyjaśnienie typowych błędów portu
@@ -254,7 +283,7 @@ const na = cond => cond ? 'disabled data-na="1"' : "";
 
 function renderFlash() {
   const d = state.device, area = $("flArea");
-  setProgress(0); setStatus(""); UI.clear();
+  setProgress(0); setStatus(""); UI.clear(); showNext(false);
   if (!d || !state.role) { $("flS3").classList.add("off"); area.innerHTML = `<p class="fl-hint">Wybierz rolę i urządzenie.</p>`; return; }
   $("flS3").classList.remove("off");
   const fw = d.firmware[state.role];
@@ -362,7 +391,7 @@ async function nrfStart(d, fw) {
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0); $("flNrfCont").hidden = true;
-  UI.begin([["fetch", "Pobranie firmware"], ["dfu", "Przełączenie w tryb DFU"], ["port", "Port urządzenia w trybie DFU"],
+  UI.begin([["fetch", "Pobranie firmware"], ["info", "Odczyt urządzenia (firmware, bootloader)"], ["dfu", "Przełączenie w tryb DFU"], ["port", "Port urządzenia w trybie DFU"],
     state.nrfErase && ["wipe", "Kasowanie całej pamięci"], ["prep", "Przygotowanie pamięci"], ["send", "Wysyłanie firmware"], ["commit", "Zatwierdzenie i restart"]]);
   try {
     setStatus("Pobieranie firmware…");
@@ -371,6 +400,7 @@ async function nrfStart(d, fw) {
     UI.ok("fetch", (pkg.bin.length / 1024).toFixed(0) + " KB");
     const lib = await nrfLib();
     const vid = port.getInfo().usbVendorId;
+    await readDevice(port, "info");
     setStatus("Przełączanie w tryb DFU…");
     UI.run("dfu", "restart urządzenia do bootloadera (1200 bps)");
     log("Przełączam " + d.name + " w tryb DFU (1200 bps)");
@@ -504,6 +534,7 @@ async function nrfFlash(port, fw, { cont = false, touched = false } = {}) {
     UI.ok("commit", "urządzenie uruchomione");
     $("flNrfCont").hidden = true;
     setStatus(doneMsg(), "ok");
+    showNext(true);
     log("Zakończono.");
   } catch (e) {
     console.error(e);
@@ -582,6 +613,7 @@ async function flashEspFiles(getFiles, full) {
     setProgress(100);
     UI.ok("restart", "urządzenie uruchamia się z nowym firmware");
     setStatus(doneMsg(), "ok");
+    showNext(true);
     log("Zakończono.");
   } catch (e) {
     console.error(e);
@@ -644,6 +676,10 @@ function otafixMount(d, fw) {
       <p class="fl-hint"><b>Sprawdź, co masz:</b> w trybie DFU otwórz plik <span class="mono">INFO_UF2.TXT</span> na dysku urządzenia
         (linia <span class="mono">UF2 Bootloader …</span>) albo wpisz w konsoli repeatera <span class="mono">get bootloader.ver</span>.
         Masz <span class="mono">OTAFIX2.2</span> lub nowszy? Nic nie rób.</p>
+      <div class="fl-actions" style="margin-top:10px">
+        <button class="btn btn-green-line" id="flOtxCheck" ${na(!hasSerial)}>Sprawdź bootloader przez USB</button>
+      </div>
+      <p class="fl-hint fl-blres" id="flOtxBl" hidden></p>
       <div class="fl-danger">
         <b>Ostrzeżenie – zmiana bootloadera</b>
         <ul>
@@ -688,11 +724,38 @@ function otafixMount(d, fw) {
   };
   $("flOtxUf2").onclick = e => { if (!ok.checked) { e.preventDefault(); setStatus("Najpierw zaznacz „Rozumiem ryzyko…”.", "err"); } else log("Pobrano " + baseName(b.uf2)); };
   $("flOtxDfu").onclick = () => enterDfu(d);
+  $("flOtxCheck").onclick = () => otafixCheck(otx);
   if (viaBrowser) {
     $("flOtxWeb").onclick = () => otafixStart(d, fw, b);
     $("flOtxCont").onclick = () => otafixPickAndFlash(fw, b);
   }
   $("flOtxApp").onclick = () => { state.nrfErase = false; nrfPickAndFlash(fw); };
+}
+
+// „Sprawdź bootloader przez USB”: tylko odczyt (ver, board, get bootloader.ver), nic nie wgrywa
+async function otafixCheck(otx) {
+  if (busyGuard()) return;
+  let port;
+  try { port = await SERIAL.requestPort(); }
+  catch { setStatus("Nie wybrano portu.", "err"); return; }
+  lockUi(true); setStatus("");
+  UI.begin([["info", "Odczyt bootloadera przez USB"]]);
+  const el = $("flOtxBl");
+  try {
+    const r = await readDevice(port, "info");
+    const bl = r.bl, latest = (String(otx.version).match(/OTAFIX\s*\d+\.\d+/i) || [""])[0].replace(/\s/g, "").toUpperCase();
+    let msg, kind;
+    if (!r.ver) { msg = "Brak odpowiedzi. Odczyt działa z firmware repeatera MeshCore uruchomionym normalnie (nie w trybie DFU, nie companion). W trybie DFU otwórz plik INFO_UF2.TXT na dysku urządzenia."; kind = "err"; }
+    else if (!bl) { msg = `Ten firmware (${r.ver.replace(/\s*\(Build:.*$/, "")}) nie podaje wersji bootloadera. Sprawdź plik INFO_UF2.TXT w trybie DFU albo najpierw wgraj aktualny firmware SF6.`; kind = ""; }
+    else if (bl.ok && latest && bl.text.toUpperCase().replace(/\s/g, "").includes(latest)) { msg = `Masz najnowszy OTAFIX (${bl.text}). Nic nie rób – aktualizacja przez Bluetooth jest bezpieczna.`; kind = "ok"; }
+    else if (bl.ok) { msg = `Masz OTAFIX (${bl.text}) – wystarczy, nic nie musisz robić. Najnowszy: ${otx.version}.`; kind = "ok"; }
+    else if (bl.otafix) { msg = `Masz starszy OTAFIX (${bl.text}). Warto wgrać nowszy (${otx.version}) – sposób 1 albo 2 poniżej.`; kind = "warn"; }
+    else { msg = `Bootloader ${bl.text} – bez OTAFIX. Aktualizacja przez Bluetooth może zawiesić płytkę; wgraj OTAFIX (sposób 1 albo 2 poniżej).`; kind = "warn"; }
+    el.hidden = false; el.className = "fl-hint fl-blres " + kind; el.textContent = msg;
+  } catch (e) {
+    UI.fail(explain(e));
+    el.hidden = false; el.className = "fl-hint fl-blres err"; el.textContent = "Nie udało się odczytać: " + explain(e);
+  } finally { lockUi(false); }
 }
 
 async function otafixPackage(b) {
@@ -818,7 +881,7 @@ function detectEsp(u8) {
 
 function renderCustom() {
   $("flS3").classList.remove("off");
-  setProgress(0); setStatus(""); UI.clear();
+  setProgress(0); setStatus(""); UI.clear(); showNext(false);
   $("flArea").innerHTML = `
     <div class="fl-notice">Tylko dla zaawansowanych – do testów własnych buildów. Strona nie sprawdza, czy plik pasuje do urządzenia:
       zły plik może sprawić, że urządzenie przestanie się uruchamiać (zwykle da się je odzyskać, wgrywając właściwy firmware w trybie BOOT/DFU).</div>

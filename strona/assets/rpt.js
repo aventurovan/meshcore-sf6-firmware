@@ -326,6 +326,7 @@
 
   function resetView() {
     ["info_board", "info_fw"].forEach((id) => ($(id).textContent = "-"));
+    $("info_bl").textContent = ""; $("info_bl").title = "";
     $("devName").textContent = "Repeater"; $("devId").textContent = "ID ----";
     ["conf_pub_key", "conf_priv_key", "conf_name", "conf_freq", "conf_tx", "conf_adv_int", "conf_flood_max",
      "conf_flood_adv_int", "conf_lat", "conf_lon", "conf_dutycycle", "conf_owner_info", "conf_int_thresh",
@@ -363,8 +364,27 @@
       evOk(`Odczytano ${n} ${plural(n)}`, `w ${((performance.now() - t0) / 1000).toFixed(1)} s`);
     }
     if (/companion|room/i.test($("info_fw").title || "")) evErr("To nie wygląda na firmware repeatera", $("info_fw").title);
+    await readBootloader();
     renderChecks(true);
     refreshLive();
+  }
+
+  /* ---------- bootloader (nRF52): OTAFIX czy nie ---------- */
+  async function readBootloader() {
+    const fam = boardFamily || familyFromName($("info_board").textContent);
+    if (fam && fam !== "nrf52") return;
+    const r = await send("get bootloader.ver");
+    const v = r == null || isErr(r) ? null : val(r);
+    const el = $("info_bl");
+    if (!v) {
+      if (fam === "nrf52") { el.textContent = " · bootloader: ?"; evInfo("Bootloader: nie odczytano", "ten firmware nie podaje wersji bootloadera – sprawdź INFO_UF2.TXT w trybie DFU"); }
+      return;
+    }
+    const m = v.match(/OTAFIX\s*(\d+)\.(\d+)/i), ok = m && (+m[1] > 2 || (+m[1] === 2 && +m[2] >= 2));
+    el.textContent = " · bootloader " + v; el.title = v;
+    if (ok) evOk("Bootloader OTAFIX", v + " – aktualizacja przez Bluetooth jest bezpieczna");
+    else if (m) evWarn("Starszy bootloader OTAFIX", v + " – warto wgrać nowszy we flasherze (meshcoresouth.pl/flasher.php, sekcja Bootloader OTAFIX)");
+    else evWarn("Bootloader bez OTAFIX", v + " – aktualizacja przez Bluetooth może zawiesić płytkę. OTAFIX wgrasz przez USB we flasherze (sekcja Bootloader OTAFIX).");
   }
 
   /* ---------- stan na żywo ---------- */
@@ -1193,7 +1213,7 @@
   on("btnClear", "click", () => { term.textContent = ""; tl.textContent = ""; logLines.length = 0; });
   on("btnLogDl", "click", () => {
     const head = [`Konfigurator RPT – dziennik (${new Date().toLocaleString("pl-PL")})`,
-      `Repeater: ${$("conf_name").value || "-"} · ${$("devId").textContent} · ${$("info_board").textContent} · ${$("info_fw").title || $("info_fw").textContent}`,
+      `Repeater: ${$("conf_name").value || "-"} · ${$("devId").textContent} · ${$("info_board").textContent} · ${$("info_fw").title || $("info_fw").textContent}${$("info_bl").textContent}`,
       `Przeglądarka: ${navigator.userAgent}`, ""];
     download("dziennik-rpt-" + new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-") + ".txt", head.concat(logLines).join("\n"), "text/plain");
   });
