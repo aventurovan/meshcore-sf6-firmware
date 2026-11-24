@@ -29,7 +29,9 @@ jobs:
         run: |
           DEST="${FTP_DIR%/}/flasher"
           python3 scripts/ftp_sync.py upload site "$DEST"
-          keep=$(ls index | sed 's/\.json$//')
+          # katalogi firmware, na które wskazują pliki w index/ (nazwa katalogu ≠ nazwa pliku, np. meshspeed.json → meshspeed-m9)
+          keep=$(python3 -c 'import glob,json,re; print("\n".join(sorted({m.group(1) for f in glob.glob("index/*.json") for m in re.finditer(r"firmware/([^/\"]+)/", open(f).read())})))')
+          [ -n "$keep" ] || { echo "::error::Pusta lista katalogów firmware – nic nie usuwam"; exit 1; }
           for t in $(python3 scripts/ftp_sync.py ls "$DEST/firmware"); do
             if ! echo "$keep" | grep -qx "$t"; then
               echo "Usuwam ze strony firmware/$t"
