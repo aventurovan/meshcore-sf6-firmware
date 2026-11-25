@@ -5,7 +5,7 @@ const DFU_INIT_PACKET = 1, DFU_START_PACKET = 3, DFU_DATA_PACKET = 4, DFU_STOP_D
 const MODE_SOFTDEVICE = 1, MODE_BOOTLOADER = 2, MODE_APPLICATION = 4; // SoftDevice + bootloader = 3
 const PACKET_MAX = 512;
 const PAGE_SIZE = 4096, PAGE_ERASE_TIME = 89.7, PAGE_WRITE_TIME = (PAGE_SIZE / 4) * 0.1; // ms
-const ACK_TIMEOUT = 2000;
+const ACK_TIMEOUT = 2000, WRITE_TIMEOUT = 8000;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -145,7 +145,11 @@ class Link {
     }
   }
   async send(seq, data, timeout = ACK_TIMEOUT) {
-    await this.writer.write(hciPacket(seq, data));
+    // zapis, którego urządzenie nie odbiera (zawieszony USB), nie może wisieć bez końca
+    let t;
+    const stuck = new Promise((_, rej) => { t = setTimeout(() => rej(new Error("urządzenie przestało odbierać dane (USB stoi)")), WRITE_TIMEOUT); });
+    try { await Promise.race([this.writer.write(hciPacket(seq, data)), stuck]); }
+    finally { clearTimeout(t); }
     return this.waitAck(timeout);
   }
   async close() {
