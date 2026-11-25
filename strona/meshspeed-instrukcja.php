@@ -14,9 +14,6 @@ if (is_file(__DIR__ . '/meshspeed/instrukcja/zrzuty.json')) { define('MSI_DIR', 
 else { define('MSI_DIR', __DIR__ . '/assets/msi'); define('MSI_URL', '/assets/msi'); }
 $MSI = MSI_DIR;
 $info = @json_decode(@file_get_contents("$MSI/zrzuty.json"), true) ?: [];
-$zmiany = @json_decode(@file_get_contents("$MSI/zmiany.json"), true) ?: [];
-// „Ostatnie wersje”: tylko duże wydania (X.Y.0), bez poprawek X.Y.1, X.Y.2…; najwyżej 5
-$zmiany = array_slice(array_values(array_filter($zmiany, fn($z) => preg_match('/^\d+\.\d+\.0$/', $z['wersja'] ?? ''))), 0, 5);
 
 /** telefon ze zrzutem ekranu; $p = podpis pod telefonem */
 function msi_shot($name, $p = '') {
@@ -36,7 +33,7 @@ function msi_shots(array $l) {
 $SPIS = [
   'start' => 'Pierwsze kroki', 'tryb' => 'Tryb prosty i zaawansowany', 'pulpit' => 'Pulpit', 'czaty' => 'Czaty', 'wezly' => 'Węzły', 'qr' => 'Kody QR i linki', 'narzedzia' => 'Sieć na żywo',
   'repeatery' => 'Moje repeatery', 'urzadzenia' => 'Konsola i kopia', 'testowe' => 'Funkcje testowe', 'teren' => 'Zasięg i teren', 'mapper' => 'Mapper SF6',
-  'radio' => 'Radio i ustawienia', 'telefon' => 'Widżety i powiadomienia', 'prywatnosc' => 'Prywatność', 'zmiany' => 'Co nowego',
+  'radio' => 'Radio i ustawienia', 'telefon' => 'Widżety i powiadomienia', 'prywatnosc' => 'Prywatność',
 ];
 ?>
 
@@ -383,26 +380,6 @@ $SPIS = [
           <li>Hasła repeaterów są w bezpiecznym magazynie systemu (Keychain / Keystore).</li>
         </ul>
       </div>
-    </div>
-  </section>
-
-  <!-- 16 -->
-  <section class="ms-sec msi-sec" id="zmiany">
-    <div class="wrap">
-      <div class="msi-text msi-wide">
-        <span class="ms-kicker">16 · Co nowego</span>
-        <h2>Ostatnie wersje</h2>
-      </div>
-      <?php if ($zmiany): ?>
-      <div class="msi-changes">
-        <?php foreach ($zmiany as $i => $z): ?>
-        <details class="msi-change"<?= $i === 0 ? ' open' : '' ?>>
-          <summary><span class="ms-chip"><?= htmlspecialchars($z['wersja']) ?></span><b><?= htmlspecialchars($z['tytul']) ?></b></summary>
-          <ul class="msi-list"><?php foreach ($z['punkty'] as $p): ?><li><?= $p ?></li><?php endforeach; ?></ul>
-        </details>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
     </div>
   </section>
 </div>
