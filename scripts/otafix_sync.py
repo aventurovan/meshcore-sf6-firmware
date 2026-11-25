@@ -2,6 +2,8 @@
 """Kopia bootloadera OTAFIX (oltaco/Adafruit_nRF52_Bootloader_OTAFIX) dla płytek nRF52 z flashera.
 
   otafix_sync.py <katalog wyjściowy> [obecny otafix.json]
+  otafix_sync.py --stock <katalog wyjściowy> [obecny bootloader-stock.json]
+      zwykły bootloader bez OTAFIX (meshtastic/nRF52_Bootloader, te same nazwy płytek) – do „Przywróć oryginalny bootloader”
 
 Pobiera najnowsze (nie wstępne) wydanie, dla każdej płytki z DEVICES bierze:
   update-<płytka>_bootloader-<tag>_nosd.uf2   – do przeciągnięcia na dysk (sam bootloader)
@@ -10,7 +12,10 @@ sprawdza je i zapisuje w <wyjście>/otafix/<tag>/ oraz <wyjście>/otafix.json (�
 Kod wyjścia 0 = są nowe pliki do wgrania, 3 = to samo wydanie co na serwerze (nic do roboty)."""
 import datetime, hashlib, io, json, os, re, sys, urllib.request, zipfile
 
-REPO = "oltaco/Adafruit_nRF52_Bootloader_OTAFIX"
+STOCK = "--stock" in sys.argv
+ARGS = [a for a in sys.argv[1:] if a != "--stock"]
+REPO = "meshtastic/nRF52_Bootloader" if STOCK else "oltaco/Adafruit_nRF52_Bootloader_OTAFIX"
+NAME = "bootloader-stock" if STOCK else "otafix"
 
 # id urządzenia we flasherze (nazwa env MeshCore bez roli) -> płytka OTAFIX
 DEVICES = {
@@ -67,11 +72,11 @@ def check_zip(data):
 
 
 def main():
-    out = sys.argv[1]
+    out = ARGS[0]
     cur = {}
-    if len(sys.argv) > 2 and os.path.exists(sys.argv[2]):
+    if len(ARGS) > 1 and os.path.exists(ARGS[1]):
         try:
-            cur = json.load(open(sys.argv[2]))
+            cur = json.load(open(ARGS[1]))
         except ValueError:
             cur = {}
     rel = json.loads(get(f"https://api.github.com/repos/{REPO}/releases/latest", "application/vnd.github+json"))
@@ -79,14 +84,14 @@ def main():
     if rel.get("prerelease") or rel.get("draft"):
         sys.exit(f"najnowsze wydanie {tag} jest wstępne – pomijam")
     if cur.get("tag") == tag and not os.environ.get("FORCE"):
-        print(f"OTAFIX {tag} jest już na stronie")
+        print(f"{NAME} {tag} jest już na stronie")
         sys.exit(3)
     assets = {a["name"]: a["browser_download_url"] for a in rel["assets"]}
     m = re.search(r"OTAFIX(\d+(?:\.\d+)*)", tag)
-    data = {"tag": tag, "version": m.group(1) if m else tag, "released": rel.get("published_at"),
+    data = {"tag": tag, "version": m.group(1) if m and not STOCK else tag, "released": rel.get("published_at"),
             "synced": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "source": rel["html_url"], "boards": {}, "devices": {}}
-    folder = f"otafix/{tag}"
+    folder = f"{NAME}/{tag}"
     os.makedirs(os.path.join(out, folder), exist_ok=True)
     for board in sorted(set(DEVICES.values())):
         uf2 = f"update-{board}_bootloader-{tag}_nosd.uf2"
@@ -116,8 +121,8 @@ def main():
     data["devices"] = {d.lower(): b for d, b in DEVICES.items() if b in data["boards"]}
     if not data["devices"]:
         sys.exit("żadna płytka nie przeszła sprawdzenia – nic nie wgrywam")
-    json.dump(data, open(os.path.join(out, "otafix.json"), "w"), indent=1, ensure_ascii=False)
-    print(f"otafix.json: OTAFIX {tag}, {len(data['boards'])} płytek, {len(data['devices'])} urządzeń")
+    json.dump(data, open(os.path.join(out, NAME + ".json"), "w"), indent=1, ensure_ascii=False)
+    print(f"{NAME}.json: {tag}, {len(data['boards'])} płytek, {len(data['devices'])} urządzeń")
 
 
 if __name__ == "__main__":

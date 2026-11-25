@@ -1280,3 +1280,6 @@ a.ms-dl-card:hover{ border-color:var(--ms-accent); transform:translateY(-2px); }
 @media (max-width:520px){ .msi-shots{ gap:18px 12px; } .msi-shot{ flex-basis:calc(50% - 6px); } .msi-shot a{ border-radius:22px; padding:5px; } .msi-shot img{ border-radius:18px; } .msi-shot figcaption{ font-size:12.5px; } .msi-sec{ padding:44px 0; } }
 .ms-chip-link{ text-decoration:none; color:var(--ms-text) !important; border:1px solid var(--ms-accent) !important; cursor:pointer; }
 .ms-chip-link:hover{ background:var(--ms-accent) !important; color:var(--ms-on-accent) !important; }
+.fl-otx-sub{ margin-top:16px; border-top:1px solid rgba(0,0,0,.08); padding-top:10px; }
+.fl-otx-sub > summary{ cursor:pointer; font-size:14px; color:var(--muted, #667); }
+.fl-otx-sub[open] > summary{ color:inherit; font-weight:600; margin-bottom:6px; }

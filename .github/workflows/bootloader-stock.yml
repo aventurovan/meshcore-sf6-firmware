@@ -1,0 +1,59 @@
+name: Bootloader oryginalny (bez OTAFIX)
+
+# Raz dziennie sprawdza nowe wydanie meshtastic/nRF52_Bootloader (zwykły bootloader Adafruit, bez OTAFIX) i kopiuje pliki
+# dla płytek nRF52 z flashera: /flasher/bootloader-stock/<tag>/ + /flasher/bootloader-stock.json
+# (flasher, sekcja OTAFIX → „Przywróć oryginalny bootloader”).
+on:
+  schedule:
+    - cron: "53 4 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Wgraj ponownie, nawet jeśli to samo wydanie"
+        type: boolean
+        default: false
+
+concurrency:
+  group: bootloader-stock
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Sprawdź i pobierz
+        id: sync
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force && '1' || '' }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+        run: |
+          python3 scripts/ftp_sync.py cat "${FTP_DIR%/}/flasher/bootloader-stock.json" > current.json 2>/dev/null || rm -f current.json
+          set +e
+          python3 scripts/otafix_sync.py --stock out current.json
+          rc=$?
+          set -e
+          if [ $rc -eq 3 ]; then echo "new=0" >> "$GITHUB_OUTPUT"; exit 0; fi
+          [ $rc -eq 0 ] || exit $rc
+          echo "new=1" >> "$GITHUB_OUTPUT"
+          echo "tag=$(python3 -c 'import json;print(json.load(open("out/bootloader-stock.json"))["tag"])')" >> "$GITHUB_OUTPUT"
+      - name: FTP
+        if: steps.sync.outputs.new == '1'
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+        run: |
+          DEST="${FTP_DIR%/}/flasher"
+          # najpierw pliki, na końcu bootloader-stock.json – flasher nigdy nie wskaże plików, których jeszcze nie ma
+          python3 scripts/ftp_sync.py upload out "$DEST" --last bootloader-stock.json
+          # zostaw tylko bieżące wydanie
+          for t in $(python3 scripts/ftp_sync.py ls "$DEST/bootloader-stock"); do
+            [ "$t" = "${{ steps.sync.outputs.tag }}" ] || python3 scripts/ftp_sync.py rmtree "$DEST/bootloader-stock/$t"
+          done
+          echo "::notice::Bootloader oryginalny ${{ steps.sync.outputs.tag }} wgrany na stronę"

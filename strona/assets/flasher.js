@@ -5,6 +5,7 @@ import { serial as usbSerial } from "./web-serial-polyfill.js";
 
 const MANIFEST_URL = "/flasher/manifest.json";
 const OTAFIX_URL = "/flasher/otafix.json";   // kopia bootloadera OTAFIX (scripts/otafix_sync.py)
+const STOCK_URL = "/flasher/bootloader-stock.json";   // zwykły bootloader bez OTAFIX (scripts/otafix_sync.py --stock)
 // Sekcja OTAFIX jest na razie tylko do testów: widoczna po wejściu z ?otafix (zapamiętane w przeglądarce).
 const OTAFIX_TEST = (() => {
   try {
@@ -13,6 +14,7 @@ const OTAFIX_TEST = (() => {
     return localStorage.getItem("fl.otafix") === "1";
   } catch { return new URLSearchParams(location.search).has("otafix"); }
 })();
+const FL_TEST = OTAFIX_TEST; // nowe zachowanie kasowania (sprawdzanie portów, wcześniejsze „Kontynuuj”) – na razie tylko w trybie testowym
 const ROLES = {
   repeater:      { name: "Repeater",            desc: "Przekaźnik sieci (RPT)" },
   repeater_filter: { name: "Repeater + filtr",  desc: "RPT z blokowaniem nadawców (boty, companiony)" },
@@ -207,7 +209,7 @@ async function findDfuPort(oldPort, vid, ms = 6000) {
 
 // jeden przycisk „Kontynuuj” w panelu przebiegu (firmware, kasowanie, OTAFIX)
 function setCont(fn) { state.cont = fn; $("flCont").hidden = !fn; }
-$("flCont").onclick = () => { const f = state.cont; if (f && !state.busy) f(); };
+$("flCont").onclick = () => { const f = state.cont; if (f && (!state.busy || state.contEarly)) f(); };
 
 async function loadManifest() {
   try {
@@ -232,6 +234,10 @@ async function loadOtafix() {
     if (!r.ok) throw new Error("HTTP " + r.status);
     state.otx = await r.json();
   } catch (e) { state.otx = { error: e.message }; }
+  try {
+    const r = await fetch(STOCK_URL, { cache: "no-store" });
+    if (r.ok) state.stk = await r.json();
+  } catch { state.stk = null; }
   if (state.device && state.device.platform === "nrf52") renderFlash();
 }
 
@@ -461,18 +467,45 @@ function erasePackage(lib, pkg) {
   return { url: window.FL_NRF_ERASE[v7 ? "v7" : "v6"], head: pkg.dat.slice(0, 10 + 2 * n) };
 }
 
+// Powrót urządzenia po programie kasującym: zdarzenie „connect” (nie zawsze przychodzi) oraz – w trybie testowym –
+// co 2 s sprawdzanie znanych przeglądarce portów tego producenta (port, który da się otworzyć, jest z powrotem).
+// w.poll(oldPort) włącza sprawdzanie, w.cancel() kończy czekanie wynikiem USER (użytkownik wybierze port sam).
+const USER = "user";
 function waitForPort(vid, pid, timeout) {
-  return new Promise(resolve => {
-    const h = e => {
-      const i = e.target.getInfo();
-      if (i.usbVendorId === vid && i.usbProductId === pid) { done(); resolve(e.target); }
+  let resolve, finished = false, pollT = 0;
+  const p = new Promise(r => { resolve = r; });
+  const h = e => {
+    const i = e.target.getInfo();
+    if (i.usbVendorId === vid && (i.usbProductId === pid || FL_TEST)) finish(e.target);
+  };
+  const finish = v => {
+    if (finished) return;
+    finished = true; clearTimeout(t); clearTimeout(pollT);
+    if (SERIAL.removeEventListener) SERIAL.removeEventListener("connect", h);
+    resolve(v);
+  };
+  // polyfill (Android) nie zgłasza podłączenia: czekamy, aż kasowanie się skończy, potem użytkownik wybiera port
+  const t = setTimeout(() => finish(null), SERIAL.addEventListener ? timeout : 40000);
+  if (SERIAL.addEventListener) SERIAL.addEventListener("connect", h);
+  p.cancel = () => finish(USER);
+  p.poll = oldPort => {
+    if (!SERIAL.getPorts || !SERIAL.addEventListener) return;
+    const t0 = Date.now();
+    const tick = async () => {
+      if (finished) return;
+      if (Date.now() - t0 > 6000) { // najpierw urządzenie musi zniknąć (restart do programu kasującego)
+        for (const q of await SERIAL.getPorts()) {
+          if (finished) return;
+          if (q.getInfo().usbVendorId !== vid || q.readable || ("connected" in q && !q.connected)) continue;
+          try { await q.open({ baudRate: 115200 }); await q.close(); log("Urządzenie wróciło (sprawdzenie portów)"); return finish(q); }
+          catch { /* jeszcze go nie ma */ }
+        }
+      }
+      pollT = setTimeout(tick, 2000);
     };
-    // polyfill (Android) nie zgłasza podłączenia: czekamy, aż kasowanie się skończy, potem użytkownik wybiera port
-    if (!SERIAL.addEventListener) return void setTimeout(() => resolve(null), 40000);
-    const t = setTimeout(() => { done(); resolve(null); }, timeout);
-    const done = () => { clearTimeout(t); SERIAL.removeEventListener("connect", h); };
-    SERIAL.addEventListener("connect", h);
-  });
+    pollT = setTimeout(tick, 2000);
+  };
+  return p;
 }
 
 async function nrfErase(port, pkg, lib) {
@@ -492,10 +525,23 @@ async function nrfErase(port, pkg, lib) {
     onPhase: ph => UI.run("wipe", { open: "łączenie z bootloaderem", erase: "krok 1 z 2: przygotowanie", send: "krok 1 z 2: wysyłanie programu kasującego", commit: "krok 1 z 2: uruchamianie programu kasującego", activate: "krok 1 z 2: uruchamianie programu kasującego" }[ph]),
     onProgress: f => UI.progress("wipe", f, `krok 1 z 2: wysyłanie programu kasującego ${Math.round(f * 100)}%`)
   });
-  setStatus("Kasowanie pamięci: krok 2 z 2 – kasowanie wszystkiego (około 30 s). Nie odłączaj urządzenia.");
-  UI.elapsed("wipe", "krok 2 z 2: kasowanie całej pamięci, potem urządzenie wróci w trybie DFU", 30);
+  setStatus("Kasowanie pamięci: krok 2 z 2 – kasowanie wszystkiego (około " + (FL_TEST ? 20 : 30) + " s). Nie odłączaj urządzenia.");
+  UI.elapsed("wipe", "krok 2 z 2: kasowanie całej pamięci, potem urządzenie wróci w trybie DFU", FL_TEST ? 20 : 30);
   log("Program kasujący działa, czekam na powrót urządzenia w trybie DFU");
+  let early = 0;
+  if (FL_TEST) {
+    back.poll(port);
+    // po 35 s można iść dalej ręcznie, a strona wciąż czeka na urządzenie w tle
+    early = setTimeout(() => {
+      state.contEarly = true;
+      setCont(() => back.cancel());
+      $("flCont").disabled = false;
+      setStatus("Urządzenie jeszcze nie zgłosiło się samo. Kasowanie zwykle kończy się po ok. 20 s – kliknij „Kontynuuj” i wybierz port urządzenia w trybie DFU (jeśli go nie ma: dwa razy RESET).", "ok");
+    }, 35000);
+  }
   const again = await back;
+  clearTimeout(early); state.contEarly = false;
+  if (again === USER) { UI.ok("wipe", "skasowane – port wybierasz sam"); return USER; }
   if (!again) { UI.ok("wipe", "skasowane – urządzenie nie zgłosiło się samo"); return null; }
   await sleep(1500);
   UI.ok("wipe", "pamięć skasowana, urządzenie wróciło w trybie DFU");
@@ -516,6 +562,7 @@ async function nrfFlash(port, fw, { cont = false, touched = false } = {}) {
     if (state.nrfErase) {
       const again = await nrfErase(port, pkg, lib);
       state.nrfErase = false; // pamięć już czysta – ewentualne ponowienie tylko wgrywa
+      if (again === USER) { state.nrfFw = fw; setCont(null); lockUi(false); return await nrfPickAndFlash(); }
       if (!again) {
         state.nrfFw = fw;
         setCont(() => nrfPickAndFlash());
@@ -734,11 +781,13 @@ function otafixMount(d, fw) {
       </div>
       <p class="fl-hint">Po bootloaderze urządzenie nie ma firmware i czeka w trybie DFU – wybierz jego port. Jeśli portu nie ma, kliknij szybko dwa razy RESET.
         Źródło: <a href="${esc(otx.source)}" target="_blank" rel="noopener">OTAFIX ${esc(otx.tag)}</a>.</p>
+      ${stockHtml(d, fw)}
     </details>`;
   const ok = $("flOtxOk");
   ok.onchange = () => {
     box.querySelectorAll("[data-otx]").forEach(x => x.disabled = !ok.checked || state.busy || x.dataset.na === "1");
     $("flOtxUf2").setAttribute("aria-disabled", String(!ok.checked));
+    if ($("flStkUf2")) $("flStkUf2").setAttribute("aria-disabled", String(!ok.checked));
   };
   $("flOtxUf2").onclick = e => { if (!ok.checked) { e.preventDefault(); setStatus("Najpierw zaznacz „Rozumiem ryzyko…”.", "err"); } else log("Pobrano " + baseName(b.uf2)); };
   $("flOtxDfu").onclick = () => enterDfu(d);
@@ -747,6 +796,34 @@ function otafixMount(d, fw) {
     $("flOtxWeb").onclick = () => otafixStart(d, fw, b);
   }
   $("flOtxApp").onclick = () => { state.nrfErase = false; nrfPickAndFlash(fw); };
+  const sb = stockBoard(d);
+  if (sb) {
+    $("flStkUf2").onclick = e => { if (!ok.checked) { e.preventDefault(); setStatus("Najpierw zaznacz „Rozumiem ryzyko…”.", "err"); } else log("Pobrano " + baseName(sb.uf2)); };
+    if ($("flStkWeb")) $("flStkWeb").onclick = () => otafixStart(d, fw, sb);
+  }
+}
+
+// „Przywróć oryginalny bootloader”: zwykły bootloader Adafruit bez OTAFIX (meshtastic/nRF52_Bootloader, te same płytki)
+function stockBoard(d) {
+  const stk = state.stk, bk = stk && stk.devices && stk.devices[String(d.id).toLowerCase()], b = bk && stk.boards[bk];
+  return b ? { ...b, label: "oryginalny bootloader " + stk.version } : null;
+}
+function stockHtml(d, fw) {
+  const b = stockBoard(d), stk = state.stk;
+  if (!b) return `<details class="fl-otx-sub"><summary>Przywróć oryginalny bootloader</summary><p class="fl-hint">Brak pliku dla ${esc(d.name)}.</p></details>`;
+  return `<details class="fl-otx-sub" id="flStk"><summary>Przywróć oryginalny bootloader</summary>
+      <p class="fl-hint">Zwykły bootloader Adafruit bez OTAFIX: <a href="${esc(stk.source)}" target="_blank" rel="noopener">nRF52 Bootloader ${esc(stk.tag)}</a>, SoftDevice ${esc(b.sd)}.
+        Ostrzeżenie powyżej obowiązuje tak samo.</p>
+      <div class="fl-hint"><ol>
+        <li>Plik na dysk: „Włącz tryb DFU” (albo dwa razy RESET), pobierz plik i przeciągnij na dysk urządzenia.</li>
+        <li>Albo przez przeglądarkę: SoftDevice + bootloader przez port szeregowy, około minuty.</li>
+        <li>Potem wgraj firmware SF6 („Wgraj teraz firmware SF6”).</li>
+      </ol></div>
+      <div class="fl-actions">
+        <a class="btn btn-green-line fl-otx-dl" id="flStkUf2" href="${esc(fileUrl(b.uf2))}" download aria-disabled="true">Pobierz oryginalny bootloader .uf2</a>
+        ${fw.zip && b.zip ? `<button class="btn btn-warn" id="flStkWeb" disabled data-otx="1" ${hasSerial ? "" : 'data-na="1"'}>Przywróć oryginalny bootloader przez USB</button>` : ""}
+      </div>
+    </details>`;
 }
 
 // „Sprawdź bootloader przez USB”: tylko odczyt (ver, board, get bootloader.ver), nic nie wgrywa
@@ -789,7 +866,7 @@ async function otafixPackage(b) {
     log("Suma SHA-256 bootloadera OK");
   }
   const pkg = await lib.readDfuZip(buf, { bootloader: true });
-  log(`Bootloader: SoftDevice ${b.sd} (${pkg.sdSize} B) + OTAFIX (${pkg.blSize} B)`);
+  log(`Bootloader: SoftDevice ${b.sd} (${pkg.sdSize} B) + ${blName(b)} (${pkg.blSize} B)`);
   state.blPkg = { url: b.zip, pkg };
   return pkg;
 }
@@ -801,17 +878,18 @@ async function otafixCheckSd(fw, b) {
   for (let i = 0; i < n; i++) sds.push(app.dat[10 + 2 * i] | (app.dat[11 + 2 * i] << 8));
   const fam = sds.some(x => x >= 0xca && x !== 0xfffe) ? "v7" : "v6";
   if (fam !== sdFamily(b.sd))
-    throw new Error(`firmware SF6 tej płytki jest pod SoftDevice ${fam}, a OTAFIX ma ${b.sd} – przerwano, nic nie zostało wgrane`);
+    throw new Error(`firmware SF6 tej płytki jest pod SoftDevice ${fam}, a ${blName(b)} ma ${b.sd} – przerwano, nic nie zostało wgrane`);
 }
 
-const OTX_STEPS = [["fetch", "Pobranie i sprawdzenie bootloadera"], ["sd", "Zgodność z firmware SF6 (SoftDevice)"],
+const blName = b => b.label || "OTAFIX";
+const OTX_STEPS = b => [["fetch", "Pobranie i sprawdzenie bootloadera"], ["sd", "Zgodność z firmware SF6 (SoftDevice)"],
   ["dfu", "Przełączenie w tryb DFU"], ["port", "Port urządzenia w trybie DFU"], ["prep", "Kasowanie miejsca na bootloader"],
-  ["send", "Wysyłanie SoftDevice + OTAFIX"], ["commit", "Bootloader zapisuje się – NIE odłączaj"], ["next", "Następny krok: firmware SF6"]];
+  ["send", "Wysyłanie SoftDevice + " + blName(b)], ["commit", "Bootloader zapisuje się – NIE odłączaj"], ["next", "Następny krok: firmware SF6"]];
 
 async function otafixPrepare(fw, b) {
   UI.run("fetch", baseName(b.zip));
   const pkg = await otafixPackage(b);
-  UI.ok("fetch", `SoftDevice ${b.sd} + OTAFIX · suma SHA-256 zgodna`);
+  UI.ok("fetch", `SoftDevice ${b.sd} + ${blName(b)} · suma SHA-256 zgodna`);
   UI.run("sd");
   await otafixCheckSd(fw, b);
   UI.ok("sd", "SoftDevice " + b.sd + " pasuje");
@@ -820,12 +898,12 @@ async function otafixPrepare(fw, b) {
 
 async function otafixStart(d, fw, b) {
   if (!$("flOtxOk").checked || busyGuard()) return;
-  if (!confirm("Wgrać bootloader OTAFIX na " + d.name + "?\n\nFirmware zostanie usunięte. Nie odłączaj kabla do końca – przerwanie może trwale zablokować płytkę.")) return;
+  if (!confirm("Wgrać " + (b.label ? b.label : "bootloader OTAFIX") + " na " + d.name + "?\n\nFirmware zostanie usunięte. Nie odłączaj kabla do końca – przerwanie może trwale zablokować płytkę.")) return;
   let port;
   try { port = await SERIAL.requestPort(); }
   catch { setStatus("Nie wybrano portu.", "err"); return; }
   lockUi(true); setProgress(0); setCont(null);
-  UI.begin(OTX_STEPS);
+  UI.begin(OTX_STEPS(b));
   try {
     setStatus("Pobieranie i sprawdzanie bootloadera…");
     await otafixPrepare(fw, b);
@@ -862,7 +940,7 @@ async function otafixPickAndFlash(fw, b) {
 }
 
 async function otafixFlash(port, fw, b, cont = false) {
-  if (!cont) UI.begin(OTX_STEPS.filter(([id]) => id !== "dfu" && id !== "port"));
+  if (!cont) UI.begin(OTX_STEPS(b).filter(([id]) => id !== "dfu" && id !== "port"));
   lockUi(true); setProgress(0);
   let sent = false;
   try {
@@ -875,10 +953,10 @@ async function otafixFlash(port, fw, b, cont = false) {
       onPhase: ph.onPhase, log
     });
     setProgress(100);
-    UI.ok("commit", "OTAFIX wgrany");
+    UI.ok("commit", blName(b) + " wgrany");
     UI.user("next", "kliknij „Wgraj teraz firmware SF6” i wybierz port urządzenia (czeka w trybie DFU bez firmware)");
     setCont(null);
-    setStatus("Bootloader OTAFIX wgrany. Urządzenie czeka teraz w trybie DFU bez firmware – kliknij „Wgraj teraz firmware SF6” i wybierz jego port.", "ok");
+    setStatus((b.label ? b.label[0].toUpperCase() + b.label.slice(1) : "Bootloader OTAFIX") + " wgrany. Urządzenie czeka teraz w trybie DFU bez firmware – kliknij „Wgraj teraz firmware SF6” i wybierz jego port.", "ok");
     log("Bootloader zakończony. Następny krok: firmware SF6.");
   } catch (e) {
     console.error(e);
