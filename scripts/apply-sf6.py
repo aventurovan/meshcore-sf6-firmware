@@ -94,7 +94,7 @@ if pb:
     edit("src/helpers/CommonCLI.h", r"(uint8_t\s+path_hash_mode\s*=\s*)\d+\s*;", rf"\g<1>{mode};", expect=1)
 
 print("Companion: aktualizacja przez Bluetooth (OTA, komenda 0xB0):")
-# Companion nie ma CLI ani „start ota”. Dokładamy komendę 0xB0: [0xB0][0] = informacja, [0xB0][1] = start.
+# CLI companiona (od 1.18) nie ma „start ota”: dokładamy je (i get bootloader.ver) oraz komendę 0xB0: [0xB0][0] = informacja, [0xB0][1] = start.
 # Odpowiedź [0xB0][status][wersja bootloadera]; status 0 = można (OTAFIX), 1 = brak bootloadera nRF52, 2 = bez OTAFIX.
 # Start tylko z OTAFIX: zapis kontaktów i po ~0,6 s restart do bootloadera w trybie aktualizacji Bluetooth („AdaDFU”).
 cf = "examples/companion_radio/MyMesh.cpp"
@@ -126,6 +126,24 @@ void MyMesh::handleCmdFrame(size_t len) {
   }
 """
     edit(cf, r"^void MyMesh::handleCmdFrame\(size_t len\) \{\n", lambda m: OTA_FN, expect=1)
+    CLI_OTA = r"""  // SF6: aktualizacja przez Bluetooth z CLI (aplikacja albo zdalnie od kontaktu z uprawnieniem do CLI)
+  if (strcmp(command, "start ota") == 0 || strcmp(command, "get bootloader.ver") == 0) {
+    char bl[40];
+    uint8_t st = sf6OtaStatus(bl, sizeof(bl));
+    if (command[0] == 'g') { sprintf(reply, "> %s", bl[0] ? bl : "unknown"); return true; }
+#ifdef NRF52_PLATFORM
+    if (st == 0) {
+      if (dirty_contacts_expiry) saveContacts();
+      sf6_ota_at = millis() + 600;
+      strcpy(reply, "OK - restart do aktualizacji przez Bluetooth (AdaDFU)");
+      return true;
+    }
+#endif
+    sprintf(reply, "Err - wymaga bootloadera OTAFIX (%s)", st == 1 ? "brak bootloadera nRF52" : bl);
+    return true;
+  }
+"""
+    edit(cf, r'^(  if \(strcmp\(command, "reboot"\) == 0\) \{\n)', lambda m: CLI_OTA + m.group(1), expect=1)
     edit(cf, r"^(void MyMesh::loop\(\) \{\n  BaseChatMesh::loop\(\);\n)",
          lambda m: m.group(1) + "#ifdef NRF52_PLATFORM\n  if (sf6_ota_at && (long)(millis() - sf6_ota_at) >= 0) { sf6_ota_at = 0; enterOTADfu(); }\n#endif\n", expect=1)
 
