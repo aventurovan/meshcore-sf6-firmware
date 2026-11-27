@@ -93,6 +93,42 @@ if pb:
     if mode not in (0, 1, 2): die("PATH_HASH_BYTES musi być 1, 2 albo 3")
     edit("src/helpers/CommonCLI.h", r"(uint8_t\s+path_hash_mode\s*=\s*)\d+\s*;", rf"\g<1>{mode};", expect=1)
 
+print("Companion: aktualizacja przez Bluetooth (OTA, komenda 0xB0):")
+# Companion nie ma CLI ani „start ota”. Dokładamy komendę 0xB0: [0xB0][0] = informacja, [0xB0][1] = start.
+# Odpowiedź [0xB0][status][wersja bootloadera]; status 0 = można (OTAFIX), 1 = brak bootloadera nRF52, 2 = bez OTAFIX.
+# Start tylko z OTAFIX: zapis kontaktów i po ~0,6 s restart do bootloadera w trybie aktualizacji Bluetooth („AdaDFU”).
+cf = "examples/companion_radio/MyMesh.cpp"
+if os.path.exists(os.path.join(root, cf)):
+    OTA_FN = r"""/* ---- SF6: aktualizacja companiona przez Bluetooth (bootloader OTAFIX) ---- */
+#define SF6_CMD_OTA 0xB0
+static unsigned long sf6_ota_at = 0;
+static uint8_t sf6OtaStatus(char* bl, size_t max_len) {
+  bl[0] = 0;
+  if (!board.getBootloaderVersion(bl, max_len)) { bl[0] = 0; return 1; }
+  return strstr(bl, "OTAFIX") ? 0 : 2;
+}
+
+void MyMesh::handleCmdFrame(size_t len) {
+  if (cmd_frame[0] == SF6_CMD_OTA && len >= 2) {
+    char bl[40];
+    uint8_t st = sf6OtaStatus(bl, sizeof(bl));
+    uint8_t r[2 + sizeof(bl)];
+    size_t n = strlen(bl);
+    r[0] = SF6_CMD_OTA; r[1] = st; memcpy(&r[2], bl, n);
+    _serial->writeFrame(r, 2 + n);
+#ifdef NRF52_PLATFORM
+    if (cmd_frame[1] == 0x01 && st == 0) {
+      if (dirty_contacts_expiry) saveContacts();
+      sf6_ota_at = millis() + 600;
+    }
+#endif
+    return;
+  }
+"""
+    edit(cf, r"^void MyMesh::handleCmdFrame\(size_t len\) \{\n", lambda m: OTA_FN, expect=1)
+    edit(cf, r"^(void MyMesh::loop\(\) \{\n  BaseChatMesh::loop\(\);\n)",
+         lambda m: m.group(1) + "#ifdef NRF52_PLATFORM\n  if (sf6_ota_at && (long)(millis() - sf6_ota_at) >= 0) { sf6_ota_at = 0; enterOTADfu(); }\n#endif\n", expect=1)
+
 print("Poprawki buildu (nie zmieniają działania firmware):")
 # Część wariantów używa EnvironmentSensorManager w target.h, ale niektóre role nie mają
 # jego źródła w build_src_filter -> błąd linkera (np. ThinkNode_M8_repeater w v1.18.0).
