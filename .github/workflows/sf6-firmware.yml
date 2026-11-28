@@ -15,6 +15,9 @@ on:
       test_targets:
         description: "Test: tylko te płytki (np. Heltec_v3_repeater RAK_4631_repeater). Bez wydania i FTP"
         default: ""
+      test_patches:
+        description: "Test: łatki testowe (np. prvkey). Działa tylko razem z test_targets — bez wydania i FTP"
+        default: ""
       reuse_run:
         description: "Tylko publikacja: użyj plików z wcześniejszego uruchomienia (ID runu), bez budowania"
         default: ""
@@ -69,6 +72,8 @@ jobs:
           ref: ${{ matrix.tag }}
           path: mc
       - name: Ustawienia SF6
+        env:
+          SF6_TEST_PATCHES: ${{ inputs.test_targets && inputs.test_patches || '' }}
         run: python3 sf6/scripts/apply-sf6.py sf6/sf6.conf mc
       - uses: actions/cache@v5
         with:

@@ -147,6 +147,15 @@ void MyMesh::handleCmdFrame(size_t len) {
     edit(cf, r"^(void MyMesh::loop\(\) \{\n  BaseChatMesh::loop\(\);\n)",
          lambda m: m.group(1) + "#ifdef NRF52_PLATFORM\n  if (sf6_ota_at && (long)(millis() - sf6_ota_at) >= 0) { sf6_ota_at = 0; enterOTADfu(); }\n#endif\n", expect=1)
 
+# Łatki testowe (SF6_TEST_PATCHES, tylko w buildach testowych — bez wydania i FTP, dopóki nie przejdą testu na sprzęcie)
+TEST_PATCHES = os.environ.get("SF6_TEST_PATCHES", "").split()
+if "prvkey" in TEST_PATCHES:
+    # eksport klucza prywatnego przez zdalne CLI (tylko zalogowany admin; odpowiedź szyfrowana sesją admina) —
+    # oficjalnie „get prv.key” działa tylko z kabla USB. Potrzebne do kopii tożsamości repeatera w MeshSpeed.
+    print("Łatka testowa prvkey: get prv.key także zdalnie (admin)")
+    edit("src/helpers/CommonCLI.cpp", r'\} else if \(sender_timestamp == 0 && memcmp\(config, "prv\.key", 7\) == 0\) \{',
+         '} else if (memcmp(config, "prv.key", 7) == 0) {', expect=1)
+
 print("Poprawki buildu (nie zmieniają działania firmware):")
 # Część wariantów używa EnvironmentSensorManager w target.h, ale niektóre role nie mają
 # jego źródła w build_src_filter -> błąd linkera (np. ThinkNode_M8_repeater w v1.18.0).
